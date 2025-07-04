@@ -216,7 +216,7 @@ window.Quarto = {
   <li><a href="#what-if-i-want-to-use-a-different-model" id="toc-what-if-i-want-to-use-a-different-model" class="nav-link" data-scroll-target="#what-if-i-want-to-use-a-different-model">What if I want to use a different model?</a></li>
   </ul></li>
   </ul>
-<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="index.ipynb" download="index.ipynb"><i class="bi bi-journal-code"></i>Jupyter</a></li><li><a href="index.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="index.ipynb" download="index.ipynb"><i class="bi bi-journal-code"></i>Jupyter</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content page-columns page-full" id="quarto-document-content">
@@ -2059,7 +2059,7 @@ Figure&nbsp;1: This figures show the separability of the presences and pseudo-ab
 <div id="104" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb82"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="pp">@time</span> <span class="fu">variables!</span>(dt_sdm, ForwardSelection, <span class="fu">kfold</span>(dt_sdm, k<span class="op">=</span><span class="fl">2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>  2.563037 seconds (18.40 M allocations: 2.197 GiB, 5.64% gc time)</code></pre>
+<pre><code>  2.621942 seconds (18.40 M allocations: 2.197 GiB, 6.21% gc time)</code></pre>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>SDeMo.ZScore → SDeMo.DecisionTree → P(x) ≥ 0.586</code></pre>
@@ -2110,7 +2110,7 @@ Figure&nbsp;1: This figures show the separability of the presences and pseudo-ab
 <div class="sourceCode cell-code" id="cb92"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a><span class="co">#variables!(rf_sdm, AllVariables)</span></span>
 <span id="cb92-2"><a href="#cb92-2" aria-hidden="true" tabindex="-1"></a><span class="pp">@time</span> <span class="fu">variables!</span>(rf_sdm, ForwardSelection, <span class="fu">kfold</span>(rf_sdm, k<span class="op">=</span><span class="fl">2</span>); bagfeatures <span class="op">=</span> <span class="cn">true</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code> 48.691579 seconds (512.97 M allocations: 58.910 GiB, 13.56% gc time)</code></pre>
+<pre><code> 50.623661 seconds (512.97 M allocations: 58.921 GiB, 14.61% gc time)</code></pre>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>{SDeMo.PCATransform → SDeMo.DecisionTree → P(x) ≥ 0.303} × 30</code></pre>

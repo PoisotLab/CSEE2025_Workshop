@@ -4,21 +4,35 @@
     "href": "setup.html",
     "title": "Setup and Prerequesites",
     "section": "",
-    "text": "Here’s a list of instructions to setup your computer for the workshop."
+    "text": "Here’s a list of instructions to setup your computer for the workshop.\nFirst, open a terminal."
   },
   {
     "objectID": "setup.html#installing-julia",
     "href": "setup.html#installing-julia",
     "title": "Setup and Prerequesites",
     "section": "Installing Julia",
-    "text": "Installing Julia\n#| eval: false\ncurl -fsSL https://install.julialang.org | sh"
+    "text": "Installing Julia\nCopy and paste the following command to install Julia, and the Julia version manager juliaup.\n#| eval: false\ncurl -fsSL https://install.julialang.org | sh"
   },
   {
     "objectID": "setup.html#installing-packages",
     "href": "setup.html#installing-packages",
     "title": "Setup and Prerequesites",
     "section": "Installing Packages",
-    "text": "Installing Packages\n\nusing Pkg\nPkg.add([\n    \"SpeciesDistributionToolkit\",\n    \"CairoMakie\",\n    \"Dates\",\n    \"PrettyTables\",\n    \"DataFrames\",\n])\n\n\nusing Pkg\nPkg.add([\n    \"SpeciesDistributionToolkit\",\n    \"CairoMakie\",\n    \"Dates\",\n    \"PrettyTables\",\n    \"DataFrames\",\n])"
+    "text": "Installing Packages\nNext, from a terminal, start Julia by typing julia and pressing enter. Then, run the following lines.\n\nusing Pkg\nPkg.add([\n    \"SpeciesDistributionToolkit\",\n    \"CairoMakie\",\n    \"Dates\",\n    \"PrettyTables\",\n    \"DataFrames\",\n    \"IJulia\"\n])\n\nThen, copy and paste the following layer to download the environmental predictors ahead of time (to avoid everyone attempting to download them at once on hotel Wi-Fi). This may take several minutes, depending on your internet connection.\n\nusing SpeciesDistributionToolkit\nusing IJulia\n\ninstallkernel(\"julia\")\n\n[\n    SDMLayer(RasterData(CHELSA2, BioClim), layer=\"BIO$i\", left=40, right=43, bottom=30, top=35)\n    for i in 1:19\n]"
+  },
+  {
+    "objectID": "setup.html#installing-vscode",
+    "href": "setup.html#installing-vscode",
+    "title": "Setup and Prerequesites",
+    "section": "Installing VSCode",
+    "text": "Installing VSCode\nInstall VSCode from here."
+  },
+  {
+    "objectID": "setup.html#installing-quarto",
+    "href": "setup.html#installing-quarto",
+    "title": "Setup and Prerequesites",
+    "section": "Installing Quarto",
+    "text": "Installing Quarto\nFinally, install Quarto from here."
   },
   {
     "objectID": "index.html",
@@ -95,14 +109,14 @@
     "href": "index.html#fitting-a-decision-tree",
     "title": "Interpretable machine learning for species distribution modeling",
     "section": "Fitting a Decision Tree",
-    "text": "Fitting a Decision Tree\n\ndt_sdm = SDM(ZScore, DecisionTree, env_covariates, presencelayer, pseudoabsences)\n\nSDeMo.ZScore → SDeMo.DecisionTree → P(x) ≥ 0.5\n\n\n\n@time variables!(dt_sdm, ForwardSelection, kfold(dt_sdm, k=2))\n\n  2.563037 seconds (18.40 M allocations: 2.197 GiB, 5.64% gc time)\n\n\nSDeMo.ZScore → SDeMo.DecisionTree → P(x) ≥ 0.586\n\n\n\nprd = predict(dt_sdm, env_covariates; threshold = false)\n\n🗺️  A 240 × 546 layer with 70065 Float64 cells\n   Projection: +proj=longlat +datum=WGS84 +no_defs\n\n\n\nf = Figure(; size = (600, 300))\nax = Axis(f[1, 1]; aspect = DataAspect(), title = \"Prediction (decision tree)\")\nhm = heatmap!(ax, prd; colormap = :linear_worb_100_25_c53_n256, colorrange = (0, 1))\nColorbar(f[1, 2], hm)\nlines!(ax, switzerland; color = :black)\nhidedecorations!(ax)\nhidespines!(ax)\nf\n\n\n\n\n\n\n\n\nTK compare DT to Naive Bayes"
+    "text": "Fitting a Decision Tree\n\ndt_sdm = SDM(ZScore, DecisionTree, env_covariates, presencelayer, pseudoabsences)\n\nSDeMo.ZScore → SDeMo.DecisionTree → P(x) ≥ 0.5\n\n\n\n@time variables!(dt_sdm, ForwardSelection, kfold(dt_sdm, k=2))\n\n  2.621942 seconds (18.40 M allocations: 2.197 GiB, 6.21% gc time)\n\n\nSDeMo.ZScore → SDeMo.DecisionTree → P(x) ≥ 0.586\n\n\n\nprd = predict(dt_sdm, env_covariates; threshold = false)\n\n🗺️  A 240 × 546 layer with 70065 Float64 cells\n   Projection: +proj=longlat +datum=WGS84 +no_defs\n\n\n\nf = Figure(; size = (600, 300))\nax = Axis(f[1, 1]; aspect = DataAspect(), title = \"Prediction (decision tree)\")\nhm = heatmap!(ax, prd; colormap = :linear_worb_100_25_c53_n256, colorrange = (0, 1))\nColorbar(f[1, 2], hm)\nlines!(ax, switzerland; color = :black)\nhidedecorations!(ax)\nhidespines!(ax)\nf\n\n\n\n\n\n\n\n\nTK compare DT to Naive Bayes"
   },
   {
     "objectID": "index.html#making-a-random-forest",
     "href": "index.html#making-a-random-forest",
     "title": "Interpretable machine learning for species distribution modeling",
     "section": "Making a random forest",
-    "text": "Making a random forest\n\nsingle_dt_sdm = SDM(PCATransform, DecisionTree, env_covariates, presencelayer, pseudoabsences)\nrf_sdm = Bagging(single_dt_sdm, 30)\n\n{SDeMo.PCATransform → SDeMo.DecisionTree → P(x) ≥ 0.5} × 30\n\n\n\nbagfeatures!(rf_sdm)\n\n{SDeMo.PCATransform → SDeMo.DecisionTree → P(x) ≥ 0.5} × 30\n\n\n\n#variables!(rf_sdm, AllVariables)\n@time variables!(rf_sdm, ForwardSelection, kfold(rf_sdm, k=2); bagfeatures = true)\n\n 48.691579 seconds (512.97 M allocations: 58.910 GiB, 13.56% gc time)\n\n\n{SDeMo.PCATransform → SDeMo.DecisionTree → P(x) ≥ 0.303} × 30\n\n\n\ntrain!(rf_sdm)\n\n{SDeMo.PCATransform → SDeMo.DecisionTree → P(x) ≥ 0.303} × 30\n\n\n\nprd = predict(rf_sdm, env_covariates; threshold = false)\n\n🗺️  A 240 × 546 layer with 70065 Float64 cells\n   Projection: +proj=longlat +datum=WGS84 +no_defs\n\n\n\nunc = predict(rf_sdm, env_covariates; consensus = iqr, threshold = false)\n\n🗺️  A 240 × 546 layer with 70065 Float64 cells\n   Projection: +proj=longlat +datum=WGS84 +no_defs\n\n\n\nf = Figure(; size = (600, 600))\nax = Axis(f[1, 1]; aspect = DataAspect(), title = \"Prediction\")\nhm = heatmap!(ax, prd; colormap = :linear_worb_100_25_c53_n256, colorrange = (0, 1))\nColorbar(f[1, 2], hm)\nlines!(ax, switzerland; color = :black)\nhidedecorations!(ax)\nhidespines!(ax)\nax2 = Axis(f[2, 1]; aspect = DataAspect(), title = \"Uncertainty\")\nhm =\n    heatmap!(ax2, quantize(unc); colormap = :linear_gow_60_85_c27_n256, colorrange = (0, 1))\nColorbar(f[2, 2], hm)\nlines!(ax2, switzerland; color = :black)\nhidedecorations!(ax2)\nhidespines!(ax2)\nf"
+    "text": "Making a random forest\n\nsingle_dt_sdm = SDM(PCATransform, DecisionTree, env_covariates, presencelayer, pseudoabsences)\nrf_sdm = Bagging(single_dt_sdm, 30)\n\n{SDeMo.PCATransform → SDeMo.DecisionTree → P(x) ≥ 0.5} × 30\n\n\n\nbagfeatures!(rf_sdm)\n\n{SDeMo.PCATransform → SDeMo.DecisionTree → P(x) ≥ 0.5} × 30\n\n\n\n#variables!(rf_sdm, AllVariables)\n@time variables!(rf_sdm, ForwardSelection, kfold(rf_sdm, k=2); bagfeatures = true)\n\n 50.623661 seconds (512.97 M allocations: 58.921 GiB, 14.61% gc time)\n\n\n{SDeMo.PCATransform → SDeMo.DecisionTree → P(x) ≥ 0.303} × 30\n\n\n\ntrain!(rf_sdm)\n\n{SDeMo.PCATransform → SDeMo.DecisionTree → P(x) ≥ 0.303} × 30\n\n\n\nprd = predict(rf_sdm, env_covariates; threshold = false)\n\n🗺️  A 240 × 546 layer with 70065 Float64 cells\n   Projection: +proj=longlat +datum=WGS84 +no_defs\n\n\n\nunc = predict(rf_sdm, env_covariates; consensus = iqr, threshold = false)\n\n🗺️  A 240 × 546 layer with 70065 Float64 cells\n   Projection: +proj=longlat +datum=WGS84 +no_defs\n\n\n\nf = Figure(; size = (600, 600))\nax = Axis(f[1, 1]; aspect = DataAspect(), title = \"Prediction\")\nhm = heatmap!(ax, prd; colormap = :linear_worb_100_25_c53_n256, colorrange = (0, 1))\nColorbar(f[1, 2], hm)\nlines!(ax, switzerland; color = :black)\nhidedecorations!(ax)\nhidespines!(ax)\nax2 = Axis(f[2, 1]; aspect = DataAspect(), title = \"Uncertainty\")\nhm =\n    heatmap!(ax2, quantize(unc); colormap = :linear_gow_60_85_c27_n256, colorrange = (0, 1))\nColorbar(f[2, 2], hm)\nlines!(ax2, switzerland; color = :black)\nhidedecorations!(ax2)\nhidespines!(ax2)\nf"
   },
   {
     "objectID": "index.html#boosting-to-create-a-brt",
