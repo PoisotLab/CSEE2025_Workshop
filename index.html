@@ -178,8 +178,7 @@ window.Quarto = {
     <h2 id="toc-title">Table of Contents</h2>
    
   <ul>
-  <li><a href="#todo-list" id="toc-todo-list" class="nav-link active" data-scroll-target="#todo-list"><strong>TODO LIST</strong></a></li>
-  <li><a href="#setup-packages" id="toc-setup-packages" class="nav-link" data-scroll-target="#setup-packages">Setup Packages</a></li>
+  <li><a href="#setup-packages" id="toc-setup-packages" class="nav-link active" data-scroll-target="#setup-packages">Setup Packages</a></li>
   <li><a href="#getting-started" id="toc-getting-started" class="nav-link" data-scroll-target="#getting-started">Getting Started</a>
   <ul class="collapse">
   <li><a href="#downloading-polygon-data" id="toc-downloading-polygon-data" class="nav-link" data-scroll-target="#downloading-polygon-data">Downloading Polygon Data</a></li>
@@ -195,25 +194,22 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#sampling-pseudo-absences" id="toc-sampling-pseudo-absences" class="nav-link" data-scroll-target="#sampling-pseudo-absences">Sampling Pseudo-Absences</a></li>
   <li><a href="#training-a-simple-sdm" id="toc-training-a-simple-sdm" class="nav-link" data-scroll-target="#training-a-simple-sdm">Training a Simple SDM</a></li>
-  <li><a href="#computing-roc-auc-and-pr-auc" id="toc-computing-roc-auc-and-pr-auc" class="nav-link" data-scroll-target="#computing-roc-auc-and-pr-auc">Computing ROC-AUC and PR-AUC</a></li>
-  <li><a href="#simple-explanations-partial-response" id="toc-simple-explanations-partial-response" class="nav-link" data-scroll-target="#simple-explanations-partial-response">Simple Explanations: Partial Response</a></li>
-  </ul></li>
-  <li><a href="#a-more-complex-sdm-boosted-regression-trees-from-scratch-ish" id="toc-a-more-complex-sdm-boosted-regression-trees-from-scratch-ish" class="nav-link" data-scroll-target="#a-more-complex-sdm-boosted-regression-trees-from-scratch-ish">A more complex SDM – Boosted Regression Trees from scratch(-ish)</a>
+  <li><a href="#validating-an-sdm" id="toc-validating-an-sdm" class="nav-link" data-scroll-target="#validating-an-sdm">Validating an SDM</a>
   <ul class="collapse">
-  <li><a href="#fitting-a-decision-tree" id="toc-fitting-a-decision-tree" class="nav-link" data-scroll-target="#fitting-a-decision-tree">Fitting a Decision Tree</a></li>
-  <li><a href="#making-a-random-forest" id="toc-making-a-random-forest" class="nav-link" data-scroll-target="#making-a-random-forest">Making a random forest</a></li>
-  <li><a href="#boosting-to-create-a-brt" id="toc-boosting-to-create-a-brt" class="nav-link" data-scroll-target="#boosting-to-create-a-brt">Boosting to create a BRT</a></li>
+  <li><a href="#computing-roc-auc-and-pr-auc" id="toc-computing-roc-auc-and-pr-auc" class="nav-link" data-scroll-target="#computing-roc-auc-and-pr-auc">Computing ROC-AUC and PR-AUC</a></li>
   </ul></li>
-  <li><a href="#explaining-an-brts-predictions" id="toc-explaining-an-brts-predictions" class="nav-link" data-scroll-target="#explaining-an-brts-predictions">Explaining an BRT’s predictions</a>
+  </ul></li>
+  <li><a href="#a-decision-tree-sdm" id="toc-a-decision-tree-sdm" class="nav-link" data-scroll-target="#a-decision-tree-sdm">A Decision-Tree SDM</a>
   <ul class="collapse">
   <li><a href="#partial-responses" id="toc-partial-responses" class="nav-link" data-scroll-target="#partial-responses">Partial Responses</a></li>
   <li><a href="#shap-values" id="toc-shap-values" class="nav-link" data-scroll-target="#shap-values">SHAP Values</a></li>
+  <li><a href="#spatial-most-important-variable-shap" id="toc-spatial-most-important-variable-shap" class="nav-link" data-scroll-target="#spatial-most-important-variable-shap">Spatial Most Important Variable (SHAP)</a></li>
   <li><a href="#conformal-prediction" id="toc-conformal-prediction" class="nav-link" data-scroll-target="#conformal-prediction">Conformal Prediction</a></li>
-  <li><a href="#counterfactuals" id="toc-counterfactuals" class="nav-link" data-scroll-target="#counterfactuals">Counterfactuals</a></li>
   </ul></li>
-  <li><a href="#appendix" id="toc-appendix" class="nav-link" data-scroll-target="#appendix">Appendix</a>
+  <li><a href="#a-more-complex-sdm-boosted-regression-trees-from-scratch-ish" id="toc-a-more-complex-sdm-boosted-regression-trees-from-scratch-ish" class="nav-link" data-scroll-target="#a-more-complex-sdm-boosted-regression-trees-from-scratch-ish">A more complex SDM – Boosted Regression Trees from scratch(-ish)</a>
   <ul class="collapse">
-  <li><a href="#what-if-i-want-to-use-a-different-model" id="toc-what-if-i-want-to-use-a-different-model" class="nav-link" data-scroll-target="#what-if-i-want-to-use-a-different-model">What if I want to use a different model?</a></li>
+  <li><a href="#making-a-random-forest-with-bootstrap-aggegration" id="toc-making-a-random-forest-with-bootstrap-aggegration" class="nav-link" data-scroll-target="#making-a-random-forest-with-bootstrap-aggegration">Making a random forest with Bootstrap Aggegration</a></li>
+  <li><a href="#boosting-to-create-a-brt" id="toc-boosting-to-create-a-brt" class="nav-link" data-scroll-target="#boosting-to-create-a-brt">Boosting to create a BRT</a></li>
   </ul></li>
   </ul>
 <div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="index.ipynb" download="index.ipynb"><i class="bi bi-journal-code"></i>Jupyter</a></li></ul></div></nav>
@@ -256,15 +252,6 @@ window.Quarto = {
 </header>
 
 
-<section id="todo-list" class="level1">
-<h1><strong>TODO LIST</strong></h1>
-<ul>
-<li>Decide on species to align with abstract</li>
-<li>Boosting merged and utilized</li>
-<li>RF w/ thresholding gives map w/ 0s, 1s, and a small number of 0.5s</li>
-<li><code>mask(presences, poly)</code> requires rewrapping it in an Occurrence object. See no downside in always doing this by default?</li>
-</ul>
-</section>
 <section id="setup-packages" class="level1">
 <h1>Setup Packages</h1>
 <div id="2" class="cell" data-execution_count="1">
@@ -1755,25 +1742,38 @@ precip = 0.1precip</code></pre>
    Projection: +proj=longlat +datum=WGS84 +no_defs</code></pre>
 </div>
 </div>
-<p>Finally, we’ll sample pseudoabsences using the <code>backgroundpoints</code> method. We’ll choose to sample twice as many pseudoabsences as there are presences. In real workflows, it’ important to determine the sensitivity of a model to the number of pseudoabsences, but given this tutorial is focused on interpretable machine learning, we’ll stick with number of pseudoabsences for each example.</p>
+<p>and we’ll visualize it to show the added buffer</p>
 <div id="76" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>num_pseudoabsences <span class="op">=</span> <span class="fl">2</span><span class="fu">sum</span>(presencelayer)</span>
-<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a>pseudoabsences <span class="op">=</span> <span class="fu">backgroundpoints</span>(buffered_background, num_pseudoabsences)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="fu">heatmap</span>(buffered_background)</span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a><span class="fu">scatter!</span>(presences, markersize<span class="op">=</span><span class="fl">4</span>, color<span class="op">=</span>colorant<span class="st">"#e79154"</span>)</span>
+<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a><span class="fu">current_figure</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-39-output-1.svg" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Finally, we’ll sample pseudoabsences using the <code>backgroundpoints</code> method. We’ll choose to sample twice as many pseudoabsences as there are presences. In real workflows, it’s important to determine the sensitivity of a model to the number of pseudoabsences, but given this tutorial is focused on interpretable machine learning, we’ll stick with number of pseudoabsences for each example.</p>
+<div id="78" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>num_pseudoabsences <span class="op">=</span> <span class="fl">2</span><span class="fu">sum</span>(presencelayer)</span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>pseudoabsences <span class="op">=</span> <span class="fu">backgroundpoints</span>(buffered_background, num_pseudoabsences)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>🗺️  A 240 × 546 layer with 45448 Bool cells
    Projection: +proj=longlat +datum=WGS84 +no_defs</code></pre>
 </div>
 </div>
 <p>Finally, we can visualize the pseudoabsences using <code>scatter!</code>, just as we would for presences. Below, presences are in orange, and pseudoabsences are in grey.</p>
-<div id="78" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(switzerland, color<span class="op">=:</span>black)</span>
-<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a><span class="fu">scatter!</span>(presencelayer, color<span class="op">=</span>colorant<span class="st">"#e79154"</span>)</span>
-<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a><span class="fu">scatter!</span>(pseudoabsences, color<span class="op">=</span>colorant<span class="st">"#bbb"</span>, markersize<span class="op">=</span><span class="fl">5</span>)</span>
-<span id="cb63-4"><a href="#cb63-4" aria-hidden="true" tabindex="-1"></a><span class="fu">current_figure</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="80" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(switzerland, color<span class="op">=:</span>black)</span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a><span class="fu">scatter!</span>(presencelayer, color<span class="op">=</span>colorant<span class="st">"#e79154"</span>, markersize<span class="op">=</span><span class="fl">7</span>)</span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a><span class="fu">scatter!</span>(pseudoabsences, color<span class="op">=</span>colorant<span class="st">"#bbb"</span>, markersize<span class="op">=</span><span class="fl">5</span>)</span>
+<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a><span class="fu">current_figure</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/cell-40-output-1.svg" class="img-fluid figure-img"></p>
+<p><img src="index_files/figure-html/cell-41-output-1.svg" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
@@ -1792,72 +1792,67 @@ Code for plotting density in environmental space
 </div>
 <div id="callout-5" class="callout-5-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="cell-fig-classification-separability" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>abcol <span class="op">=</span> colorant<span class="st">"#bbb"</span></span>
-<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>prcol <span class="op">=</span> colorant<span class="st">"#e79154"</span></span>
-<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a>_range <span class="op">=</span> (</span>
-<span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a>    absent <span class="op">=</span> abcol,</span>
-<span id="cb64-6"><a href="#cb64-6" aria-hidden="true" tabindex="-1"></a>    present <span class="op">=</span> prcol,</span>
-<span id="cb64-7"><a href="#cb64-7" aria-hidden="true" tabindex="-1"></a>    absentbg <span class="op">=</span> (abcol, <span class="fl">0.2</span>),</span>
-<span id="cb64-8"><a href="#cb64-8" aria-hidden="true" tabindex="-1"></a>    presentbg <span class="op">=</span> (prcol, <span class="fl">0.2</span>),</span>
-<span id="cb64-9"><a href="#cb64-9" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb64-10"><a href="#cb64-10" aria-hidden="true" tabindex="-1"></a>bkcol <span class="op">=</span> (</span>
-<span id="cb64-11"><a href="#cb64-11" aria-hidden="true" tabindex="-1"></a>    nodata <span class="op">=</span> colorant<span class="st">"#DDDDDD"</span>,</span>
-<span id="cb64-12"><a href="#cb64-12" aria-hidden="true" tabindex="-1"></a>    generic <span class="op">=</span> colorant<span class="st">"#222222"</span>,</span>
-<span id="cb64-13"><a href="#cb64-13" aria-hidden="true" tabindex="-1"></a>    sdm <span class="op">=</span> _range,</span>
-<span id="cb64-14"><a href="#cb64-14" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb64-15"><a href="#cb64-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb64-16"><a href="#cb64-16" aria-hidden="true" tabindex="-1"></a>temp_idx, precip_idx <span class="op">=</span> <span class="fl">1</span>, <span class="fl">12</span></span>
-<span id="cb64-17"><a href="#cb64-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb64-18"><a href="#cb64-18" aria-hidden="true" tabindex="-1"></a>tmp, precip <span class="op">=</span> <span class="fl">0.1</span>env_covariates[temp_idx] <span class="op">-</span> <span class="fl">273.15</span>, <span class="fl">0.1</span>env_covariates[precip_idx]</span>
-<span id="cb64-19"><a href="#cb64-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb64-20"><a href="#cb64-20" aria-hidden="true" tabindex="-1"></a>temp_pres <span class="op">=</span> tmp.grid[presencelayer.grid]</span>
-<span id="cb64-21"><a href="#cb64-21" aria-hidden="true" tabindex="-1"></a>temp_abs <span class="op">=</span> tmp.grid[pseudoabsences.grid]</span>
-<span id="cb64-22"><a href="#cb64-22" aria-hidden="true" tabindex="-1"></a> </span>
-<span id="cb64-23"><a href="#cb64-23" aria-hidden="true" tabindex="-1"></a>precip_pres <span class="op">=</span> precip.grid[presencelayer.grid]</span>
-<span id="cb64-24"><a href="#cb64-24" aria-hidden="true" tabindex="-1"></a>precip_abs <span class="op">=</span> precip.grid[pseudoabsences.grid]</span>
-<span id="cb64-25"><a href="#cb64-25" aria-hidden="true" tabindex="-1"></a> </span>
-<span id="cb64-26"><a href="#cb64-26" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="fu">Figure</span>()</span>
-<span id="cb64-27"><a href="#cb64-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb64-28"><a href="#cb64-28" aria-hidden="true" tabindex="-1"></a>gl <span class="op">=</span> f[<span class="fl">1</span>,<span class="fl">1</span>] <span class="op">=</span> <span class="fu">GridLayout</span>()</span>
-<span id="cb64-29"><a href="#cb64-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb64-30"><a href="#cb64-30" aria-hidden="true" tabindex="-1"></a>axtemp <span class="op">=</span> <span class="fu">Axis</span>(gl[<span class="fl">1</span>,<span class="fl">1</span>])</span>
-<span id="cb64-31"><a href="#cb64-31" aria-hidden="true" tabindex="-1"></a><span class="fu">density!</span>(axtemp, temp_pres, color<span class="op">=</span>bkcol.sdm.presentbg, strokecolor<span class="op">=</span>bkcol.sdm.present, strokewidth<span class="op">=</span><span class="fl">1</span>)</span>
-<span id="cb64-32"><a href="#cb64-32" aria-hidden="true" tabindex="-1"></a><span class="fu">density!</span>(axtemp, temp_abs, color<span class="op">=</span>bkcol.sdm.absentbg, strokecolor<span class="op">=</span>bkcol.sdm.absent, strokewidth<span class="op">=</span><span class="fl">1</span>)</span>
-<span id="cb64-33"><a href="#cb64-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb64-34"><a href="#cb64-34" aria-hidden="true" tabindex="-1"></a>axprec <span class="op">=</span> <span class="fu">Axis</span>(gl[<span class="fl">2</span>,<span class="fl">2</span>])</span>
-<span id="cb64-35"><a href="#cb64-35" aria-hidden="true" tabindex="-1"></a><span class="fu">density!</span>(axprec, precip_pres, color<span class="op">=</span>bkcol.sdm.presentbg, strokecolor<span class="op">=</span>bkcol.sdm.present, strokewidth<span class="op">=</span><span class="fl">1</span>, direction<span class="op">=:</span>y)</span>
-<span id="cb64-36"><a href="#cb64-36" aria-hidden="true" tabindex="-1"></a><span class="fu">density!</span>(axprec, precip_abs, color<span class="op">=</span>bkcol.sdm.absentbg, strokecolor<span class="op">=</span>bkcol.sdm.absent, strokewidth<span class="op">=</span><span class="fl">1</span>, direction<span class="op">=:</span>y)</span>
-<span id="cb64-37"><a href="#cb64-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb64-38"><a href="#cb64-38" aria-hidden="true" tabindex="-1"></a>axboth <span class="op">=</span> <span class="fu">Axis</span>(gl[<span class="fl">2</span>,<span class="fl">1</span>], xlabel<span class="op">=</span><span class="st">"Mean air temperature (°C)"</span>, ylabel <span class="op">=</span> <span class="st">"Annual precipitation (kg m⁻²)"</span>)</span>
-<span id="cb64-39"><a href="#cb64-39" aria-hidden="true" tabindex="-1"></a><span class="fu">scatter!</span>(axboth, temp_abs, precip_abs, color<span class="op">=</span>bkcol.sdm.absent, markersize<span class="op">=</span><span class="fl">4</span>, label<span class="op">=</span><span class="st">"Pseudo-absence"</span>)</span>
-<span id="cb64-40"><a href="#cb64-40" aria-hidden="true" tabindex="-1"></a><span class="fu">scatter!</span>(axboth, temp_pres, precip_pres, color<span class="op">=</span>bkcol.sdm.present, markersize<span class="op">=</span><span class="fl">4</span>, label<span class="op">=</span><span class="st">"Presence"</span>)</span>
-<span id="cb64-41"><a href="#cb64-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb64-42"><a href="#cb64-42" aria-hidden="true" tabindex="-1"></a><span class="fu">axislegend</span>(position <span class="op">=</span> <span class="op">:</span>lb)</span>
-<span id="cb64-43"><a href="#cb64-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb64-44"><a href="#cb64-44" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(axtemp, <span class="op">:</span>l, <span class="op">:</span>r, <span class="op">:</span>t)</span>
-<span id="cb64-45"><a href="#cb64-45" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(axprec, <span class="op">:</span>b, <span class="op">:</span>r, <span class="op">:</span>t)</span>
-<span id="cb64-46"><a href="#cb64-46" aria-hidden="true" tabindex="-1"></a><span class="fu">hidedecorations!</span>(axtemp, grid <span class="op">=</span> <span class="cn">true</span>)</span>
-<span id="cb64-47"><a href="#cb64-47" aria-hidden="true" tabindex="-1"></a><span class="fu">hidedecorations!</span>(axprec, grid <span class="op">=</span> <span class="cn">true</span>)</span>
-<span id="cb64-48"><a href="#cb64-48" aria-hidden="true" tabindex="-1"></a><span class="fu">ylims!</span>(axtemp, low <span class="op">=</span> <span class="fl">0</span>)</span>
-<span id="cb64-49"><a href="#cb64-49" aria-hidden="true" tabindex="-1"></a><span class="fu">xlims!</span>(axprec, low <span class="op">=</span> <span class="fl">0</span>)</span>
-<span id="cb64-50"><a href="#cb64-50" aria-hidden="true" tabindex="-1"></a><span class="fu">colgap!</span>(gl, <span class="fl">0</span>)</span>
-<span id="cb64-51"><a href="#cb64-51" aria-hidden="true" tabindex="-1"></a><span class="fu">rowgap!</span>(gl, <span class="fl">0</span>)</span>
-<span id="cb64-52"><a href="#cb64-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb64-53"><a href="#cb64-53" aria-hidden="true" tabindex="-1"></a><span class="fu">colsize!</span>(gl, <span class="fl">1</span>, <span class="fu">Relative</span>(<span class="fl">5</span><span class="op">/</span><span class="fl">6</span>))</span>
-<span id="cb64-54"><a href="#cb64-54" aria-hidden="true" tabindex="-1"></a><span class="fu">rowsize!</span>(gl, <span class="fl">2</span>, <span class="fu">Relative</span>(<span class="fl">5</span><span class="op">/</span><span class="fl">6</span>))</span>
-<span id="cb64-55"><a href="#cb64-55" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb64-56"><a href="#cb64-56" aria-hidden="true" tabindex="-1"></a><span class="fu">current_figure</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="82" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>abcol <span class="op">=</span> colorant<span class="st">"#bbb"</span></span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>prcol <span class="op">=</span> colorant<span class="st">"#e79154"</span></span>
+<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-4"><a href="#cb65-4" aria-hidden="true" tabindex="-1"></a>_range <span class="op">=</span> (</span>
+<span id="cb65-5"><a href="#cb65-5" aria-hidden="true" tabindex="-1"></a>    absent <span class="op">=</span> abcol,</span>
+<span id="cb65-6"><a href="#cb65-6" aria-hidden="true" tabindex="-1"></a>    present <span class="op">=</span> prcol,</span>
+<span id="cb65-7"><a href="#cb65-7" aria-hidden="true" tabindex="-1"></a>    absentbg <span class="op">=</span> (abcol, <span class="fl">0.2</span>),</span>
+<span id="cb65-8"><a href="#cb65-8" aria-hidden="true" tabindex="-1"></a>    presentbg <span class="op">=</span> (prcol, <span class="fl">0.2</span>),</span>
+<span id="cb65-9"><a href="#cb65-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb65-10"><a href="#cb65-10" aria-hidden="true" tabindex="-1"></a>bkcol <span class="op">=</span> (</span>
+<span id="cb65-11"><a href="#cb65-11" aria-hidden="true" tabindex="-1"></a>    nodata <span class="op">=</span> colorant<span class="st">"#DDDDDD"</span>,</span>
+<span id="cb65-12"><a href="#cb65-12" aria-hidden="true" tabindex="-1"></a>    generic <span class="op">=</span> colorant<span class="st">"#222222"</span>,</span>
+<span id="cb65-13"><a href="#cb65-13" aria-hidden="true" tabindex="-1"></a>    sdm <span class="op">=</span> _range,</span>
+<span id="cb65-14"><a href="#cb65-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb65-15"><a href="#cb65-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-16"><a href="#cb65-16" aria-hidden="true" tabindex="-1"></a>temp_idx, precip_idx <span class="op">=</span> <span class="fl">1</span>, <span class="fl">12</span></span>
+<span id="cb65-17"><a href="#cb65-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-18"><a href="#cb65-18" aria-hidden="true" tabindex="-1"></a>tmp, precip <span class="op">=</span> <span class="fl">0.1</span>env_covariates[temp_idx] <span class="op">-</span> <span class="fl">273.15</span>, <span class="fl">0.1</span>env_covariates[precip_idx]</span>
+<span id="cb65-19"><a href="#cb65-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-20"><a href="#cb65-20" aria-hidden="true" tabindex="-1"></a>temp_pres <span class="op">=</span> tmp.grid[presencelayer.grid]</span>
+<span id="cb65-21"><a href="#cb65-21" aria-hidden="true" tabindex="-1"></a>temp_abs <span class="op">=</span> tmp.grid[pseudoabsences.grid]</span>
+<span id="cb65-22"><a href="#cb65-22" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb65-23"><a href="#cb65-23" aria-hidden="true" tabindex="-1"></a>precip_pres <span class="op">=</span> precip.grid[presencelayer.grid]</span>
+<span id="cb65-24"><a href="#cb65-24" aria-hidden="true" tabindex="-1"></a>precip_abs <span class="op">=</span> precip.grid[pseudoabsences.grid]</span>
+<span id="cb65-25"><a href="#cb65-25" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb65-26"><a href="#cb65-26" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="fu">Figure</span>()</span>
+<span id="cb65-27"><a href="#cb65-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-28"><a href="#cb65-28" aria-hidden="true" tabindex="-1"></a>gl <span class="op">=</span> f[<span class="fl">1</span>,<span class="fl">1</span>] <span class="op">=</span> <span class="fu">GridLayout</span>()</span>
+<span id="cb65-29"><a href="#cb65-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-30"><a href="#cb65-30" aria-hidden="true" tabindex="-1"></a>axtemp <span class="op">=</span> <span class="fu">Axis</span>(gl[<span class="fl">1</span>,<span class="fl">1</span>])</span>
+<span id="cb65-31"><a href="#cb65-31" aria-hidden="true" tabindex="-1"></a><span class="fu">density!</span>(axtemp, temp_pres, color<span class="op">=</span>bkcol.sdm.presentbg, strokecolor<span class="op">=</span>bkcol.sdm.present, strokewidth<span class="op">=</span><span class="fl">1</span>)</span>
+<span id="cb65-32"><a href="#cb65-32" aria-hidden="true" tabindex="-1"></a><span class="fu">density!</span>(axtemp, temp_abs, color<span class="op">=</span>bkcol.sdm.absentbg, strokecolor<span class="op">=</span>bkcol.sdm.absent, strokewidth<span class="op">=</span><span class="fl">1</span>)</span>
+<span id="cb65-33"><a href="#cb65-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-34"><a href="#cb65-34" aria-hidden="true" tabindex="-1"></a>axprec <span class="op">=</span> <span class="fu">Axis</span>(gl[<span class="fl">2</span>,<span class="fl">2</span>])</span>
+<span id="cb65-35"><a href="#cb65-35" aria-hidden="true" tabindex="-1"></a><span class="fu">density!</span>(axprec, precip_pres, color<span class="op">=</span>bkcol.sdm.presentbg, strokecolor<span class="op">=</span>bkcol.sdm.present, strokewidth<span class="op">=</span><span class="fl">1</span>, direction<span class="op">=:</span>y)</span>
+<span id="cb65-36"><a href="#cb65-36" aria-hidden="true" tabindex="-1"></a><span class="fu">density!</span>(axprec, precip_abs, color<span class="op">=</span>bkcol.sdm.absentbg, strokecolor<span class="op">=</span>bkcol.sdm.absent, strokewidth<span class="op">=</span><span class="fl">1</span>, direction<span class="op">=:</span>y)</span>
+<span id="cb65-37"><a href="#cb65-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-38"><a href="#cb65-38" aria-hidden="true" tabindex="-1"></a>axboth <span class="op">=</span> <span class="fu">Axis</span>(gl[<span class="fl">2</span>,<span class="fl">1</span>], xlabel<span class="op">=</span><span class="st">"Mean air temperature (°C)"</span>, ylabel <span class="op">=</span> <span class="st">"Annual precipitation (kg m⁻²)"</span>)</span>
+<span id="cb65-39"><a href="#cb65-39" aria-hidden="true" tabindex="-1"></a><span class="fu">scatter!</span>(axboth, temp_abs, precip_abs, color<span class="op">=</span>bkcol.sdm.absent, markersize<span class="op">=</span><span class="fl">4</span>, label<span class="op">=</span><span class="st">"Pseudo-absence"</span>)</span>
+<span id="cb65-40"><a href="#cb65-40" aria-hidden="true" tabindex="-1"></a><span class="fu">scatter!</span>(axboth, temp_pres, precip_pres, color<span class="op">=</span>bkcol.sdm.present, markersize<span class="op">=</span><span class="fl">4</span>, label<span class="op">=</span><span class="st">"Presence"</span>)</span>
+<span id="cb65-41"><a href="#cb65-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-42"><a href="#cb65-42" aria-hidden="true" tabindex="-1"></a><span class="fu">axislegend</span>(position <span class="op">=</span> <span class="op">:</span>lb)</span>
+<span id="cb65-43"><a href="#cb65-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-44"><a href="#cb65-44" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(axtemp, <span class="op">:</span>l, <span class="op">:</span>r, <span class="op">:</span>t)</span>
+<span id="cb65-45"><a href="#cb65-45" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(axprec, <span class="op">:</span>b, <span class="op">:</span>r, <span class="op">:</span>t)</span>
+<span id="cb65-46"><a href="#cb65-46" aria-hidden="true" tabindex="-1"></a><span class="fu">hidedecorations!</span>(axtemp, grid <span class="op">=</span> <span class="cn">true</span>)</span>
+<span id="cb65-47"><a href="#cb65-47" aria-hidden="true" tabindex="-1"></a><span class="fu">hidedecorations!</span>(axprec, grid <span class="op">=</span> <span class="cn">true</span>)</span>
+<span id="cb65-48"><a href="#cb65-48" aria-hidden="true" tabindex="-1"></a><span class="fu">ylims!</span>(axtemp, low <span class="op">=</span> <span class="fl">0</span>)</span>
+<span id="cb65-49"><a href="#cb65-49" aria-hidden="true" tabindex="-1"></a><span class="fu">xlims!</span>(axprec, low <span class="op">=</span> <span class="fl">0</span>)</span>
+<span id="cb65-50"><a href="#cb65-50" aria-hidden="true" tabindex="-1"></a><span class="fu">colgap!</span>(gl, <span class="fl">0</span>)</span>
+<span id="cb65-51"><a href="#cb65-51" aria-hidden="true" tabindex="-1"></a><span class="fu">rowgap!</span>(gl, <span class="fl">0</span>)</span>
+<span id="cb65-52"><a href="#cb65-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-53"><a href="#cb65-53" aria-hidden="true" tabindex="-1"></a><span class="fu">colsize!</span>(gl, <span class="fl">1</span>, <span class="fu">Relative</span>(<span class="fl">5</span><span class="op">/</span><span class="fl">6</span>))</span>
+<span id="cb65-54"><a href="#cb65-54" aria-hidden="true" tabindex="-1"></a><span class="fu">rowsize!</span>(gl, <span class="fl">2</span>, <span class="fu">Relative</span>(<span class="fl">5</span><span class="op">/</span><span class="fl">6</span>))</span>
+<span id="cb65-55"><a href="#cb65-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-56"><a href="#cb65-56" aria-hidden="true" tabindex="-1"></a><span class="fu">current_figure</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<div id="fig-classification-separability" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-classification-separability-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="index_files/figure-html/fig-classification-separability-output-1.svg" class="img-fluid figure-img">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-classification-separability-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1: This figures show the separability of the presences and pseudo-absences on the temperature and precipitation dimensions.
-</figcaption>
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-42-output-1.svg" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
@@ -1865,11 +1860,11 @@ Figure&nbsp;1: This figures show the separability of the presences and pseudo-ab
 </div>
 </div>
 </div>
-<div id="82" class="cell" data-execution_count="1">
+<div id="84" class="cell" data-execution_count="1">
 <div class="cell-output cell-output-display" data-execution_count="1">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/cell-42-output-1.svg" class="img-fluid figure-img"></p>
+<p><img src="index_files/figure-html/cell-43-output-1.svg" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
@@ -1879,62 +1874,62 @@ Figure&nbsp;1: This figures show the separability of the presences and pseudo-ab
 <h2 class="anchored" data-anchor-id="training-a-simple-sdm">Training a Simple SDM</h2>
 <p>Now that we have presences and pseudoabsences, we are finally ready to train our model.<strong>SDeMo</strong> uses a single <code>SDM</code> type that chains together the data transformation, the model, and data to fit on.</p>
 <p>We’ll build a <em>Naive-Bayes</em> classifier that first applies Principal Component Analysis (PCA) <em>only to the training data</em><a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>.</p>
-<div class="no-row-height column-margin column-container"><div id="fn5"><p><sup>5</sup>&nbsp;It’s crucial that PCA is only applied to the training data to avoid introducing <em>data leakage</em>.</p></div></div><div id="84" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>nb_sdm <span class="op">=</span> <span class="fu">SDM</span>(PCATransform, NaiveBayes, env_covariates, presencelayer, pseudoabsences)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="no-row-height column-margin column-container"><div id="fn5"><p><sup>5</sup>&nbsp;It’s crucial that PCA is only applied to the training data to avoid introducing <em>data leakage</em>.</p></div></div><div id="86" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>nb_sdm <span class="op">=</span> <span class="fu">SDM</span>(PCATransform, NaiveBayes, env_covariates, presencelayer, pseudoabsences)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>SDeMo.PCATransform → SDeMo.NaiveBayes → P(x) ≥ 0.5</code></pre>
 </div>
 </div>
-<div id="86" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="fu">train!</span>(nb_sdm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="88" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="fu">train!</span>(nb_sdm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>SDeMo.PCATransform → SDeMo.NaiveBayes → P(x) ≥ 0.187</code></pre>
 </div>
 </div>
-<div id="88" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a>prd <span class="op">=</span> <span class="fu">predict</span>(nb_sdm, env_covariates; threshold <span class="op">=</span> <span class="cn">true</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="90" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>prd <span class="op">=</span> <span class="fu">predict</span>(nb_sdm, env_covariates; threshold <span class="op">=</span> <span class="cn">true</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>🗺️  A 240 × 546 layer with 70065 Bool cells
    Projection: +proj=longlat +datum=WGS84 +no_defs</code></pre>
 </div>
 </div>
-<div id="90" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="fu">Figure</span>()</span>
-<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> <span class="fu">Axis</span>(f[<span class="fl">1</span>,<span class="fl">1</span>])</span>
-<span id="cb71-3"><a href="#cb71-3" aria-hidden="true" tabindex="-1"></a><span class="fu">heatmap!</span>(ax, prd, colormap<span class="op">=</span>[<span class="op">:</span>grey75, <span class="op">:</span>seagreen4])</span>
-<span id="cb71-4"><a href="#cb71-4" aria-hidden="true" tabindex="-1"></a><span class="fu">scatter!</span>(ax, presencelayer, color<span class="op">=:</span>white, markersize<span class="op">=</span><span class="fl">4</span>)</span>
-<span id="cb71-5"><a href="#cb71-5" aria-hidden="true" tabindex="-1"></a><span class="fu">hidedecorations!</span>(ax)</span>
-<span id="cb71-6"><a href="#cb71-6" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(ax)</span>
-<span id="cb71-7"><a href="#cb71-7" aria-hidden="true" tabindex="-1"></a>f</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="92" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="fu">Figure</span>()</span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> <span class="fu">Axis</span>(f[<span class="fl">1</span>,<span class="fl">1</span>])</span>
+<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a><span class="fu">heatmap!</span>(ax, prd, colormap<span class="op">=</span>[<span class="op">:</span>grey75, <span class="op">:</span>seagreen4])</span>
+<span id="cb72-4"><a href="#cb72-4" aria-hidden="true" tabindex="-1"></a><span class="fu">scatter!</span>(ax, presencelayer, color<span class="op">=:</span>white, markersize<span class="op">=</span><span class="fl">4</span>)</span>
+<span id="cb72-5"><a href="#cb72-5" aria-hidden="true" tabindex="-1"></a><span class="fu">hidedecorations!</span>(ax)</span>
+<span id="cb72-6"><a href="#cb72-6" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(ax)</span>
+<span id="cb72-7"><a href="#cb72-7" aria-hidden="true" tabindex="-1"></a>f</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/cell-46-output-1.svg" class="img-fluid figure-img"></p>
+<p><img src="index_files/figure-html/cell-47-output-1.svg" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
 </section>
-<section id="computing-roc-auc-and-pr-auc" class="level2">
-<h2 class="anchored" data-anchor-id="computing-roc-auc-and-pr-auc">Computing ROC-AUC and PR-AUC</h2>
-<div id="92" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>folds <span class="op">=</span> <span class="fu">kfold</span>(nb_sdm)</span>
-<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>cv <span class="op">=</span> <span class="fu">crossvalidate</span>(nb_sdm, folds)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="validating-an-sdm" class="level2">
+<h2 class="anchored" data-anchor-id="validating-an-sdm">Validating an SDM</h2>
+<div id="94" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a>folds <span class="op">=</span> <span class="fu">kfold</span>(nb_sdm)</span>
+<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a>cv <span class="op">=</span> <span class="fu">crossvalidate</span>(nb_sdm, folds)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>(validation = ConfusionMatrix[[TP: 68, TN 88, FP 50, FN 3], [TP: 64, TN 90, FP 46, FN 6], [TP: 64, TN 77, FP 60, FN 6], [TP: 66, TN 88, FP 49, FN 4], [TP: 61, TN 88, FP 48, FN 8], [TP: 63, TN 81, FP 56, FN 7], [TP: 68, TN 88, FP 49, FN 2], [TP: 65, TN 79, FP 58, FN 5], [TP: 63, TN 76, FP 60, FN 7], [TP: 61, TN 79, FP 58, FN 9]], training = ConfusionMatrix[[TP: 577, TN 750, FP 480, FN 52], [TP: 578, TN 754, FP 478, FN 52], [TP: 584, TN 736, FP 495, FN 46], [TP: 584, TN 743, FP 488, FN 46], [TP: 580, TN 750, FP 482, FN 51], [TP: 578, TN 779, FP 452, FN 52], [TP: 581, TN 738, FP 493, FN 49], [TP: 578, TN 754, FP 477, FN 52], [TP: 580, TN 758, FP 474, FN 50], [TP: 580, TN 784, FP 447, FN 50]])</code></pre>
 </div>
 </div>
-<div id="94" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a>measures <span class="op">=</span> [mcc, ppv, npv, plr, nlr]</span>
-<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a>cvresult <span class="op">=</span> [<span class="fu">measure</span>(set) for measure <span class="kw">in</span> measures, set <span class="kw">in</span> cv]</span>
-<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a>nullresult <span class="op">=</span> [<span class="fu">measure</span>(<span class="fu">null</span>(nb_sdm)) for measure <span class="kw">in</span> measures, null <span class="kw">in</span> [coinflip, noskill]]</span>
-<span id="cb74-4"><a href="#cb74-4" aria-hidden="true" tabindex="-1"></a><span class="fu">pretty_table</span>(</span>
-<span id="cb74-5"><a href="#cb74-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">hcat</span>(<span class="fu">string</span>.(measures), <span class="fu">hcat</span>(cvresult, nullresult));</span>
-<span id="cb74-6"><a href="#cb74-6" aria-hidden="true" tabindex="-1"></a>    alignment <span class="op">=</span> [<span class="op">:</span>l, <span class="op">:</span>c, <span class="op">:</span>c, <span class="op">:</span>c, <span class="op">:</span>c],</span>
-<span id="cb74-7"><a href="#cb74-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">#backend = Val(:markdown),</span></span>
-<span id="cb74-8"><a href="#cb74-8" aria-hidden="true" tabindex="-1"></a>    header <span class="op">=</span> [<span class="st">"Measure"</span>, <span class="st">"Validation"</span>, <span class="st">"Training"</span>, <span class="st">"Coin-flip"</span>, <span class="st">"No-skill"</span>],</span>
-<span id="cb74-9"><a href="#cb74-9" aria-hidden="true" tabindex="-1"></a>    formatters <span class="op">=</span> <span class="fu">ft_printf</span>(<span class="st">"%5.3f"</span>, [<span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>]),</span>
-<span id="cb74-10"><a href="#cb74-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="96" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>measures <span class="op">=</span> [mcc, ppv, npv, plr, nlr]</span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a>cvresult <span class="op">=</span> [<span class="fu">measure</span>(set) for measure <span class="kw">in</span> measures, set <span class="kw">in</span> cv]</span>
+<span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a>nullresult <span class="op">=</span> [<span class="fu">measure</span>(<span class="fu">null</span>(nb_sdm)) for measure <span class="kw">in</span> measures, null <span class="kw">in</span> [coinflip, noskill]]</span>
+<span id="cb75-4"><a href="#cb75-4" aria-hidden="true" tabindex="-1"></a><span class="fu">pretty_table</span>(</span>
+<span id="cb75-5"><a href="#cb75-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">hcat</span>(<span class="fu">string</span>.(measures), <span class="fu">hcat</span>(cvresult, nullresult));</span>
+<span id="cb75-6"><a href="#cb75-6" aria-hidden="true" tabindex="-1"></a>    alignment <span class="op">=</span> [<span class="op">:</span>l, <span class="op">:</span>c, <span class="op">:</span>c, <span class="op">:</span>c, <span class="op">:</span>c],</span>
+<span id="cb75-7"><a href="#cb75-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">#backend = Val(:markdown),</span></span>
+<span id="cb75-8"><a href="#cb75-8" aria-hidden="true" tabindex="-1"></a>    header <span class="op">=</span> [<span class="st">"Measure"</span>, <span class="st">"Validation"</span>, <span class="st">"Training"</span>, <span class="st">"Coin-flip"</span>, <span class="st">"No-skill"</span>],</span>
+<span id="cb75-9"><a href="#cb75-9" aria-hidden="true" tabindex="-1"></a>    formatters <span class="op">=</span> <span class="fu">ft_printf</span>(<span class="st">"%5.3f"</span>, [<span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>]),</span>
+<span id="cb75-10"><a href="#cb75-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>┌─────────┬────────────┬──────────┬───────────┬──────────┐
 │ Measure │ Validation │ Training │ Coin-flip │ No-skill │
@@ -1947,109 +1942,28 @@ Figure&nbsp;1: This figures show the separability of the presences and pseudo-ab
 └─────────┴────────────┴──────────┴───────────┴──────────┘</code></pre>
 </div>
 </div>
-<div id="96" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>folds <span class="op">=</span> <span class="fu">kfold</span>(nb_sdm)</span>
-<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a>thresholds <span class="op">=</span> <span class="fu">LinRange</span>(<span class="fl">0.01</span>, <span class="fl">0.99</span>, <span class="fl">50</span>)</span>
-<span id="cb76-3"><a href="#cb76-3" aria-hidden="true" tabindex="-1"></a>cv <span class="op">=</span> [<span class="fu">crossvalidate</span>(nb_sdm, folds; thr <span class="op">=</span> t) for t <span class="kw">in</span> thresholds];</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
+<section id="computing-roc-auc-and-pr-auc" class="level3">
+<h3 class="anchored" data-anchor-id="computing-roc-auc-and-pr-auc">Computing ROC-AUC and PR-AUC</h3>
 <div id="98" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: make these functions</span></span>
-<span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a>SDT.SDeMo.<span class="fu">auc</span>([<span class="fu">tpr</span>(rep.validation) for rep <span class="kw">in</span> cv], ([<span class="fu">tnr</span>(rep.validation) for rep <span class="kw">in</span> cv]))</span>
-<span id="cb77-3"><a href="#cb77-3" aria-hidden="true" tabindex="-1"></a><span class="co">#SDT.SDeMo.auc([tpr(rep.validation) for rep in cv], [ppv(rep.validation) for rep in cv], )</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a>folds <span class="op">=</span> <span class="fu">kfold</span>(nb_sdm)</span>
+<span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a>thresholds <span class="op">=</span> <span class="fu">LinRange</span>(<span class="fl">0.01</span>, <span class="fl">0.99</span>, <span class="fl">50</span>)</span>
+<span id="cb77-3"><a href="#cb77-3" aria-hidden="true" tabindex="-1"></a>cv <span class="op">=</span> [<span class="fu">crossvalidate</span>(nb_sdm, folds; thr <span class="op">=</span> t) for t <span class="kw">in</span> thresholds];</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="100" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: make these functions</span></span>
+<span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a>SDT.SDeMo.<span class="fu">auc</span>([<span class="fu">tpr</span>(rep.validation) for rep <span class="kw">in</span> cv], ([<span class="fu">tnr</span>(rep.validation) for rep <span class="kw">in</span> cv]))</span>
+<span id="cb78-3"><a href="#cb78-3" aria-hidden="true" tabindex="-1"></a><span class="co">#SDT.SDeMo.auc([tpr(rep.validation) for rep in cv], [ppv(rep.validation) for rep in cv], )</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>0.8062856176441721</code></pre>
 </div>
 </div>
 </section>
-<section id="simple-explanations-partial-response" class="level2">
-<h2 class="anchored" data-anchor-id="simple-explanations-partial-response">Simple Explanations: Partial Response</h2>
-<div id="100" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb79"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="fu">Figure</span>()</span>
-<span id="cb79-2"><a href="#cb79-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb79-3"><a href="#cb79-3" aria-hidden="true" tabindex="-1"></a>gl <span class="op">=</span> f[<span class="fl">1</span>,<span class="fl">1</span>] <span class="op">=</span> <span class="fu">GridLayout</span>()</span>
-<span id="cb79-4"><a href="#cb79-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb79-5"><a href="#cb79-5" aria-hidden="true" tabindex="-1"></a>axtemp <span class="op">=</span> <span class="fu">Axis</span>(</span>
-<span id="cb79-6"><a href="#cb79-6" aria-hidden="true" tabindex="-1"></a>    gl[<span class="fl">1</span>,<span class="fl">1</span>], </span>
-<span id="cb79-7"><a href="#cb79-7" aria-hidden="true" tabindex="-1"></a>    xgridvisible<span class="op">=</span><span class="cn">false</span>, </span>
-<span id="cb79-8"><a href="#cb79-8" aria-hidden="true" tabindex="-1"></a>    ygridvisible<span class="op">=</span><span class="cn">false</span>, </span>
-<span id="cb79-9"><a href="#cb79-9" aria-hidden="true" tabindex="-1"></a>    xticksvisible<span class="op">=</span><span class="cn">false</span>, </span>
-<span id="cb79-10"><a href="#cb79-10" aria-hidden="true" tabindex="-1"></a>    xticklabelsvisible<span class="op">=</span><span class="cn">false</span>, </span>
-<span id="cb79-11"><a href="#cb79-11" aria-hidden="true" tabindex="-1"></a>    yticks<span class="op">=</span><span class="fl">0</span><span class="op">:</span><span class="fl">1</span>, </span>
-<span id="cb79-12"><a href="#cb79-12" aria-hidden="true" tabindex="-1"></a>    ylabel <span class="op">=</span> <span class="st">"Partial</span><span class="sc">\n</span><span class="st">Response"</span>, </span>
-<span id="cb79-13"><a href="#cb79-13" aria-hidden="true" tabindex="-1"></a>    ylabelrotation<span class="op">=</span><span class="fl">0</span></span>
-<span id="cb79-14"><a href="#cb79-14" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb79-15"><a href="#cb79-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb79-16"><a href="#cb79-16" aria-hidden="true" tabindex="-1"></a>_, pr_p_thres <span class="op">=</span> <span class="fu">partialresponse</span>(nb_sdm, <span class="fu">variables</span>(nb_sdm)[<span class="fl">4</span>], threshold<span class="op">=</span><span class="cn">true</span>)</span>
-<span id="cb79-17"><a href="#cb79-17" aria-hidden="true" tabindex="-1"></a>τ <span class="op">=</span> <span class="fu">findfirst</span>(x<span class="op">-&gt;</span>x<span class="op">==</span><span class="fl">0</span>, pr_p_thres)</span>
-<span id="cb79-18"><a href="#cb79-18" aria-hidden="true" tabindex="-1"></a>pr_t_x, pr_t_y <span class="op">=</span> <span class="fu">partialresponse</span>(nb_sdm, <span class="fu">variables</span>(nb_sdm)[<span class="fl">4</span>], threshold<span class="op">=</span><span class="cn">false</span>)</span>
-<span id="cb79-19"><a href="#cb79-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb79-20"><a href="#cb79-20" aria-hidden="true" tabindex="-1"></a><span class="fu">xlims!</span>(axtemp, <span class="fu">extrema</span>(pr_t_x)<span class="op">...</span>)</span>
-<span id="cb79-21"><a href="#cb79-21" aria-hidden="true" tabindex="-1"></a><span class="fu">ylims!</span>(axtemp, <span class="fl">0</span>, <span class="fl">1</span>)</span>
-<span id="cb79-22"><a href="#cb79-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb79-23"><a href="#cb79-23" aria-hidden="true" tabindex="-1"></a><span class="fu">lines!</span>(axtemp, pr_t_x[<span class="fl">1</span><span class="op">:</span>τ], pr_t_y[<span class="fl">1</span><span class="op">:</span>τ], color<span class="op">=</span>bkcol.sdm.present, linewidth<span class="op">=</span><span class="fl">2</span>)</span>
-<span id="cb79-24"><a href="#cb79-24" aria-hidden="true" tabindex="-1"></a><span class="fu">band!</span>(axtemp, pr_t_x[<span class="fl">1</span><span class="op">:</span>τ], [<span class="fl">0</span>. for _ <span class="kw">in</span> pr_t_y[<span class="fl">1</span><span class="op">:</span>τ]], pr_t_y[<span class="fl">1</span><span class="op">:</span>τ], color<span class="op">=</span>bkcol.sdm.presentbg)</span>
-<span id="cb79-25"><a href="#cb79-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb79-26"><a href="#cb79-26" aria-hidden="true" tabindex="-1"></a><span class="fu">lines!</span>(axtemp, pr_t_x[τ<span class="op">:</span><span class="kw">end</span>], pr_t_y[τ<span class="op">:</span><span class="kw">end</span>], color<span class="op">=</span>bkcol.sdm.absent, linewidth<span class="op">=</span><span class="fl">2</span>)</span>
-<span id="cb79-27"><a href="#cb79-27" aria-hidden="true" tabindex="-1"></a><span class="fu">band!</span>(axtemp, pr_t_x[τ<span class="op">:</span><span class="kw">end</span>], [<span class="fl">0</span>. for _ <span class="kw">in</span> pr_t_y[τ<span class="op">:</span><span class="kw">end</span>]], pr_t_y[τ<span class="op">:</span><span class="kw">end</span>], color <span class="op">=</span> bkcol.sdm.absentbg)</span>
-<span id="cb79-28"><a href="#cb79-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb79-29"><a href="#cb79-29" aria-hidden="true" tabindex="-1"></a>axprec <span class="op">=</span> <span class="fu">Axis</span>(</span>
-<span id="cb79-30"><a href="#cb79-30" aria-hidden="true" tabindex="-1"></a>    gl[<span class="fl">2</span>,<span class="fl">2</span>], </span>
-<span id="cb79-31"><a href="#cb79-31" aria-hidden="true" tabindex="-1"></a>    xgridvisible<span class="op">=</span><span class="cn">false</span>, </span>
-<span id="cb79-32"><a href="#cb79-32" aria-hidden="true" tabindex="-1"></a>    ygridvisible<span class="op">=</span><span class="cn">false</span>, </span>
-<span id="cb79-33"><a href="#cb79-33" aria-hidden="true" tabindex="-1"></a>    yticksvisible<span class="op">=</span><span class="cn">false</span>, </span>
-<span id="cb79-34"><a href="#cb79-34" aria-hidden="true" tabindex="-1"></a>    yticklabelsvisible<span class="op">=</span><span class="cn">false</span>,</span>
-<span id="cb79-35"><a href="#cb79-35" aria-hidden="true" tabindex="-1"></a>    xticks<span class="op">=</span><span class="fl">0</span><span class="op">:</span><span class="fl">1</span>, </span>
-<span id="cb79-36"><a href="#cb79-36" aria-hidden="true" tabindex="-1"></a>    xlabel<span class="op">=</span><span class="st">"Partial</span><span class="sc">\n</span><span class="st">Response"</span>,</span>
-<span id="cb79-37"><a href="#cb79-37" aria-hidden="true" tabindex="-1"></a>    topspinecolor<span class="op">=</span>colorant<span class="st">"#999"</span>,</span>
-<span id="cb79-38"><a href="#cb79-38" aria-hidden="true" tabindex="-1"></a>    leftspinecolor<span class="op">=</span>colorant<span class="st">"#999"</span>,</span>
-<span id="cb79-39"><a href="#cb79-39" aria-hidden="true" tabindex="-1"></a>    rightspinecolor<span class="op">=</span>colorant<span class="st">"#999"</span>,</span>
-<span id="cb79-40"><a href="#cb79-40" aria-hidden="true" tabindex="-1"></a>    bottomspinecolor<span class="op">=</span>colorant<span class="st">"#999"</span>,</span>
-<span id="cb79-41"><a href="#cb79-41" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb79-42"><a href="#cb79-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb79-43"><a href="#cb79-43" aria-hidden="true" tabindex="-1"></a>pr_p_y, pr_p_x <span class="op">=</span> <span class="fu">partialresponse</span>(nb_sdm, <span class="fu">variables</span>(nb_sdm)[<span class="fl">12</span>], threshold<span class="op">=</span><span class="cn">false</span>)</span>
-<span id="cb79-44"><a href="#cb79-44" aria-hidden="true" tabindex="-1"></a><span class="fu">lines!</span>(axprec, pr_p_x, pr_p_y, linewidth<span class="op">=</span><span class="fl">2</span>)</span>
-<span id="cb79-45"><a href="#cb79-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb79-46"><a href="#cb79-46" aria-hidden="true" tabindex="-1"></a><span class="fu">xlims!</span>(axprec, <span class="fl">0</span>, <span class="fl">1</span>)</span>
-<span id="cb79-47"><a href="#cb79-47" aria-hidden="true" tabindex="-1"></a><span class="fu">ylims!</span>(axprec, <span class="fu">extrema</span>(pr_p_y)<span class="op">...</span>)</span>
-<span id="cb79-48"><a href="#cb79-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb79-49"><a href="#cb79-49" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb79-50"><a href="#cb79-50" aria-hidden="true" tabindex="-1"></a>prx, pry, prz <span class="op">=</span> <span class="fu">partialresponse</span>(nb_sdm, <span class="fu">variables</span>(nb_sdm)[[<span class="fl">1</span>,<span class="fl">12</span>]]<span class="op">...</span>, (<span class="fl">50</span>, <span class="fl">100</span>); threshold <span class="op">=</span> <span class="cn">true</span>);</span>
-<span id="cb79-51"><a href="#cb79-51" aria-hidden="true" tabindex="-1"></a>prx <span class="op">=</span> <span class="fl">0.1</span>prx <span class="op">.-</span> <span class="fl">273.15</span></span>
-<span id="cb79-52"><a href="#cb79-52" aria-hidden="true" tabindex="-1"></a>pry <span class="op">=</span> <span class="fl">0.1</span>pry</span>
-<span id="cb79-53"><a href="#cb79-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb79-54"><a href="#cb79-54" aria-hidden="true" tabindex="-1"></a>axboth <span class="op">=</span> <span class="fu">Axis</span>(gl[<span class="fl">2</span>,<span class="fl">1</span>], xlabel<span class="op">=</span><span class="st">"Mean air temperature (°C)"</span>, ylabel <span class="op">=</span> <span class="st">"Annual precipitation (kg m⁻²)"</span>)</span>
-<span id="cb79-55"><a href="#cb79-55" aria-hidden="true" tabindex="-1"></a><span class="fu">limits!</span>(axboth, <span class="fu">extrema</span>(prx)<span class="op">...</span>, <span class="fu">extrema</span>(pry)<span class="op">...</span>)</span>
-<span id="cb79-56"><a href="#cb79-56" aria-hidden="true" tabindex="-1"></a><span class="fu">heatmap!</span>(axboth, prx, pry, prz, colormap<span class="op">=</span>[<span class="op">:</span>grey95, (bkcol.sdm.present, <span class="fl">0.2</span>)])</span>
-<span id="cb79-57"><a href="#cb79-57" aria-hidden="true" tabindex="-1"></a><span class="fu">scatter!</span>(axboth, temp_abs, precip_abs, color<span class="op">=</span>bkcol.sdm.absent, markersize<span class="op">=</span><span class="fl">6</span>, label<span class="op">=</span><span class="st">"Pseudo-absence"</span>)</span>
-<span id="cb79-58"><a href="#cb79-58" aria-hidden="true" tabindex="-1"></a><span class="fu">scatter!</span>(axboth, temp_pres, precip_pres, color<span class="op">=</span>bkcol.sdm.present, markersize<span class="op">=</span><span class="fl">6</span>, label<span class="op">=</span><span class="st">"Presence"</span>)</span>
-<span id="cb79-59"><a href="#cb79-59" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb79-60"><a href="#cb79-60" aria-hidden="true" tabindex="-1"></a><span class="fu">axislegend</span>(position <span class="op">=</span> <span class="op">:</span>lb)</span>
-<span id="cb79-61"><a href="#cb79-61" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb79-62"><a href="#cb79-62" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(axtemp, <span class="op">:</span>b)</span>
-<span id="cb79-63"><a href="#cb79-63" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(axprec, <span class="op">:</span>l)</span>
-<span id="cb79-64"><a href="#cb79-64" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb79-65"><a href="#cb79-65" aria-hidden="true" tabindex="-1"></a><span class="fu">colgap!</span>(gl, <span class="fl">7</span>)</span>
-<span id="cb79-66"><a href="#cb79-66" aria-hidden="true" tabindex="-1"></a><span class="fu">rowgap!</span>(gl, <span class="fl">7</span>)</span>
-<span id="cb79-67"><a href="#cb79-67" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb79-68"><a href="#cb79-68" aria-hidden="true" tabindex="-1"></a><span class="fu">colsize!</span>(gl, <span class="fl">1</span>, <span class="fu">Relative</span>(<span class="fl">5</span><span class="op">/</span><span class="fl">6</span>))</span>
-<span id="cb79-69"><a href="#cb79-69" aria-hidden="true" tabindex="-1"></a><span class="fu">rowsize!</span>(gl, <span class="fl">2</span>, <span class="fu">Relative</span>(<span class="fl">5</span><span class="op">/</span><span class="fl">6</span>))</span>
-<span id="cb79-70"><a href="#cb79-70" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb79-71"><a href="#cb79-71" aria-hidden="true" tabindex="-1"></a>f</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="1">
-<div>
-<figure class="figure">
-<p><img src="index_files/figure-html/cell-51-output-1.svg" class="img-fluid figure-img"></p>
-</figure>
-</div>
-</div>
-</div>
 </section>
 </section>
-<section id="a-more-complex-sdm-boosted-regression-trees-from-scratch-ish" class="level1">
-<h1>A more complex SDM – Boosted Regression Trees from scratch(-ish)</h1>
-<p>TODO: What is a BRT explanation: - What is a decision tree? - Decision Tree + Bagging = Random Forest - Random Forest + Boosting = BRT</p>
-<section id="fitting-a-decision-tree" class="level2">
-<h2 class="anchored" data-anchor-id="fitting-a-decision-tree">Fitting a Decision Tree</h2>
+<section id="a-decision-tree-sdm" class="level1">
+<h1>A Decision-Tree SDM</h1>
+<p>No variable selection</p>
+<p>First example of: - Partial Responses - SHAP - Conformal</p>
 <div id="102" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb80"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a>dt_sdm <span class="op">=</span> <span class="fu">SDM</span>(ZScore, DecisionTree, env_covariates, presencelayer, pseudoabsences)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
@@ -2057,30 +1971,27 @@ Figure&nbsp;1: This figures show the separability of the presences and pseudo-ab
 </div>
 </div>
 <div id="104" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb82"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="pp">@time</span> <span class="fu">variables!</span>(dt_sdm, ForwardSelection, <span class="fu">kfold</span>(dt_sdm, k<span class="op">=</span><span class="fl">2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>  2.621942 seconds (18.40 M allocations: 2.197 GiB, 6.21% gc time)</code></pre>
-</div>
+<div class="sourceCode cell-code" id="cb82"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="fu">train!</span>(dt_sdm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>SDeMo.ZScore → SDeMo.DecisionTree → P(x) ≥ 0.586</code></pre>
+<pre><code>SDeMo.ZScore → SDeMo.DecisionTree → P(x) ≥ 0.414</code></pre>
 </div>
 </div>
 <div id="106" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb85"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a>prd <span class="op">=</span> <span class="fu">predict</span>(dt_sdm, env_covariates; threshold <span class="op">=</span> <span class="cn">false</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb84"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a>prd <span class="op">=</span> <span class="fu">predict</span>(dt_sdm, env_covariates; threshold <span class="op">=</span> <span class="cn">false</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>🗺️  A 240 × 546 layer with 70065 Float64 cells
    Projection: +proj=longlat +datum=WGS84 +no_defs</code></pre>
 </div>
 </div>
 <div id="108" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb87"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="fu">Figure</span>(; size <span class="op">=</span> (<span class="fl">600</span>, <span class="fl">300</span>))</span>
-<span id="cb87-2"><a href="#cb87-2" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> <span class="fu">Axis</span>(f[<span class="fl">1</span>, <span class="fl">1</span>]; aspect <span class="op">=</span> <span class="fu">DataAspect</span>(), title <span class="op">=</span> <span class="st">"Prediction (decision tree)"</span>)</span>
-<span id="cb87-3"><a href="#cb87-3" aria-hidden="true" tabindex="-1"></a>hm <span class="op">=</span> <span class="fu">heatmap!</span>(ax, prd; colormap <span class="op">=</span> <span class="op">:</span>linear_worb_100_25_c53_n256, colorrange <span class="op">=</span> (<span class="fl">0</span>, <span class="fl">1</span>))</span>
-<span id="cb87-4"><a href="#cb87-4" aria-hidden="true" tabindex="-1"></a><span class="fu">Colorbar</span>(f[<span class="fl">1</span>, <span class="fl">2</span>], hm)</span>
-<span id="cb87-5"><a href="#cb87-5" aria-hidden="true" tabindex="-1"></a><span class="fu">lines!</span>(ax, switzerland; color <span class="op">=</span> <span class="op">:</span>black)</span>
-<span id="cb87-6"><a href="#cb87-6" aria-hidden="true" tabindex="-1"></a><span class="fu">hidedecorations!</span>(ax)</span>
-<span id="cb87-7"><a href="#cb87-7" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(ax)</span>
-<span id="cb87-8"><a href="#cb87-8" aria-hidden="true" tabindex="-1"></a>f</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb86"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="fu">Figure</span>(; size <span class="op">=</span> (<span class="fl">600</span>, <span class="fl">300</span>))</span>
+<span id="cb86-2"><a href="#cb86-2" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> <span class="fu">Axis</span>(f[<span class="fl">1</span>, <span class="fl">1</span>]; aspect <span class="op">=</span> <span class="fu">DataAspect</span>(), title <span class="op">=</span> <span class="st">"Prediction (decision tree)"</span>)</span>
+<span id="cb86-3"><a href="#cb86-3" aria-hidden="true" tabindex="-1"></a>hm <span class="op">=</span> <span class="fu">heatmap!</span>(ax, prd; colormap <span class="op">=</span> <span class="op">:</span>linear_worb_100_25_c53_n256, colorrange <span class="op">=</span> (<span class="fl">0</span>, <span class="fl">1</span>))</span>
+<span id="cb86-4"><a href="#cb86-4" aria-hidden="true" tabindex="-1"></a><span class="fu">Colorbar</span>(f[<span class="fl">1</span>, <span class="fl">2</span>], hm)</span>
+<span id="cb86-5"><a href="#cb86-5" aria-hidden="true" tabindex="-1"></a><span class="fu">lines!</span>(ax, switzerland; color <span class="op">=</span> <span class="op">:</span>black)</span>
+<span id="cb86-6"><a href="#cb86-6" aria-hidden="true" tabindex="-1"></a><span class="fu">hidedecorations!</span>(ax)</span>
+<span id="cb86-7"><a href="#cb86-7" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(ax)</span>
+<span id="cb86-8"><a href="#cb86-8" aria-hidden="true" tabindex="-1"></a>f</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <div>
 <figure class="figure">
@@ -2089,217 +2000,320 @@ Figure&nbsp;1: This figures show the separability of the presences and pseudo-ab
 </div>
 </div>
 </div>
-<p><strong>TK</strong> compare DT to Naive Bayes</p>
-</section>
-<section id="making-a-random-forest" class="level2">
-<h2 class="anchored" data-anchor-id="making-a-random-forest">Making a random forest</h2>
-<div id="110" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb88"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a>single_dt_sdm <span class="op">=</span> <span class="fu">SDM</span>(PCATransform, DecisionTree, env_covariates, presencelayer, pseudoabsences)</span>
-<span id="cb88-2"><a href="#cb88-2" aria-hidden="true" tabindex="-1"></a>rf_sdm <span class="op">=</span> <span class="fu">Bagging</span>(single_dt_sdm, <span class="fl">30</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>{SDeMo.PCATransform → SDeMo.DecisionTree → P(x) ≥ 0.5} × 30</code></pre>
-</div>
-</div>
-<div id="112" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb90"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bagfeatures!</span>(rf_sdm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>{SDeMo.PCATransform → SDeMo.DecisionTree → P(x) ≥ 0.5} × 30</code></pre>
-</div>
-</div>
-<div id="114" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb92"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a><span class="co">#variables!(rf_sdm, AllVariables)</span></span>
-<span id="cb92-2"><a href="#cb92-2" aria-hidden="true" tabindex="-1"></a><span class="pp">@time</span> <span class="fu">variables!</span>(rf_sdm, ForwardSelection, <span class="fu">kfold</span>(rf_sdm, k<span class="op">=</span><span class="fl">2</span>); bagfeatures <span class="op">=</span> <span class="cn">true</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code> 50.623661 seconds (512.97 M allocations: 58.921 GiB, 14.61% gc time)</code></pre>
-</div>
-<div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>{SDeMo.PCATransform → SDeMo.DecisionTree → P(x) ≥ 0.303} × 30</code></pre>
-</div>
-</div>
-<div id="116" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb95"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb95-1"><a href="#cb95-1" aria-hidden="true" tabindex="-1"></a><span class="fu">train!</span>(rf_sdm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>{SDeMo.PCATransform → SDeMo.DecisionTree → P(x) ≥ 0.303} × 30</code></pre>
-</div>
-</div>
-<div id="118" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb97"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb97-1"><a href="#cb97-1" aria-hidden="true" tabindex="-1"></a>prd <span class="op">=</span> <span class="fu">predict</span>(rf_sdm, env_covariates; threshold <span class="op">=</span> <span class="cn">false</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>🗺️  A 240 × 546 layer with 70065 Float64 cells
-   Projection: +proj=longlat +datum=WGS84 +no_defs</code></pre>
-</div>
-</div>
-<div id="120" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb99"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a>unc <span class="op">=</span> <span class="fu">predict</span>(rf_sdm, env_covariates; consensus <span class="op">=</span> iqr, threshold <span class="op">=</span> <span class="cn">false</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>🗺️  A 240 × 546 layer with 70065 Float64 cells
-   Projection: +proj=longlat +datum=WGS84 +no_defs</code></pre>
-</div>
-</div>
-<div id="122" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb101"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb101-1"><a href="#cb101-1" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="fu">Figure</span>(; size <span class="op">=</span> (<span class="fl">600</span>, <span class="fl">600</span>))</span>
-<span id="cb101-2"><a href="#cb101-2" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> <span class="fu">Axis</span>(f[<span class="fl">1</span>, <span class="fl">1</span>]; aspect <span class="op">=</span> <span class="fu">DataAspect</span>(), title <span class="op">=</span> <span class="st">"Prediction"</span>)</span>
-<span id="cb101-3"><a href="#cb101-3" aria-hidden="true" tabindex="-1"></a>hm <span class="op">=</span> <span class="fu">heatmap!</span>(ax, prd; colormap <span class="op">=</span> <span class="op">:</span>linear_worb_100_25_c53_n256, colorrange <span class="op">=</span> (<span class="fl">0</span>, <span class="fl">1</span>))</span>
-<span id="cb101-4"><a href="#cb101-4" aria-hidden="true" tabindex="-1"></a><span class="fu">Colorbar</span>(f[<span class="fl">1</span>, <span class="fl">2</span>], hm)</span>
-<span id="cb101-5"><a href="#cb101-5" aria-hidden="true" tabindex="-1"></a><span class="fu">lines!</span>(ax, switzerland; color <span class="op">=</span> <span class="op">:</span>black)</span>
-<span id="cb101-6"><a href="#cb101-6" aria-hidden="true" tabindex="-1"></a><span class="fu">hidedecorations!</span>(ax)</span>
-<span id="cb101-7"><a href="#cb101-7" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(ax)</span>
-<span id="cb101-8"><a href="#cb101-8" aria-hidden="true" tabindex="-1"></a>ax2 <span class="op">=</span> <span class="fu">Axis</span>(f[<span class="fl">2</span>, <span class="fl">1</span>]; aspect <span class="op">=</span> <span class="fu">DataAspect</span>(), title <span class="op">=</span> <span class="st">"Uncertainty"</span>)</span>
-<span id="cb101-9"><a href="#cb101-9" aria-hidden="true" tabindex="-1"></a>hm <span class="op">=</span></span>
-<span id="cb101-10"><a href="#cb101-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">heatmap!</span>(ax2, <span class="fu">quantize</span>(unc); colormap <span class="op">=</span> <span class="op">:</span>linear_gow_60_85_c27_n256, colorrange <span class="op">=</span> (<span class="fl">0</span>, <span class="fl">1</span>))</span>
-<span id="cb101-11"><a href="#cb101-11" aria-hidden="true" tabindex="-1"></a><span class="fu">Colorbar</span>(f[<span class="fl">2</span>, <span class="fl">2</span>], hm)</span>
-<span id="cb101-12"><a href="#cb101-12" aria-hidden="true" tabindex="-1"></a><span class="fu">lines!</span>(ax2, switzerland; color <span class="op">=</span> <span class="op">:</span>black)</span>
-<span id="cb101-13"><a href="#cb101-13" aria-hidden="true" tabindex="-1"></a><span class="fu">hidedecorations!</span>(ax2)</span>
-<span id="cb101-14"><a href="#cb101-14" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(ax2)</span>
-<span id="cb101-15"><a href="#cb101-15" aria-hidden="true" tabindex="-1"></a>f</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="1">
-<div>
-<figure class="figure">
-<p><img src="index_files/figure-html/cell-62-output-1.svg" class="img-fluid figure-img"></p>
-</figure>
-</div>
-</div>
-</div>
-</section>
-<section id="boosting-to-create-a-brt" class="level2">
-<h2 class="anchored" data-anchor-id="boosting-to-create-a-brt">Boosting to create a BRT</h2>
-<p>TODO</p>
-</section>
-</section>
-<section id="explaining-an-brts-predictions" class="level1">
-<h1>Explaining an BRT’s predictions</h1>
 <section id="partial-responses" class="level2">
 <h2 class="anchored" data-anchor-id="partial-responses">Partial Responses</h2>
-<div id="124" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb102"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb102-1"><a href="#cb102-1" aria-hidden="true" tabindex="-1"></a><span class="fu">variables</span>(rf_sdm)</span>
-<span id="cb102-2"><a href="#cb102-2" aria-hidden="true" tabindex="-1"></a>prt <span class="op">=</span> <span class="fu">partialresponse</span>(rf_sdm, <span class="fu">variables</span>(rf_sdm)[<span class="fl">6</span>])</span>
-<span id="cb102-3"><a href="#cb102-3" aria-hidden="true" tabindex="-1"></a><span class="fu">scatterlines</span>(prt<span class="op">...</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>TODO FIX</p>
+<div id="110" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb87"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="fu">Figure</span>()</span>
+<span id="cb87-2"><a href="#cb87-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb87-3"><a href="#cb87-3" aria-hidden="true" tabindex="-1"></a>gl <span class="op">=</span> f[<span class="fl">1</span>,<span class="fl">1</span>] <span class="op">=</span> <span class="fu">GridLayout</span>()</span>
+<span id="cb87-4"><a href="#cb87-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb87-5"><a href="#cb87-5" aria-hidden="true" tabindex="-1"></a>axtemp <span class="op">=</span> <span class="fu">Axis</span>(</span>
+<span id="cb87-6"><a href="#cb87-6" aria-hidden="true" tabindex="-1"></a>    gl[<span class="fl">1</span>,<span class="fl">1</span>], </span>
+<span id="cb87-7"><a href="#cb87-7" aria-hidden="true" tabindex="-1"></a>    xgridvisible<span class="op">=</span><span class="cn">false</span>, </span>
+<span id="cb87-8"><a href="#cb87-8" aria-hidden="true" tabindex="-1"></a>    ygridvisible<span class="op">=</span><span class="cn">false</span>, </span>
+<span id="cb87-9"><a href="#cb87-9" aria-hidden="true" tabindex="-1"></a>    xticksvisible<span class="op">=</span><span class="cn">false</span>, </span>
+<span id="cb87-10"><a href="#cb87-10" aria-hidden="true" tabindex="-1"></a>    xticklabelsvisible<span class="op">=</span><span class="cn">false</span>, </span>
+<span id="cb87-11"><a href="#cb87-11" aria-hidden="true" tabindex="-1"></a>    yticks<span class="op">=</span><span class="fl">0</span><span class="op">:</span><span class="fl">1</span>, </span>
+<span id="cb87-12"><a href="#cb87-12" aria-hidden="true" tabindex="-1"></a>    ylabel <span class="op">=</span> <span class="st">"Partial</span><span class="sc">\n</span><span class="st">Response"</span>, </span>
+<span id="cb87-13"><a href="#cb87-13" aria-hidden="true" tabindex="-1"></a>    ylabelrotation<span class="op">=</span><span class="fl">0</span></span>
+<span id="cb87-14"><a href="#cb87-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb87-15"><a href="#cb87-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb87-16"><a href="#cb87-16" aria-hidden="true" tabindex="-1"></a>_, pr_p_thres <span class="op">=</span> <span class="fu">partialresponse</span>(dt_sdm, <span class="fu">variables</span>(nb_sdm)[<span class="fl">1</span>], threshold<span class="op">=</span><span class="cn">true</span>)</span>
+<span id="cb87-17"><a href="#cb87-17" aria-hidden="true" tabindex="-1"></a>τ <span class="op">=</span> <span class="fu">findfirst</span>(x<span class="op">-&gt;</span>x<span class="op">==</span><span class="fl">0</span>, pr_p_thres)</span>
+<span id="cb87-18"><a href="#cb87-18" aria-hidden="true" tabindex="-1"></a>pr_t_x, pr_t_y <span class="op">=</span> <span class="fu">partialresponse</span>(dt_sdm, <span class="fu">variables</span>(nb_sdm)[<span class="fl">1</span>], threshold<span class="op">=</span><span class="cn">false</span>)</span>
+<span id="cb87-19"><a href="#cb87-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb87-20"><a href="#cb87-20" aria-hidden="true" tabindex="-1"></a><span class="fu">xlims!</span>(axtemp, <span class="fu">extrema</span>(pr_t_x)<span class="op">...</span>)</span>
+<span id="cb87-21"><a href="#cb87-21" aria-hidden="true" tabindex="-1"></a><span class="fu">ylims!</span>(axtemp, <span class="fl">0</span>, <span class="fl">1</span>)</span>
+<span id="cb87-22"><a href="#cb87-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb87-23"><a href="#cb87-23" aria-hidden="true" tabindex="-1"></a><span class="fu">lines!</span>(axtemp, pr_t_x[<span class="fl">1</span><span class="op">:</span>τ], pr_t_y[<span class="fl">1</span><span class="op">:</span>τ], color<span class="op">=</span>bkcol.sdm.present, linewidth<span class="op">=</span><span class="fl">2</span>)</span>
+<span id="cb87-24"><a href="#cb87-24" aria-hidden="true" tabindex="-1"></a><span class="fu">band!</span>(axtemp, pr_t_x[<span class="fl">1</span><span class="op">:</span>τ], [<span class="fl">0</span>. for _ <span class="kw">in</span> pr_t_y[<span class="fl">1</span><span class="op">:</span>τ]], pr_t_y[<span class="fl">1</span><span class="op">:</span>τ], color<span class="op">=</span>bkcol.sdm.presentbg)</span>
+<span id="cb87-25"><a href="#cb87-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb87-26"><a href="#cb87-26" aria-hidden="true" tabindex="-1"></a><span class="fu">lines!</span>(axtemp, pr_t_x[τ<span class="op">:</span><span class="kw">end</span>], pr_t_y[τ<span class="op">:</span><span class="kw">end</span>], color<span class="op">=</span>bkcol.sdm.absent, linewidth<span class="op">=</span><span class="fl">2</span>)</span>
+<span id="cb87-27"><a href="#cb87-27" aria-hidden="true" tabindex="-1"></a><span class="fu">band!</span>(axtemp, pr_t_x[τ<span class="op">:</span><span class="kw">end</span>], [<span class="fl">0</span>. for _ <span class="kw">in</span> pr_t_y[τ<span class="op">:</span><span class="kw">end</span>]], pr_t_y[τ<span class="op">:</span><span class="kw">end</span>], color <span class="op">=</span> bkcol.sdm.absentbg)</span>
+<span id="cb87-28"><a href="#cb87-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb87-29"><a href="#cb87-29" aria-hidden="true" tabindex="-1"></a>axprec <span class="op">=</span> <span class="fu">Axis</span>(</span>
+<span id="cb87-30"><a href="#cb87-30" aria-hidden="true" tabindex="-1"></a>    gl[<span class="fl">2</span>,<span class="fl">2</span>], </span>
+<span id="cb87-31"><a href="#cb87-31" aria-hidden="true" tabindex="-1"></a>    xgridvisible<span class="op">=</span><span class="cn">false</span>, </span>
+<span id="cb87-32"><a href="#cb87-32" aria-hidden="true" tabindex="-1"></a>    ygridvisible<span class="op">=</span><span class="cn">false</span>, </span>
+<span id="cb87-33"><a href="#cb87-33" aria-hidden="true" tabindex="-1"></a>    yticksvisible<span class="op">=</span><span class="cn">false</span>, </span>
+<span id="cb87-34"><a href="#cb87-34" aria-hidden="true" tabindex="-1"></a>    yticklabelsvisible<span class="op">=</span><span class="cn">false</span>,</span>
+<span id="cb87-35"><a href="#cb87-35" aria-hidden="true" tabindex="-1"></a>    xticks<span class="op">=</span><span class="fl">0</span><span class="op">:</span><span class="fl">1</span>, </span>
+<span id="cb87-36"><a href="#cb87-36" aria-hidden="true" tabindex="-1"></a>    xlabel<span class="op">=</span><span class="st">"Partial</span><span class="sc">\n</span><span class="st">Response"</span>,</span>
+<span id="cb87-37"><a href="#cb87-37" aria-hidden="true" tabindex="-1"></a>    topspinecolor<span class="op">=</span>colorant<span class="st">"#999"</span>,</span>
+<span id="cb87-38"><a href="#cb87-38" aria-hidden="true" tabindex="-1"></a>    leftspinecolor<span class="op">=</span>colorant<span class="st">"#999"</span>,</span>
+<span id="cb87-39"><a href="#cb87-39" aria-hidden="true" tabindex="-1"></a>    rightspinecolor<span class="op">=</span>colorant<span class="st">"#999"</span>,</span>
+<span id="cb87-40"><a href="#cb87-40" aria-hidden="true" tabindex="-1"></a>    bottomspinecolor<span class="op">=</span>colorant<span class="st">"#999"</span>,</span>
+<span id="cb87-41"><a href="#cb87-41" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb87-42"><a href="#cb87-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb87-43"><a href="#cb87-43" aria-hidden="true" tabindex="-1"></a>pr_p_y, pr_p_x <span class="op">=</span> <span class="fu">partialresponse</span>(dt_sdm, <span class="fu">variables</span>(dt_sdm)[<span class="fl">12</span>], threshold<span class="op">=</span><span class="cn">false</span>)</span>
+<span id="cb87-44"><a href="#cb87-44" aria-hidden="true" tabindex="-1"></a><span class="fu">lines!</span>(axprec, pr_p_x, pr_p_y, linewidth<span class="op">=</span><span class="fl">2</span>)</span>
+<span id="cb87-45"><a href="#cb87-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb87-46"><a href="#cb87-46" aria-hidden="true" tabindex="-1"></a><span class="fu">xlims!</span>(axprec, <span class="fl">0</span>, <span class="fl">1</span>)</span>
+<span id="cb87-47"><a href="#cb87-47" aria-hidden="true" tabindex="-1"></a><span class="fu">ylims!</span>(axprec, <span class="fu">extrema</span>(pr_p_y)<span class="op">...</span>)</span>
+<span id="cb87-48"><a href="#cb87-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb87-49"><a href="#cb87-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb87-50"><a href="#cb87-50" aria-hidden="true" tabindex="-1"></a>prx, pry, prz <span class="op">=</span> <span class="fu">partialresponse</span>(dt_sdm, <span class="fu">variables</span>(dt_sdm)[[<span class="fl">1</span>,<span class="fl">12</span>]]<span class="op">...</span>, (<span class="fl">50</span>, <span class="fl">100</span>); threshold <span class="op">=</span> <span class="cn">true</span>);</span>
+<span id="cb87-51"><a href="#cb87-51" aria-hidden="true" tabindex="-1"></a>prx <span class="op">=</span> <span class="fl">0.1</span>prx <span class="op">.-</span> <span class="fl">273.15</span></span>
+<span id="cb87-52"><a href="#cb87-52" aria-hidden="true" tabindex="-1"></a>pry <span class="op">=</span> <span class="fl">0.1</span>pry</span>
+<span id="cb87-53"><a href="#cb87-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb87-54"><a href="#cb87-54" aria-hidden="true" tabindex="-1"></a>axboth <span class="op">=</span> <span class="fu">Axis</span>(gl[<span class="fl">2</span>,<span class="fl">1</span>], xlabel<span class="op">=</span><span class="st">"Mean air temperature (°C)"</span>, ylabel <span class="op">=</span> <span class="st">"Annual precipitation (kg m⁻²)"</span>)</span>
+<span id="cb87-55"><a href="#cb87-55" aria-hidden="true" tabindex="-1"></a><span class="fu">limits!</span>(axboth, <span class="fu">extrema</span>(prx)<span class="op">...</span>, <span class="fu">extrema</span>(pry)<span class="op">...</span>)</span>
+<span id="cb87-56"><a href="#cb87-56" aria-hidden="true" tabindex="-1"></a><span class="fu">heatmap!</span>(axboth, prx, pry, prz, colormap<span class="op">=</span>[<span class="op">:</span>grey95, (bkcol.sdm.present, <span class="fl">0.2</span>)])</span>
+<span id="cb87-57"><a href="#cb87-57" aria-hidden="true" tabindex="-1"></a><span class="fu">scatter!</span>(axboth, temp_abs, precip_abs, color<span class="op">=</span>bkcol.sdm.absent, markersize<span class="op">=</span><span class="fl">6</span>, label<span class="op">=</span><span class="st">"Pseudo-absence"</span>)</span>
+<span id="cb87-58"><a href="#cb87-58" aria-hidden="true" tabindex="-1"></a><span class="fu">scatter!</span>(axboth, temp_pres, precip_pres, color<span class="op">=</span>bkcol.sdm.present, markersize<span class="op">=</span><span class="fl">6</span>, label<span class="op">=</span><span class="st">"Presence"</span>)</span>
+<span id="cb87-59"><a href="#cb87-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb87-60"><a href="#cb87-60" aria-hidden="true" tabindex="-1"></a><span class="fu">axislegend</span>(position <span class="op">=</span> <span class="op">:</span>lb)</span>
+<span id="cb87-61"><a href="#cb87-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb87-62"><a href="#cb87-62" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(axtemp, <span class="op">:</span>b)</span>
+<span id="cb87-63"><a href="#cb87-63" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(axprec, <span class="op">:</span>l)</span>
+<span id="cb87-64"><a href="#cb87-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb87-65"><a href="#cb87-65" aria-hidden="true" tabindex="-1"></a><span class="fu">colgap!</span>(gl, <span class="fl">7</span>)</span>
+<span id="cb87-66"><a href="#cb87-66" aria-hidden="true" tabindex="-1"></a><span class="fu">rowgap!</span>(gl, <span class="fl">7</span>)</span>
+<span id="cb87-67"><a href="#cb87-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb87-68"><a href="#cb87-68" aria-hidden="true" tabindex="-1"></a><span class="fu">colsize!</span>(gl, <span class="fl">1</span>, <span class="fu">Relative</span>(<span class="fl">5</span><span class="op">/</span><span class="fl">6</span>))</span>
+<span id="cb87-69"><a href="#cb87-69" aria-hidden="true" tabindex="-1"></a><span class="fu">rowsize!</span>(gl, <span class="fl">2</span>, <span class="fu">Relative</span>(<span class="fl">5</span><span class="op">/</span><span class="fl">6</span>))</span>
+<span id="cb87-70"><a href="#cb87-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb87-71"><a href="#cb87-71" aria-hidden="true" tabindex="-1"></a>f</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/cell-63-output-1.svg" class="img-fluid figure-img"></p>
+<p><img src="index_files/figure-html/cell-56-output-1.svg" class="img-fluid figure-img"></p>
 </figure>
 </div>
-</div>
-</div>
-<p>Partial response in space</p>
-<div id="126" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb103"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb103-1"><a href="#cb103-1" aria-hidden="true" tabindex="-1"></a>partial1 <span class="op">=</span> <span class="fu">partialresponse</span>(rf_sdm, env_covariates, <span class="fl">1</span>; threshold<span class="op">=</span><span class="cn">false</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>🗺️  A 240 × 546 layer with 70065 Float64 cells
-   Projection: +proj=longlat +datum=WGS84 +no_defs</code></pre>
 </div>
 </div>
 </section>
 <section id="shap-values" class="level2">
 <h2 class="anchored" data-anchor-id="shap-values">SHAP Values</h2>
 <p>Layer-wise</p>
-<div id="128" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb105"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb105-1"><a href="#cb105-1" aria-hidden="true" tabindex="-1"></a><span class="co">#shapley1 = explain(rf_sdm, env_covariates, 1; threshold=false)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="112" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb88"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a>shapley1 <span class="op">=</span> <span class="fu">explain</span>(dt_sdm, env_covariates, <span class="fl">1</span>; threshold<span class="op">=</span><span class="cn">false</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>🗺️  A 240 × 546 layer with 70065 Float64 cells
+   Projection: +proj=longlat +datum=WGS84 +no_defs</code></pre>
 </div>
-<p>All at once (this takes a while)</p>
-<div id="130" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb106"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true" tabindex="-1"></a><span class="co">#@time S = explain(rf_sdm, env_covariates; threshold=false)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="132" class="cell" data-execution_count="0">
-<div class="sourceCode cell-code" id="cb107"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb107-1"><a href="#cb107-1" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="fu">Figure</span>(; size <span class="op">=</span> (<span class="fl">600</span>, <span class="fl">300</span>))</span>
-<span id="cb107-2"><a href="#cb107-2" aria-hidden="true" tabindex="-1"></a>mostimp <span class="op">=</span> <span class="fu">mosaic</span>(argmax, <span class="fu">map</span>(x <span class="op">-&gt;</span> <span class="fu">abs</span>.(x), S))</span>
-<span id="cb107-3"><a href="#cb107-3" aria-hidden="true" tabindex="-1"></a>colmap <span class="op">=</span> [colorant<span class="st">"#E69F00"</span>, colorant<span class="st">"#56B4E9"</span>, colorant<span class="st">"#009E73"</span>, colorant<span class="st">"#D55E00"</span>, colorant<span class="st">"#CC79A7"</span>, colorant<span class="st">"#a65dab"</span>, colorant<span class="st">"#da6161"</span>]</span>
-<span id="cb107-4"><a href="#cb107-4" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> <span class="fu">Axis</span>(f[<span class="fl">1</span>, <span class="fl">1</span>]; aspect <span class="op">=</span> <span class="fu">DataAspect</span>())</span>
-<span id="cb107-5"><a href="#cb107-5" aria-hidden="true" tabindex="-1"></a><span class="fu">heatmap!</span>(ax, mostimp; colormap <span class="op">=</span> colmap)</span>
-<span id="cb107-6"><a href="#cb107-6" aria-hidden="true" tabindex="-1"></a><span class="fu">lines!</span>(ax, switzerland; color <span class="op">=</span> <span class="op">:</span>black)</span>
-<span id="cb107-7"><a href="#cb107-7" aria-hidden="true" tabindex="-1"></a><span class="fu">hidedecorations!</span>(ax)</span>
-<span id="cb107-8"><a href="#cb107-8" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(ax)</span>
-<span id="cb107-9"><a href="#cb107-9" aria-hidden="true" tabindex="-1"></a><span class="fu">Legend</span>(</span>
-<span id="cb107-10"><a href="#cb107-10" aria-hidden="true" tabindex="-1"></a>    f[<span class="fl">2</span>, <span class="fl">1</span>],</span>
-<span id="cb107-11"><a href="#cb107-11" aria-hidden="true" tabindex="-1"></a>    [<span class="fu">PolyElement</span>(; color <span class="op">=</span> colmap[i]) for i <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fu">length</span>(<span class="fu">variables</span>(rf_sdm))],</span>
-<span id="cb107-12"><a href="#cb107-12" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"BIO</span><span class="sc">$</span>(b)<span class="st">"</span> for b <span class="kw">in</span> <span class="fu">variables</span>(rf_sdm)];</span>
-<span id="cb107-13"><a href="#cb107-13" aria-hidden="true" tabindex="-1"></a>    orientation <span class="op">=</span> <span class="op">:</span>horizontal,</span>
-<span id="cb107-14"><a href="#cb107-14" aria-hidden="true" tabindex="-1"></a>    nbanks <span class="op">=</span> <span class="fl">1</span>,</span>
-<span id="cb107-15"><a href="#cb107-15" aria-hidden="true" tabindex="-1"></a>    framevisible <span class="op">=</span> <span class="cn">false</span>,</span>
-<span id="cb107-16"><a href="#cb107-16" aria-hidden="true" tabindex="-1"></a>    vertical <span class="op">=</span> <span class="cn">false</span>,</span>
-<span id="cb107-17"><a href="#cb107-17" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb107-18"><a href="#cb107-18" aria-hidden="true" tabindex="-1"></a>f</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="114" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb90"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="fu">Figure</span>()</span>
+<span id="cb90-2"><a href="#cb90-2" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> <span class="fu">Axis</span>(f[<span class="fl">1</span>,<span class="fl">1</span>])</span>
+<span id="cb90-3"><a href="#cb90-3" aria-hidden="true" tabindex="-1"></a>hm <span class="op">=</span> <span class="fu">heatmap!</span>(ax, shapley1)</span>
+<span id="cb90-4"><a href="#cb90-4" aria-hidden="true" tabindex="-1"></a><span class="fu">Colorbar</span>(f[<span class="fl">1</span>,<span class="fl">2</span>], hm, label<span class="op">=</span><span class="st">"Contribution of temperature to prediction score"</span>)</span>
+<span id="cb90-5"><a href="#cb90-5" aria-hidden="true" tabindex="-1"></a>f</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-58-output-1.svg" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="spatial-most-important-variable-shap" class="level2">
+<h2 class="anchored" data-anchor-id="spatial-most-important-variable-shap">Spatial Most Important Variable (SHAP)</h2>
+<p>All at once (this takes a little bit)</p>
+<div id="116" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb91"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a><span class="pp">@time</span> S <span class="op">=</span> <span class="fu">explain</span>(dt_sdm, env_covariates; threshold<span class="op">=</span><span class="cn">false</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> 92.667189 seconds (3.07 G allocations: 176.146 GiB, 12.00% gc time, 0.07% compilation time)</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>19-element Vector{SDMLayer{Float64}}:
+ 🗺️  A 240 × 546 layer (70065 Float64 cells)
+ 🗺️  A 240 × 546 layer (70065 Float64 cells)
+ 🗺️  A 240 × 546 layer (70065 Float64 cells)
+ 🗺️  A 240 × 546 layer (70065 Float64 cells)
+ 🗺️  A 240 × 546 layer (70065 Float64 cells)
+ 🗺️  A 240 × 546 layer (70065 Float64 cells)
+ 🗺️  A 240 × 546 layer (70065 Float64 cells)
+ 🗺️  A 240 × 546 layer (70065 Float64 cells)
+ 🗺️  A 240 × 546 layer (70065 Float64 cells)
+ 🗺️  A 240 × 546 layer (70065 Float64 cells)
+ 🗺️  A 240 × 546 layer (70065 Float64 cells)
+ 🗺️  A 240 × 546 layer (70065 Float64 cells)
+ 🗺️  A 240 × 546 layer (70065 Float64 cells)
+ 🗺️  A 240 × 546 layer (70065 Float64 cells)
+ 🗺️  A 240 × 546 layer (70065 Float64 cells)
+ 🗺️  A 240 × 546 layer (70065 Float64 cells)
+ 🗺️  A 240 × 546 layer (70065 Float64 cells)
+ 🗺️  A 240 × 546 layer (70065 Float64 cells)
+ 🗺️  A 240 × 546 layer (70065 Float64 cells)</code></pre>
+</div>
+</div>
+<div id="118" class="cell" data-execution_count="0">
+<div class="sourceCode cell-code" id="cb94"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="fu">Figure</span>(; size <span class="op">=</span> (<span class="fl">600</span>, <span class="fl">300</span>))</span>
+<span id="cb94-2"><a href="#cb94-2" aria-hidden="true" tabindex="-1"></a>mostimp <span class="op">=</span> <span class="fu">mosaic</span>(argmax, <span class="fu">map</span>(x <span class="op">-&gt;</span> <span class="fu">abs</span>.(x), S))</span>
+<span id="cb94-3"><a href="#cb94-3" aria-hidden="true" tabindex="-1"></a>colmap <span class="op">=</span> [colorant<span class="st">"#E69F00"</span>, colorant<span class="st">"#56B4E9"</span>, colorant<span class="st">"#009E73"</span>, colorant<span class="st">"#D55E00"</span>, colorant<span class="st">"#CC79A7"</span>, colorant<span class="st">"#a65dab"</span>, colorant<span class="st">"#da6161"</span>]</span>
+<span id="cb94-4"><a href="#cb94-4" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> <span class="fu">Axis</span>(f[<span class="fl">1</span>, <span class="fl">1</span>]; aspect <span class="op">=</span> <span class="fu">DataAspect</span>())</span>
+<span id="cb94-5"><a href="#cb94-5" aria-hidden="true" tabindex="-1"></a><span class="fu">heatmap!</span>(ax, mostimp; colormap <span class="op">=</span> colmap)</span>
+<span id="cb94-6"><a href="#cb94-6" aria-hidden="true" tabindex="-1"></a><span class="fu">lines!</span>(ax, switzerland; color <span class="op">=</span> <span class="op">:</span>black)</span>
+<span id="cb94-7"><a href="#cb94-7" aria-hidden="true" tabindex="-1"></a><span class="fu">hidedecorations!</span>(ax)</span>
+<span id="cb94-8"><a href="#cb94-8" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(ax)</span>
+<span id="cb94-9"><a href="#cb94-9" aria-hidden="true" tabindex="-1"></a><span class="fu">Legend</span>(</span>
+<span id="cb94-10"><a href="#cb94-10" aria-hidden="true" tabindex="-1"></a>    f[<span class="fl">2</span>, <span class="fl">1</span>],</span>
+<span id="cb94-11"><a href="#cb94-11" aria-hidden="true" tabindex="-1"></a>    [<span class="fu">PolyElement</span>(; color <span class="op">=</span> colmap[i]) for i <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fu">length</span>(<span class="fu">variables</span>(rf_sdm))],</span>
+<span id="cb94-12"><a href="#cb94-12" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"BIO</span><span class="sc">$</span>(b)<span class="st">"</span> for b <span class="kw">in</span> <span class="fu">variables</span>(rf_sdm)];</span>
+<span id="cb94-13"><a href="#cb94-13" aria-hidden="true" tabindex="-1"></a>    orientation <span class="op">=</span> <span class="op">:</span>horizontal,</span>
+<span id="cb94-14"><a href="#cb94-14" aria-hidden="true" tabindex="-1"></a>    nbanks <span class="op">=</span> <span class="fl">1</span>,</span>
+<span id="cb94-15"><a href="#cb94-15" aria-hidden="true" tabindex="-1"></a>    framevisible <span class="op">=</span> <span class="cn">false</span>,</span>
+<span id="cb94-16"><a href="#cb94-16" aria-hidden="true" tabindex="-1"></a>    vertical <span class="op">=</span> <span class="cn">false</span>,</span>
+<span id="cb94-17"><a href="#cb94-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb94-18"><a href="#cb94-18" aria-hidden="true" tabindex="-1"></a>f</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="conformal-prediction" class="level2">
 <h2 class="anchored" data-anchor-id="conformal-prediction">Conformal Prediction</h2>
-<p>Conformal prediction is another method for interpreting machine learning models. Specifically, it is a form of <em>uncertainty quantification</em>.</p>
-<p>Let’s talk about uncertainty. A few sections ago, we generated a map of ucnertainty from our bagged model. This was done by measuring the interquantile range across each individual tree.</p>
-<div id="134" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb108"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb108-1"><a href="#cb108-1" aria-hidden="true" tabindex="-1"></a><span class="fu">include</span>(<span class="st">"conformal_prediction.jl"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Conformal prediction is another method for interpreting machine learning models. Specifically, it is a form of <em>uncertainty quantification</em>. <strong>TK explanation of UQ</strong></p>
+<div id="120" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb95"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb95-1"><a href="#cb95-1" aria-hidden="true" tabindex="-1"></a><span class="fu">include</span>(<span class="st">"conformal_prediction.jl"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>cellsize (generic function with 1 method)</code></pre>
 </div>
 </div>
-<div id="136" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb110"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb110-1"><a href="#cb110-1" aria-hidden="true" tabindex="-1"></a>rlevels <span class="op">=</span> <span class="fu">LinRange</span>(<span class="fl">0.01</span>, <span class="fl">0.2</span>, <span class="fl">100</span>)</span>
-<span id="cb110-2"><a href="#cb110-2" aria-hidden="true" tabindex="-1"></a>qs <span class="op">=</span> [<span class="fu">_estimate_q</span>(rf_sdm, <span class="fu">holdout</span>(rf_sdm)<span class="op">...</span>; α<span class="op">=</span>u) for u <span class="kw">in</span> rlevels]</span>
-<span id="cb110-3"><a href="#cb110-3" aria-hidden="true" tabindex="-1"></a>𝐏 <span class="op">=</span> <span class="fu">predict</span>(rf_sdm; threshold<span class="op">=</span><span class="cn">false</span>)</span>
-<span id="cb110-4"><a href="#cb110-4" aria-hidden="true" tabindex="-1"></a>eff <span class="op">=</span> [<span class="fu">mean</span>(<span class="fu">length</span>.(<span class="fu">credibleclasses</span>.(𝐏, q))) for q <span class="kw">in</span> qs]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="122" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb97"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb97-1"><a href="#cb97-1" aria-hidden="true" tabindex="-1"></a>rlevels <span class="op">=</span> <span class="fu">LinRange</span>(<span class="fl">0.01</span>, <span class="fl">0.2</span>, <span class="fl">100</span>)</span>
+<span id="cb97-2"><a href="#cb97-2" aria-hidden="true" tabindex="-1"></a>qs <span class="op">=</span> [<span class="fu">_estimate_q</span>(dt_sdm, <span class="fu">holdout</span>(dt_sdm)<span class="op">...</span>; α<span class="op">=</span>u) for u <span class="kw">in</span> rlevels]</span>
+<span id="cb97-3"><a href="#cb97-3" aria-hidden="true" tabindex="-1"></a>𝐏 <span class="op">=</span> <span class="fu">predict</span>(dt_sdm; threshold<span class="op">=</span><span class="cn">false</span>)</span>
+<span id="cb97-4"><a href="#cb97-4" aria-hidden="true" tabindex="-1"></a>eff <span class="op">=</span> [<span class="fu">mean</span>(<span class="fu">length</span>.(<span class="fu">credibleclasses</span>.(𝐏, q))) for q <span class="kw">in</span> qs]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>100-element Vector{Float64}:
- 1.5382011605415862
- 1.5382011605415862
- 1.3786266924564796
- 1.1731141199226305
- 1.1731141199226305
- 1.175531914893617
- 1.1344294003868471
- 1.4550290135396517
- 1.2166344294003868
- 1.1697292069632494
+ 1.5681818181818181
+ 1.5681818181818181
+ 1.5174081237911026
+ 1.3984526112185687
+ 1.3984526112185687
+ 1.5174081237911026
+ 1.4095744680851063
+ 1.4095744680851063
+ 1.4095744680851063
+ 1.3578336557059962
  ⋮
- 0.9061895551257253
- 0.8950676982591876
- 0.8936170212765957
- 0.8853965183752418
- 0.9177949709864603
- 0.9177949709864603
- 0.8955512572533849
- 0.9216634429400387
- 0.8655705996131529</code></pre>
+ 0.8747582205029013
+ 0.8747582205029013
+ 1.0
+ 0.8747582205029013
+ 1.0
+ 0.6421663442940039
+ 0.6421663442940039
+ 0.8747582205029013
+ 0.9854932301740812</code></pre>
 </div>
 </div>
-<div id="138" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb112"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb112-1"><a href="#cb112-1" aria-hidden="true" tabindex="-1"></a>cs <span class="op">=</span> <span class="fu">cellsize</span>(prd)</span>
-<span id="cb112-2"><a href="#cb112-2" aria-hidden="true" tabindex="-1"></a>cmodel <span class="op">=</span> <span class="fu">deepcopy</span>(rf_sdm)</span>
-<span id="cb112-3"><a href="#cb112-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb112-4"><a href="#cb112-4" aria-hidden="true" tabindex="-1"></a><span class="co"># majority rules arg for consensus should give bool</span></span>
-<span id="cb112-5"><a href="#cb112-5" aria-hidden="true" tabindex="-1"></a>distrib <span class="op">=</span> <span class="fu">predict</span>(cmodel, env_covariates; consensus<span class="op">=</span>majority, threshold<span class="op">=</span><span class="cn">true</span>)</span>
-<span id="cb112-6"><a href="#cb112-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="fu">eachindex</span>(qs)</span>
-<span id="cb112-7"><a href="#cb112-7" aria-hidden="true" tabindex="-1"></a>    Cp, Ca <span class="op">=</span> <span class="fu">credibleclasses</span>(prd, qs[i])</span>
-<span id="cb112-8"><a href="#cb112-8" aria-hidden="true" tabindex="-1"></a>    undet <span class="op">=</span> .!(Cp <span class="op">.|</span> Ca)</span>
-<span id="cb112-9"><a href="#cb112-9" aria-hidden="true" tabindex="-1"></a>    sure_presence <span class="op">=</span> Cp <span class="op">.&amp;</span> (.!Ca)</span>
-<span id="cb112-10"><a href="#cb112-10" aria-hidden="true" tabindex="-1"></a>    unsure <span class="op">=</span> Ca <span class="op">.&amp;</span> Cp</span>
-<span id="cb112-11"><a href="#cb112-11" aria-hidden="true" tabindex="-1"></a>    unsure_presence <span class="op">=</span> unsure <span class="op">.&amp;</span> distrib</span>
-<span id="cb112-12"><a href="#cb112-12" aria-hidden="true" tabindex="-1"></a>    unsure_absence <span class="op">=</span> unsure <span class="op">.&amp;</span> (.!distrib)</span>
-<span id="cb112-13"><a href="#cb112-13" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
-<span id="cb112-14"><a href="#cb112-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb112-15"><a href="#cb112-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Cross-conformal with median range selected</span></span>
-<span id="cb112-16"><a href="#cb112-16" aria-hidden="true" tabindex="-1"></a>q <span class="op">=</span> <span class="fu">median</span>([<span class="fu">_estimate_q</span>(cmodel, fold<span class="op">...</span>; α<span class="op">=</span><span class="fl">0.05</span>) for fold <span class="kw">in</span> <span class="fu">kfold</span>(cmodel; k<span class="op">=</span><span class="fl">10</span>)])</span>
-<span id="cb112-17"><a href="#cb112-17" aria-hidden="true" tabindex="-1"></a>Cp, Ca <span class="op">=</span> <span class="fu">credibleclasses</span>(prd, q)</span>
-<span id="cb112-18"><a href="#cb112-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb112-19"><a href="#cb112-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Partition</span></span>
-<span id="cb112-20"><a href="#cb112-20" aria-hidden="true" tabindex="-1"></a>sure_presence <span class="op">=</span> Cp <span class="op">.&amp;</span> (.!Ca)</span>
-<span id="cb112-21"><a href="#cb112-21" aria-hidden="true" tabindex="-1"></a>sure_absence <span class="op">=</span> Ca <span class="op">.&amp;</span> (.!Cp)</span>
-<span id="cb112-22"><a href="#cb112-22" aria-hidden="true" tabindex="-1"></a>unsure <span class="op">=</span> Ca <span class="op">.&amp;</span> Cp</span>
-<span id="cb112-23"><a href="#cb112-23" aria-hidden="true" tabindex="-1"></a>unsure_in <span class="op">=</span> unsure <span class="op">.&amp;</span> distrib</span>
-<span id="cb112-24"><a href="#cb112-24" aria-hidden="true" tabindex="-1"></a>unsure_out <span class="op">=</span> unsure <span class="op">.&amp;</span> (.!distrib)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="124" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb99"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a>cs <span class="op">=</span> <span class="fu">cellsize</span>(prd)</span>
+<span id="cb99-2"><a href="#cb99-2" aria-hidden="true" tabindex="-1"></a>cmodel <span class="op">=</span> <span class="fu">deepcopy</span>(dt_sdm)</span>
+<span id="cb99-3"><a href="#cb99-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb99-4"><a href="#cb99-4" aria-hidden="true" tabindex="-1"></a><span class="co"># majority rules arg for consensus should give bool, consensus=majority</span></span>
+<span id="cb99-5"><a href="#cb99-5" aria-hidden="true" tabindex="-1"></a>distrib <span class="op">=</span> <span class="fu">predict</span>(cmodel, env_covariates; threshold<span class="op">=</span><span class="cn">true</span>)</span>
+<span id="cb99-6"><a href="#cb99-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="fu">eachindex</span>(qs)</span>
+<span id="cb99-7"><a href="#cb99-7" aria-hidden="true" tabindex="-1"></a>    Cp, Ca <span class="op">=</span> <span class="fu">credibleclasses</span>(prd, qs[i])</span>
+<span id="cb99-8"><a href="#cb99-8" aria-hidden="true" tabindex="-1"></a>    undet <span class="op">=</span> .!(Cp <span class="op">.|</span> Ca)</span>
+<span id="cb99-9"><a href="#cb99-9" aria-hidden="true" tabindex="-1"></a>    sure_presence <span class="op">=</span> Cp <span class="op">.&amp;</span> (.!Ca)</span>
+<span id="cb99-10"><a href="#cb99-10" aria-hidden="true" tabindex="-1"></a>    unsure <span class="op">=</span> Ca <span class="op">.&amp;</span> Cp</span>
+<span id="cb99-11"><a href="#cb99-11" aria-hidden="true" tabindex="-1"></a>    unsure_presence <span class="op">=</span> unsure <span class="op">.&amp;</span> distrib</span>
+<span id="cb99-12"><a href="#cb99-12" aria-hidden="true" tabindex="-1"></a>    unsure_absence <span class="op">=</span> unsure <span class="op">.&amp;</span> (.!distrib)</span>
+<span id="cb99-13"><a href="#cb99-13" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb99-14"><a href="#cb99-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb99-15"><a href="#cb99-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Cross-conformal with median range selected</span></span>
+<span id="cb99-16"><a href="#cb99-16" aria-hidden="true" tabindex="-1"></a>q <span class="op">=</span> <span class="fu">median</span>([<span class="fu">_estimate_q</span>(cmodel, fold<span class="op">...</span>; α<span class="op">=</span><span class="fl">0.05</span>) for fold <span class="kw">in</span> <span class="fu">kfold</span>(cmodel; k<span class="op">=</span><span class="fl">10</span>)])</span>
+<span id="cb99-17"><a href="#cb99-17" aria-hidden="true" tabindex="-1"></a>Cp, Ca <span class="op">=</span> <span class="fu">credibleclasses</span>(prd, q)</span>
+<span id="cb99-18"><a href="#cb99-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb99-19"><a href="#cb99-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Partition</span></span>
+<span id="cb99-20"><a href="#cb99-20" aria-hidden="true" tabindex="-1"></a>sure_presence <span class="op">=</span> Cp <span class="op">.&amp;</span> (.!Ca)</span>
+<span id="cb99-21"><a href="#cb99-21" aria-hidden="true" tabindex="-1"></a>sure_absence <span class="op">=</span> Ca <span class="op">.&amp;</span> (.!Cp)</span>
+<span id="cb99-22"><a href="#cb99-22" aria-hidden="true" tabindex="-1"></a>unsure <span class="op">=</span> Ca <span class="op">.&amp;</span> Cp</span>
+<span id="cb99-23"><a href="#cb99-23" aria-hidden="true" tabindex="-1"></a>unsure_in <span class="op">=</span> unsure <span class="op">.&amp;</span> distrib</span>
+<span id="cb99-24"><a href="#cb99-24" aria-hidden="true" tabindex="-1"></a>unsure_out <span class="op">=</span> unsure <span class="op">.&amp;</span> (.!distrib)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>🗺️  A 240 × 546 layer with 70065 Bool cells
    Projection: +proj=longlat +datum=WGS84 +no_defs</code></pre>
 </div>
 </div>
+<div id="126" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb101"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb101-1"><a href="#cb101-1" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="fu">Figure</span>(; size<span class="op">=</span>(<span class="fl">1200</span>, <span class="fl">600</span>))</span>
+<span id="cb101-2"><a href="#cb101-2" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> <span class="fu">Axis</span>(f[<span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, <span class="fl">1</span>]; aspect<span class="op">=</span><span class="fu">DataAspect</span>())</span>
+<span id="cb101-3"><a href="#cb101-3" aria-hidden="true" tabindex="-1"></a><span class="fu">poly!</span>(ax, switzerland, color<span class="op">=:</span>grey95)</span>
+<span id="cb101-4"><a href="#cb101-4" aria-hidden="true" tabindex="-1"></a><span class="fu">heatmap!</span>(ax, <span class="fu">nodata</span>(sure_presence, <span class="cn">false</span>), colormap<span class="op">=</span>[<span class="op">:</span>forestgreen])</span>
+<span id="cb101-5"><a href="#cb101-5" aria-hidden="true" tabindex="-1"></a><span class="fu">heatmap!</span>(ax, <span class="fu">nodata</span>(unsure, <span class="cn">false</span>), colormap<span class="op">=</span>[<span class="op">:</span>grey70])</span>
+<span id="cb101-6"><a href="#cb101-6" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(ax)</span>
+<span id="cb101-7"><a href="#cb101-7" aria-hidden="true" tabindex="-1"></a><span class="fu">hidedecorations!</span>(ax)</span>
+<span id="cb101-8"><a href="#cb101-8" aria-hidden="true" tabindex="-1"></a>f</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-64-output-1.svg" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="a-more-complex-sdm-boosted-regression-trees-from-scratch-ish" class="level1 page-columns page-full">
+<h1>A more complex SDM – Boosted Regression Trees from scratch(-ish)</h1>
+<p>TODO: What is a BRT explanation: - Decision Tree + Bagging = Random Forest - Random Forest + Boosting = BRT</p>
+<section id="making-a-random-forest-with-bootstrap-aggegration" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="making-a-random-forest-with-bootstrap-aggegration">Making a random forest with Bootstrap Aggegration</h2>
+<p>The first step toward turning a Decision Tree into a Boosted Regression Tree is <em>bootstrap aggregation</em> (oftened shorted to <em>bagging</em>).</p>
+<p>Bagging involves constructing an <em>ensemble model</em><a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a> from simpler models, where each simpler model is typically trained only on a subset of the features.</p>
+<div class="no-row-height column-margin column-container"><div id="fn6"><p><sup>6</sup>&nbsp;A ensemble model consists of an average across many models.</p></div></div><p>A random forest (<strong>TK CITE</strong>) consists of an ensemble of decision trees, each trained on a subset of the features. We construct this by first defining the component model, which is a <code>DecisionTree</code> that first transforms training data with a <code>ZScore</code></p>
+<div id="128" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb102"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb102-1"><a href="#cb102-1" aria-hidden="true" tabindex="-1"></a>solo_dt <span class="op">=</span> <span class="fu">SDM</span>(ZScore, DecisionTree, env_covariates, presencelayer, pseudoabsences)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>SDeMo.ZScore → SDeMo.DecisionTree → P(x) ≥ 0.5</code></pre>
+</div>
+</div>
+<p>We then create an ensemble using the <code>Bagging</code> type, and pass 30 as the total number of component models to use in the ensemble.</p>
+<div id="130" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb104"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb104-1"><a href="#cb104-1" aria-hidden="true" tabindex="-1"></a>rf_sdm <span class="op">=</span> <span class="fu">Bagging</span>(solo_dt, <span class="fl">30</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>{SDeMo.ZScore → SDeMo.DecisionTree → P(x) ≥ 0.5} × 30</code></pre>
+</div>
+</div>
+<p>We then run <code>bagfeatures!</code> to take each component model and choose a subset of variables to train the component model on.</p>
+<div id="132" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb106"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bagfeatures!</span>(rf_sdm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>{SDeMo.ZScore → SDeMo.DecisionTree → P(x) ≥ 0.5} × 30</code></pre>
+</div>
+</div>
+<p>Now we use <code>train!</code> to fit the ensemble model</p>
+<div id="134" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb108"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb108-1"><a href="#cb108-1" aria-hidden="true" tabindex="-1"></a><span class="fu">train!</span>(rf_sdm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>{SDeMo.ZScore → SDeMo.DecisionTree → P(x) ≥ 0.414} × 30</code></pre>
+</div>
+</div>
+<div id="136" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb110"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb110-1"><a href="#cb110-1" aria-hidden="true" tabindex="-1"></a>prd <span class="op">=</span> <span class="fu">predict</span>(rf_sdm, env_covariates; threshold <span class="op">=</span> <span class="cn">false</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>🗺️  A 240 × 546 layer with 70065 Float64 cells
+   Projection: +proj=longlat +datum=WGS84 +no_defs</code></pre>
+</div>
+</div>
+<p>We can then compute the <em>uncertainty</em> of the model, by considering the inter-quantile-range (<code>iqr</code>, a type of variance), across each component model.</p>
+<div id="138" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb112"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb112-1"><a href="#cb112-1" aria-hidden="true" tabindex="-1"></a>unc <span class="op">=</span> <span class="fu">predict</span>(rf_sdm, env_covariates; consensus <span class="op">=</span> iqr, threshold <span class="op">=</span> <span class="cn">false</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>🗺️  A 240 × 546 layer with 70065 Float64 cells
+   Projection: +proj=longlat +datum=WGS84 +no_defs</code></pre>
+</div>
+</div>
 <div id="140" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb114"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb114-1"><a href="#cb114-1" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="fu">Figure</span>(; size<span class="op">=</span>(<span class="fl">1200</span>, <span class="fl">600</span>))</span>
-<span id="cb114-2"><a href="#cb114-2" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> <span class="fu">Axis</span>(f[<span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, <span class="fl">1</span>]; aspect<span class="op">=</span><span class="fu">DataAspect</span>())</span>
-<span id="cb114-3"><a href="#cb114-3" aria-hidden="true" tabindex="-1"></a><span class="fu">poly!</span>(ax, switzerland, color<span class="op">=:</span>grey95)</span>
-<span id="cb114-4"><a href="#cb114-4" aria-hidden="true" tabindex="-1"></a><span class="fu">heatmap!</span>(ax, <span class="fu">nodata</span>(sure_presence, <span class="cn">false</span>), colormap<span class="op">=</span>[<span class="op">:</span>forestgreen])</span>
-<span id="cb114-5"><a href="#cb114-5" aria-hidden="true" tabindex="-1"></a><span class="fu">heatmap!</span>(ax, <span class="fu">nodata</span>(unsure, <span class="cn">false</span>), colormap<span class="op">=</span>[<span class="op">:</span>grey70])</span>
-<span id="cb114-6"><a href="#cb114-6" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(ax)</span>
-<span id="cb114-7"><a href="#cb114-7" aria-hidden="true" tabindex="-1"></a><span class="fu">hidedecorations!</span>(ax)</span>
-<span id="cb114-8"><a href="#cb114-8" aria-hidden="true" tabindex="-1"></a>f</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb114"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb114-1"><a href="#cb114-1" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="fu">Figure</span>(; size <span class="op">=</span> (<span class="fl">600</span>, <span class="fl">600</span>))</span>
+<span id="cb114-2"><a href="#cb114-2" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> <span class="fu">Axis</span>(f[<span class="fl">1</span>, <span class="fl">1</span>]; aspect <span class="op">=</span> <span class="fu">DataAspect</span>(), title <span class="op">=</span> <span class="st">"Prediction"</span>)</span>
+<span id="cb114-3"><a href="#cb114-3" aria-hidden="true" tabindex="-1"></a>hm <span class="op">=</span> <span class="fu">heatmap!</span>(ax, prd; colormap <span class="op">=</span> <span class="op">:</span>linear_worb_100_25_c53_n256, colorrange <span class="op">=</span> (<span class="fl">0</span>, <span class="fl">1</span>))</span>
+<span id="cb114-4"><a href="#cb114-4" aria-hidden="true" tabindex="-1"></a><span class="fu">Colorbar</span>(f[<span class="fl">1</span>, <span class="fl">2</span>], hm)</span>
+<span id="cb114-5"><a href="#cb114-5" aria-hidden="true" tabindex="-1"></a><span class="fu">lines!</span>(ax, switzerland; color <span class="op">=</span> <span class="op">:</span>black)</span>
+<span id="cb114-6"><a href="#cb114-6" aria-hidden="true" tabindex="-1"></a><span class="fu">hidedecorations!</span>(ax)</span>
+<span id="cb114-7"><a href="#cb114-7" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(ax)</span>
+<span id="cb114-8"><a href="#cb114-8" aria-hidden="true" tabindex="-1"></a>ax2 <span class="op">=</span> <span class="fu">Axis</span>(f[<span class="fl">2</span>, <span class="fl">1</span>]; aspect <span class="op">=</span> <span class="fu">DataAspect</span>(), title <span class="op">=</span> <span class="st">"Uncertainty"</span>)</span>
+<span id="cb114-9"><a href="#cb114-9" aria-hidden="true" tabindex="-1"></a>hm <span class="op">=</span></span>
+<span id="cb114-10"><a href="#cb114-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">heatmap!</span>(ax2, <span class="fu">quantize</span>(unc); colormap <span class="op">=</span> <span class="op">:</span>linear_gow_60_85_c27_n256, colorrange <span class="op">=</span> (<span class="fl">0</span>, <span class="fl">1</span>))</span>
+<span id="cb114-11"><a href="#cb114-11" aria-hidden="true" tabindex="-1"></a><span class="fu">Colorbar</span>(f[<span class="fl">2</span>, <span class="fl">2</span>], hm)</span>
+<span id="cb114-12"><a href="#cb114-12" aria-hidden="true" tabindex="-1"></a><span class="fu">lines!</span>(ax2, switzerland; color <span class="op">=</span> <span class="op">:</span>black)</span>
+<span id="cb114-13"><a href="#cb114-13" aria-hidden="true" tabindex="-1"></a><span class="fu">hidedecorations!</span>(ax2)</span>
+<span id="cb114-14"><a href="#cb114-14" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(ax2)</span>
+<span id="cb114-15"><a href="#cb114-15" aria-hidden="true" tabindex="-1"></a>f</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <div>
 <figure class="figure">
@@ -2309,15 +2323,45 @@ Figure&nbsp;1: This figures show the separability of the presences and pseudo-ab
 </div>
 </div>
 </section>
-<section id="counterfactuals" class="level2">
-<h2 class="anchored" data-anchor-id="counterfactuals">Counterfactuals</h2>
-</section>
-</section>
-<section id="appendix" class="level1">
-<h1>Appendix</h1>
-<section id="what-if-i-want-to-use-a-different-model" class="level2">
-<h2 class="anchored" data-anchor-id="what-if-i-want-to-use-a-different-model">What if I want to use a different model?</h2>
-<p>We can extract features and labels as a whole, but we can also use some more fine-grained functions to setup crossvalidation splits without inducing data leakage.</p>
+<section id="boosting-to-create-a-brt" class="level2">
+<h2 class="anchored" data-anchor-id="boosting-to-create-a-brt">Boosting to create a BRT</h2>
+<p>In a BRT, each component model is <em>boosted</em>.</p>
+<p>Boosting does bagging, but smarter by weighing each sample.</p>
+<div id="142" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb115"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb115-1"><a href="#cb115-1" aria-hidden="true" tabindex="-1"></a>bst <span class="op">=</span> <span class="fu">AdaBoost</span>(dt_sdm; iterations <span class="op">=</span> <span class="fl">50</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>AdaBoost {SDeMo.ZScore → SDeMo.DecisionTree → P(x) ≥ 0.142} × 50 iterations</code></pre>
+</div>
+</div>
+<div id="144" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb117"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb117-1"><a href="#cb117-1" aria-hidden="true" tabindex="-1"></a><span class="fu">train!</span>(bst)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>AdaBoost {SDeMo.ZScore → SDeMo.DecisionTree → P(x) ≥ 0.414} × 50 iterations</code></pre>
+</div>
+</div>
+<div id="146" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb119"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb119-1"><a href="#cb119-1" aria-hidden="true" tabindex="-1"></a>brd <span class="op">=</span> <span class="fu">predict</span>(bst, env_covariates; threshold <span class="op">=</span> <span class="cn">false</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>🗺️  A 240 × 546 layer with 70065 Float64 cells
+   Projection: +proj=longlat +datum=WGS84 +no_defs</code></pre>
+</div>
+</div>
+<div id="148" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb121"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb121-1"><a href="#cb121-1" aria-hidden="true" tabindex="-1"></a>fg, ax, pl <span class="op">=</span> <span class="fu">heatmap</span>(brd; colormap <span class="op">=</span> <span class="op">:</span>tempo, colorrange <span class="op">=</span> (<span class="fl">0</span>, <span class="fl">1</span>))</span>
+<span id="cb121-2"><a href="#cb121-2" aria-hidden="true" tabindex="-1"></a>ax.aspect <span class="op">=</span> <span class="fu">DataAspect</span>()</span>
+<span id="cb121-3"><a href="#cb121-3" aria-hidden="true" tabindex="-1"></a><span class="fu">hidedecorations!</span>(ax)</span>
+<span id="cb121-4"><a href="#cb121-4" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(ax)</span>
+<span id="cb121-5"><a href="#cb121-5" aria-hidden="true" tabindex="-1"></a><span class="fu">lines!</span>(ax, switzerland; color <span class="op">=</span> <span class="op">:</span>grey20)</span>
+<span id="cb121-6"><a href="#cb121-6" aria-hidden="true" tabindex="-1"></a><span class="fu">Colorbar</span>(fg[<span class="fl">1</span>, <span class="fl">2</span>], pl; height <span class="op">=</span> <span class="fu">Relative</span>(<span class="fl">0.6</span>))</span>
+<span id="cb121-7"><a href="#cb121-7" aria-hidden="true" tabindex="-1"></a><span class="fu">current_figure</span>() <span class="co">#hide</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-75-output-1.svg" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
 
 
 </section>
