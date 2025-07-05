@@ -194,19 +194,19 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#sampling-pseudo-absences" id="toc-sampling-pseudo-absences" class="nav-link" data-scroll-target="#sampling-pseudo-absences">Sampling Pseudo-Absences</a></li>
   <li><a href="#training-a-simple-sdm" id="toc-training-a-simple-sdm" class="nav-link" data-scroll-target="#training-a-simple-sdm">Training a Simple SDM</a></li>
-  <li><a href="#validating-an-sdm" id="toc-validating-an-sdm" class="nav-link" data-scroll-target="#validating-an-sdm">Validating an SDM</a>
-  <ul class="collapse">
-  <li><a href="#computing-roc-auc-and-pr-auc" id="toc-computing-roc-auc-and-pr-auc" class="nav-link" data-scroll-target="#computing-roc-auc-and-pr-auc">Computing ROC-AUC and PR-AUC</a></li>
-  </ul></li>
+  <li><a href="#validating-an-sdm" id="toc-validating-an-sdm" class="nav-link" data-scroll-target="#validating-an-sdm">Validating an SDM</a></li>
   </ul></li>
   <li><a href="#a-decision-tree-sdm" id="toc-a-decision-tree-sdm" class="nav-link" data-scroll-target="#a-decision-tree-sdm">A Decision-Tree SDM</a>
   <ul class="collapse">
-  <li><a href="#partial-responses" id="toc-partial-responses" class="nav-link" data-scroll-target="#partial-responses">Partial Responses</a></li>
+  <li><a href="#smarter-variable-selection" id="toc-smarter-variable-selection" class="nav-link" data-scroll-target="#smarter-variable-selection">Smarter Variable Selection</a></li>
+  </ul></li>
+  <li><a href="#making-our-decision-tree-sdm-interpretable" id="toc-making-our-decision-tree-sdm-interpretable" class="nav-link" data-scroll-target="#making-our-decision-tree-sdm-interpretable">Making our Decision-Tree SDM Interpretable</a>
+  <ul class="collapse">
+  <li><a href="#variable-importance" id="toc-variable-importance" class="nav-link" data-scroll-target="#variable-importance">Variable Importance</a></li>
   <li><a href="#shap-values" id="toc-shap-values" class="nav-link" data-scroll-target="#shap-values">SHAP Values</a></li>
-  <li><a href="#spatial-most-important-variable-shap" id="toc-spatial-most-important-variable-shap" class="nav-link" data-scroll-target="#spatial-most-important-variable-shap">Spatial Most Important Variable (SHAP)</a></li>
   <li><a href="#conformal-prediction" id="toc-conformal-prediction" class="nav-link" data-scroll-target="#conformal-prediction">Conformal Prediction</a></li>
   </ul></li>
-  <li><a href="#a-more-complex-sdm-boosted-regression-trees-from-scratch-ish" id="toc-a-more-complex-sdm-boosted-regression-trees-from-scratch-ish" class="nav-link" data-scroll-target="#a-more-complex-sdm-boosted-regression-trees-from-scratch-ish">A more complex SDM – Boosted Regression Trees from scratch(-ish)</a>
+  <li><a href="#more-complex-sdms-boosted-regression-trees-from-scratch-ish" id="toc-more-complex-sdms-boosted-regression-trees-from-scratch-ish" class="nav-link" data-scroll-target="#more-complex-sdms-boosted-regression-trees-from-scratch-ish">More Complex SDMs – Boosted Regression Trees from scratch(-ish)</a>
   <ul class="collapse">
   <li><a href="#making-a-random-forest-with-bootstrap-aggegration" id="toc-making-a-random-forest-with-bootstrap-aggegration" class="nav-link" data-scroll-target="#making-a-random-forest-with-bootstrap-aggegration">Making a random forest with Bootstrap Aggegration</a></li>
   <li><a href="#boosting-to-create-a-brt" id="toc-boosting-to-create-a-brt" class="nav-link" data-scroll-target="#boosting-to-create-a-brt">Boosting to create a BRT</a></li>
@@ -273,9 +273,10 @@ window.Quarto = {
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">PrettyTables</span></span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Statistics</span></span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">DataFrames</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> SDT <span class="op">=</span> SpeciesDistributionToolkit</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> SDT <span class="op">=</span> SpeciesDistributionToolkit</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="fu">include</span>(<span class="st">"lib.jl"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>SpeciesDistributionToolkit</code></pre>
+<pre><code>prauc (generic function with 1 method)</code></pre>
 </div>
 </div>
 </section>
@@ -1873,34 +1874,39 @@ Code for plotting density in environmental space
 <section id="training-a-simple-sdm" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="training-a-simple-sdm">Training a Simple SDM</h2>
 <p>Now that we have presences and pseudoabsences, we are finally ready to train our model.<strong>SDeMo</strong> uses a single <code>SDM</code> type that chains together the data transformation, the model, and data to fit on.</p>
-<p>We’ll build a <em>Naive-Bayes</em> classifier that first applies Principal Component Analysis (PCA) <em>only to the training data</em><a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>.</p>
-<div class="no-row-height column-margin column-container"><div id="fn5"><p><sup>5</sup>&nbsp;It’s crucial that PCA is only applied to the training data to avoid introducing <em>data leakage</em>.</p></div></div><div id="86" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>nb_sdm <span class="op">=</span> <span class="fu">SDM</span>(PCATransform, NaiveBayes, env_covariates, presencelayer, pseudoabsences)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>We’ll start by building a classifier using <em>logistic regression</em> that first applies z-scores <em>only to the training data</em><a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>.</p>
+<div class="no-row-height column-margin column-container"><div id="fn5"><p><sup>5</sup>&nbsp;It’s crucial that parameters of the z-score transformation (the mean and standard deviation of the data) for each predictor is <em>only estimated from the training data</em> to avoid introducing <em>data leakage</em>, where information about the data used to evaluate the model accidentally becomes available (“leaks”) into the training data. The pipeline applied to <code>SDM</code> objects avoids leakage by default, for all data transformations.</p></div></div><div id="86" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>nb_sdm <span class="op">=</span> <span class="fu">SDM</span>(ZScore, Logistic, env_covariates, presencelayer, pseudoabsences)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>SDeMo.PCATransform → SDeMo.NaiveBayes → P(x) ≥ 0.5</code></pre>
+<pre><code>SDeMo.ZScore → SDeMo.Logistic → P(x) ≥ 0.5</code></pre>
 </div>
 </div>
+<p>With the SDM built, we then call the <code>train!</code> method to actually fit the model to the data.</p>
 <div id="88" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb68"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="fu">train!</span>(nb_sdm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>SDeMo.PCATransform → SDeMo.NaiveBayes → P(x) ≥ 0.187</code></pre>
+<pre><code>SDeMo.ZScore → SDeMo.Logistic → P(x) ≥ 0.472</code></pre>
 </div>
 </div>
+<p>Like any binary classifier, Naive-Bayes produces a score between <span class="math inline">\(0\)</span> and <span class="math inline">\(1\)</span> for each prediction, and then selects an optimal threshold <span class="math inline">\(\tau\)</span>. Then, every location with a score less than <span class="math inline">\(\tau\)</span> is predicted to be false, and above <span class="math inline">\(\tau\)</span> is predicted to be true.</p>
+<p>We produce the model’s predictions using the <code>predict</code> method, and to visualize the raw scores (prior to thresholding), we pass the <code>threshold = false</code> argument.</p>
 <div id="90" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>prd <span class="op">=</span> <span class="fu">predict</span>(nb_sdm, env_covariates; threshold <span class="op">=</span> <span class="cn">true</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>prd <span class="op">=</span> <span class="fu">predict</span>(nb_sdm, env_covariates; threshold <span class="op">=</span> <span class="cn">false</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>🗺️  A 240 × 546 layer with 70065 Bool cells
+<pre><code>🗺️  A 240 × 546 layer with 70065 Float64 cells
    Projection: +proj=longlat +datum=WGS84 +no_defs</code></pre>
 </div>
 </div>
+<p>We can then visualize the raw score values.</p>
 <div id="92" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb72"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="fu">Figure</span>()</span>
 <span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> <span class="fu">Axis</span>(f[<span class="fl">1</span>,<span class="fl">1</span>])</span>
-<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a><span class="fu">heatmap!</span>(ax, prd, colormap<span class="op">=</span>[<span class="op">:</span>grey75, <span class="op">:</span>seagreen4])</span>
+<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a>hm <span class="op">=</span> <span class="fu">heatmap!</span>(ax, prd, colorrange<span class="op">=</span>(<span class="fl">0</span>,<span class="fl">1</span>))</span>
 <span id="cb72-4"><a href="#cb72-4" aria-hidden="true" tabindex="-1"></a><span class="fu">scatter!</span>(ax, presencelayer, color<span class="op">=:</span>white, markersize<span class="op">=</span><span class="fl">4</span>)</span>
-<span id="cb72-5"><a href="#cb72-5" aria-hidden="true" tabindex="-1"></a><span class="fu">hidedecorations!</span>(ax)</span>
-<span id="cb72-6"><a href="#cb72-6" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(ax)</span>
-<span id="cb72-7"><a href="#cb72-7" aria-hidden="true" tabindex="-1"></a>f</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb72-5"><a href="#cb72-5" aria-hidden="true" tabindex="-1"></a><span class="fu">Colorbar</span>(f[<span class="fl">1</span>,<span class="fl">2</span>], hm, label<span class="op">=</span><span class="st">"Score"</span>, ticks<span class="op">=</span><span class="fl">0</span><span class="op">:</span><span class="fl">0.25</span><span class="op">:</span><span class="fl">1</span>)</span>
+<span id="cb72-6"><a href="#cb72-6" aria-hidden="true" tabindex="-1"></a><span class="fu">hidedecorations!</span>(ax)</span>
+<span id="cb72-7"><a href="#cb72-7" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(ax)</span>
+<span id="cb72-8"><a href="#cb72-8" aria-hidden="true" tabindex="-1"></a>f</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <div>
 <figure class="figure">
@@ -1909,197 +1915,136 @@ Code for plotting density in environmental space
 </div>
 </div>
 </div>
+<p>By default, the <code>predict</code> method will apply the optimal threshold to produce a binary range map, but we can do this by passing <code>threshold=true</code>. Thresholding is done by selecting the value of <span class="math inline">\(\tau\)</span> that maximizes the <em>Matthew’s Correlation Coefficient</em>.</p>
+<div id="94" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a>prd <span class="op">=</span> <span class="fu">predict</span>(nb_sdm, env_covariates; threshold <span class="op">=</span> <span class="cn">true</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>🗺️  A 240 × 546 layer with 70065 Bool cells
+   Projection: +proj=longlat +datum=WGS84 +no_defs</code></pre>
+</div>
+</div>
+<p>and similarly we can visualize.</p>
+<div id="96" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="fu">Figure</span>()</span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> <span class="fu">Axis</span>(f[<span class="fl">1</span>,<span class="fl">1</span>])</span>
+<span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a><span class="fu">heatmap!</span>(ax, prd, colormap<span class="op">=</span>[<span class="op">:</span>grey75, <span class="op">:</span>seagreen4])</span>
+<span id="cb75-4"><a href="#cb75-4" aria-hidden="true" tabindex="-1"></a><span class="fu">scatter!</span>(ax, presencelayer, color<span class="op">=:</span>white, markersize<span class="op">=</span><span class="fl">4</span>)</span>
+<span id="cb75-5"><a href="#cb75-5" aria-hidden="true" tabindex="-1"></a><span class="fu">hidedecorations!</span>(ax)</span>
+<span id="cb75-6"><a href="#cb75-6" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(ax)</span>
+<span id="cb75-7"><a href="#cb75-7" aria-hidden="true" tabindex="-1"></a>f</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-49-output-1.svg" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
 </section>
 <section id="validating-an-sdm" class="level2">
 <h2 class="anchored" data-anchor-id="validating-an-sdm">Validating an SDM</h2>
-<div id="94" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a>folds <span class="op">=</span> <span class="fu">kfold</span>(nb_sdm)</span>
-<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a>cv <span class="op">=</span> <span class="fu">crossvalidate</span>(nb_sdm, folds)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>(validation = ConfusionMatrix[[TP: 68, TN 88, FP 50, FN 3], [TP: 64, TN 90, FP 46, FN 6], [TP: 64, TN 77, FP 60, FN 6], [TP: 66, TN 88, FP 49, FN 4], [TP: 61, TN 88, FP 48, FN 8], [TP: 63, TN 81, FP 56, FN 7], [TP: 68, TN 88, FP 49, FN 2], [TP: 65, TN 79, FP 58, FN 5], [TP: 63, TN 76, FP 60, FN 7], [TP: 61, TN 79, FP 58, FN 9]], training = ConfusionMatrix[[TP: 577, TN 750, FP 480, FN 52], [TP: 578, TN 754, FP 478, FN 52], [TP: 584, TN 736, FP 495, FN 46], [TP: 584, TN 743, FP 488, FN 46], [TP: 580, TN 750, FP 482, FN 51], [TP: 578, TN 779, FP 452, FN 52], [TP: 581, TN 738, FP 493, FN 49], [TP: 578, TN 754, FP 477, FN 52], [TP: 580, TN 758, FP 474, FN 50], [TP: 580, TN 784, FP 447, FN 50]])</code></pre>
-</div>
-</div>
-<div id="96" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>measures <span class="op">=</span> [mcc, ppv, npv, plr, nlr]</span>
-<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a>cvresult <span class="op">=</span> [<span class="fu">measure</span>(set) for measure <span class="kw">in</span> measures, set <span class="kw">in</span> cv]</span>
-<span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a>nullresult <span class="op">=</span> [<span class="fu">measure</span>(<span class="fu">null</span>(nb_sdm)) for measure <span class="kw">in</span> measures, null <span class="kw">in</span> [coinflip, noskill]]</span>
-<span id="cb75-4"><a href="#cb75-4" aria-hidden="true" tabindex="-1"></a><span class="fu">pretty_table</span>(</span>
-<span id="cb75-5"><a href="#cb75-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">hcat</span>(<span class="fu">string</span>.(measures), <span class="fu">hcat</span>(cvresult, nullresult));</span>
-<span id="cb75-6"><a href="#cb75-6" aria-hidden="true" tabindex="-1"></a>    alignment <span class="op">=</span> [<span class="op">:</span>l, <span class="op">:</span>c, <span class="op">:</span>c, <span class="op">:</span>c, <span class="op">:</span>c],</span>
-<span id="cb75-7"><a href="#cb75-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">#backend = Val(:markdown),</span></span>
-<span id="cb75-8"><a href="#cb75-8" aria-hidden="true" tabindex="-1"></a>    header <span class="op">=</span> [<span class="st">"Measure"</span>, <span class="st">"Validation"</span>, <span class="st">"Training"</span>, <span class="st">"Coin-flip"</span>, <span class="st">"No-skill"</span>],</span>
-<span id="cb75-9"><a href="#cb75-9" aria-hidden="true" tabindex="-1"></a>    formatters <span class="op">=</span> <span class="fu">ft_printf</span>(<span class="st">"%5.3f"</span>, [<span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>]),</span>
-<span id="cb75-10"><a href="#cb75-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>┌─────────┬────────────┬──────────┬───────────┬──────────┐
-│ Measure │ Validation │ Training │ Coin-flip │ No-skill │
-├─────────┼────────────┼──────────┼───────────┼──────────┤
-│ mcc     │   0.505    │  0.510   │  -0.323   │  -0.000  │
-│ ppv     │   0.547    │  0.549   │   0.338   │  0.338   │
-│ npv     │   0.936    │  0.938   │   0.338   │  0.662   │
-│ plr     │   2.378    │  2.381   │   0.512   │  1.000   │
-│ nlr     │   0.136    │  0.129   │   1.954   │  1.000   │
-└─────────┴────────────┴──────────┴───────────┴──────────┘</code></pre>
-</div>
-</div>
-<section id="computing-roc-auc-and-pr-auc" class="level3">
-<h3 class="anchored" data-anchor-id="computing-roc-auc-and-pr-auc">Computing ROC-AUC and PR-AUC</h3>
+<p>We can now assess how well our model is making predictions using <em>crossvalidation</em>. SDeMo provides tools for various forms of crossvalidation, including <code>kfold</code>, <code>leaveoneout</code>, <code>montecarlo</code> (<span class="math inline">\(n\)</span> random validation splits), and <code>holdout</code> (one random validation split).</p>
+<p>Here, we’ll use k-fold validation with 5 folds.</p>
 <div id="98" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a>folds <span class="op">=</span> <span class="fu">kfold</span>(nb_sdm)</span>
-<span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a>thresholds <span class="op">=</span> <span class="fu">LinRange</span>(<span class="fl">0.01</span>, <span class="fl">0.99</span>, <span class="fl">50</span>)</span>
-<span id="cb77-3"><a href="#cb77-3" aria-hidden="true" tabindex="-1"></a>cv <span class="op">=</span> [<span class="fu">crossvalidate</span>(nb_sdm, folds; thr <span class="op">=</span> t) for t <span class="kw">in</span> thresholds];</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div id="100" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: make these functions</span></span>
-<span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a>SDT.SDeMo.<span class="fu">auc</span>([<span class="fu">tpr</span>(rep.validation) for rep <span class="kw">in</span> cv], ([<span class="fu">tnr</span>(rep.validation) for rep <span class="kw">in</span> cv]))</span>
-<span id="cb78-3"><a href="#cb78-3" aria-hidden="true" tabindex="-1"></a><span class="co">#SDT.SDeMo.auc([tpr(rep.validation) for rep in cv], [ppv(rep.validation) for rep in cv], )</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>folds <span class="op">=</span> <span class="fu">kfold</span>(nb_sdm, k <span class="op">=</span> <span class="fl">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>0.8062856176441721</code></pre>
+<pre><code>5-element Vector{Tuple{Vector{Int64}, Vector{Int64}}}:
+ ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10  …  2054, 2055, 2056, 2057, 2059, 2060, 2061, 2064, 2066, 2067], [243, 153, 213, 466, 625, 170, 38, 473, 249, 66  …  1868, 980, 1167, 996, 1616, 1466, 1171, 1791, 2001, 1537])
+ ([2, 3, 4, 5, 6, 7, 8, 9, 10, 11  …  2058, 2059, 2060, 2062, 2063, 2064, 2065, 2066, 2067, 2068], [217, 340, 228, 475, 128, 489, 137, 68, 620, 333  …  1261, 1508, 2008, 1035, 967, 1234, 1690, 1061, 1887, 1668])
+ ([1, 2, 4, 5, 6, 7, 9, 11, 12, 13  …  2057, 2058, 2060, 2061, 2062, 2063, 2065, 2066, 2067, 2068], [549, 87, 167, 480, 318, 155, 299, 284, 490, 186  …  1335, 1440, 993, 1859, 1894, 1949, 731, 1611, 1658, 1950])
+ ([1, 2, 3, 4, 5, 7, 8, 9, 10, 11  …  2056, 2057, 2058, 2059, 2061, 2062, 2063, 2064, 2065, 2068], [382, 278, 315, 535, 339, 507, 663, 627, 125, 424  …  1967, 1781, 1165, 1624, 1683, 1148, 2007, 981, 1674, 1761])
+ ([1, 3, 6, 8, 10, 11, 12, 13, 14, 15  …  2059, 2060, 2061, 2062, 2063, 2064, 2065, 2066, 2067, 2068], [129, 295, 584, 89, 117, 28, 229, 637, 233, 252  …  1610, 928, 1244, 1222, 1855, 1878, 1994, 814, 1076, 1037])</code></pre>
 </div>
 </div>
-</section>
-</section>
-</section>
-<section id="a-decision-tree-sdm" class="level1">
-<h1>A Decision-Tree SDM</h1>
-<p>No variable selection</p>
-<p>First example of: - Partial Responses - SHAP - Conformal</p>
+<p>We then call the <code>crossvalidation</code> method, which fits the model on each fold.</p>
+<div id="100" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>cv <span class="op">=</span> <span class="fu">crossvalidate</span>(nb_sdm, folds)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>(validation = ConfusionMatrix[[TP: 129, TN 249, FP 25, FN 12], [TP: 125, TN 239, FP 35, FN 15], [TP: 127, TN 239, FP 34, FN 12], [TP: 125, TN 236, FP 38, FN 15], [TP: 120, TN 244, FP 29, FN 20]], training = ConfusionMatrix[[TP: 501, TN 970, FP 124, FN 58], [TP: 505, TN 983, FP 111, FN 55], [TP: 509, TN 979, FP 116, FN 52], [TP: 509, TN 976, FP 118, FN 51], [TP: 507, TN 980, FP 115, FN 53]])</code></pre>
+</div>
+</div>
+<p>Now we can apply various metrics to quantify model performance, and compare it to their expected value from a null model.</p>
+<p>Here, we’ll use <em>Matthew’s Correlation Coefficient</em> (mcc), and the True-Skill Statistic, and compare our model to a coinflip null model (where each prediction is true or false with equal probability).</p>
 <div id="102" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a>dt_sdm <span class="op">=</span> <span class="fu">SDM</span>(ZScore, DecisionTree, env_covariates, presencelayer, pseudoabsences)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a>measures <span class="op">=</span> [mcc, trueskill]</span>
+<span id="cb80-2"><a href="#cb80-2" aria-hidden="true" tabindex="-1"></a>cvresult <span class="op">=</span> [<span class="fu">measure</span>(set) for measure <span class="kw">in</span> measures, set <span class="kw">in</span> cv]</span>
+<span id="cb80-3"><a href="#cb80-3" aria-hidden="true" tabindex="-1"></a>nullresult <span class="op">=</span> [<span class="fu">measure</span>(<span class="fu">null</span>(nb_sdm)) for measure <span class="kw">in</span> measures, null <span class="kw">in</span> [coinflip]]</span>
+<span id="cb80-4"><a href="#cb80-4" aria-hidden="true" tabindex="-1"></a><span class="fu">pretty_table</span>(</span>
+<span id="cb80-5"><a href="#cb80-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">hcat</span>(<span class="fu">string</span>.(measures), <span class="fu">hcat</span>(cvresult, nullresult));</span>
+<span id="cb80-6"><a href="#cb80-6" aria-hidden="true" tabindex="-1"></a>    alignment <span class="op">=</span> [<span class="op">:</span>l, <span class="op">:</span>c, <span class="op">:</span>c, <span class="op">:</span>c],</span>
+<span id="cb80-7"><a href="#cb80-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">#backend = Val(:markdown),</span></span>
+<span id="cb80-8"><a href="#cb80-8" aria-hidden="true" tabindex="-1"></a>    header <span class="op">=</span> [<span class="st">"Measure"</span>, <span class="st">"Validation"</span>, <span class="st">"Training"</span>, <span class="st">"Coin-flip"</span>],</span>
+<span id="cb80-9"><a href="#cb80-9" aria-hidden="true" tabindex="-1"></a>    formatters <span class="op">=</span> <span class="fu">ft_printf</span>(<span class="st">"%5.3f"</span>, [<span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>]),</span>
+<span id="cb80-10"><a href="#cb80-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>┌───────────┬────────────┬──────────┬───────────┐
+│ Measure   │ Validation │ Training │ Coin-flip │
+├───────────┼────────────┼──────────┼───────────┤
+│ mcc       │   0.757    │  0.779   │  -0.323   │
+│ trueskill │   0.777    │  0.797   │  -0.323   │
+└───────────┴────────────┴──────────┴───────────┘</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="a-decision-tree-sdm" class="level1 page-columns page-full">
+<h1>A Decision-Tree SDM</h1>
+<p>Now that we have experience using the <strong>SDeMo</strong> API to fit and validate models, we’ll build our first machine-learning-based model, and use the various explanation tools in <strong>SDeMo</strong> to explain it’s predictions. i We’ll start with a <em>decision tree</em>, and again apply a z-score transformation to the predictors prior to training.</p>
+<div id="104" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb82"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a>dt_sdm <span class="op">=</span> <span class="fu">SDM</span>(ZScore, DecisionTree, env_covariates, presencelayer, pseudoabsences)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>SDeMo.ZScore → SDeMo.DecisionTree → P(x) ≥ 0.5</code></pre>
 </div>
 </div>
-<div id="104" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb82"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="fu">train!</span>(dt_sdm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>SDeMo.ZScore → SDeMo.DecisionTree → P(x) ≥ 0.414</code></pre>
-</div>
-</div>
+<section id="smarter-variable-selection" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="smarter-variable-selection">Smarter Variable Selection</h2>
+<p>Another feature of <strong>SDeMo</strong> is various methods for <em>variable selection</em>. In the previous example, we fit our model to all 19 BioClimatic variables. However, there are many good reasons that we might not want to included every variable as a predictor.</p>
+<p>One is collinearity among predictors, which can cause issues with being able to adaquetly estimate model parameters.</p>
+<p><strong>SDeMo</strong> includes various methods for selecting variables, including using the <em>Variance-Inflation Factor</em> (VIF), as well as methods for Forward and Backward variable selection. Here we will use VIF to remove collienar variables.<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a></p>
+<div class="no-row-height column-margin column-container"><div id="fn6"><p><sup>6</sup>&nbsp;Methods for variable selection are generally controversial among statisticians. In general, we don’t recommend using variable selection methods with a single model — often, it is a much better alternative to use an <em>ensemble</em> of models, each trained on a subset of predictors. This technique is known as bootstrap aggregation (or bagging), and we will demonstrate it in the next section.</p></div></div><p>We can apply various variable selection methods using the <code>variables!</code> method. For example, we can remove variable one at a time until the maximum VIF is below a provided value (2 in the following example).</p>
 <div id="106" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb84"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a>prd <span class="op">=</span> <span class="fu">predict</span>(dt_sdm, env_covariates; threshold <span class="op">=</span> <span class="cn">false</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb84"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a>dt_sdm <span class="op">=</span> <span class="fu">variables!</span>(dt_sdm, StrictVarianceInflationFactor{<span class="fl">2</span>.})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>🗺️  A 240 × 546 layer with 70065 Float64 cells
-   Projection: +proj=longlat +datum=WGS84 +no_defs</code></pre>
+<pre><code>SDeMo.ZScore → SDeMo.DecisionTree → P(x) ≥ 0.147</code></pre>
 </div>
 </div>
+<p>We can then use the <code>variables</code> method to list what the selected variables are.</p>
 <div id="108" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb86"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="fu">Figure</span>(; size <span class="op">=</span> (<span class="fl">600</span>, <span class="fl">300</span>))</span>
-<span id="cb86-2"><a href="#cb86-2" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> <span class="fu">Axis</span>(f[<span class="fl">1</span>, <span class="fl">1</span>]; aspect <span class="op">=</span> <span class="fu">DataAspect</span>(), title <span class="op">=</span> <span class="st">"Prediction (decision tree)"</span>)</span>
-<span id="cb86-3"><a href="#cb86-3" aria-hidden="true" tabindex="-1"></a>hm <span class="op">=</span> <span class="fu">heatmap!</span>(ax, prd; colormap <span class="op">=</span> <span class="op">:</span>linear_worb_100_25_c53_n256, colorrange <span class="op">=</span> (<span class="fl">0</span>, <span class="fl">1</span>))</span>
-<span id="cb86-4"><a href="#cb86-4" aria-hidden="true" tabindex="-1"></a><span class="fu">Colorbar</span>(f[<span class="fl">1</span>, <span class="fl">2</span>], hm)</span>
-<span id="cb86-5"><a href="#cb86-5" aria-hidden="true" tabindex="-1"></a><span class="fu">lines!</span>(ax, switzerland; color <span class="op">=</span> <span class="op">:</span>black)</span>
-<span id="cb86-6"><a href="#cb86-6" aria-hidden="true" tabindex="-1"></a><span class="fu">hidedecorations!</span>(ax)</span>
-<span id="cb86-7"><a href="#cb86-7" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(ax)</span>
-<span id="cb86-8"><a href="#cb86-8" aria-hidden="true" tabindex="-1"></a>f</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb86"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a><span class="fu">variables</span>(dt_sdm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<div>
-<figure class="figure">
-<p><img src="index_files/figure-html/cell-55-output-1.svg" class="img-fluid figure-img"></p>
-</figure>
+<pre><code>5-element Vector{Int64}:
+  3
+  4
+  8
+ 14
+ 15</code></pre>
 </div>
 </div>
-</div>
-<section id="partial-responses" class="level2">
-<h2 class="anchored" data-anchor-id="partial-responses">Partial Responses</h2>
-<p>TODO FIX</p>
+<p>Now, we can use <code>train!</code> just as before to fit our decision tree on just the selected variables.</p>
 <div id="110" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb87"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="fu">Figure</span>()</span>
-<span id="cb87-2"><a href="#cb87-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb87-3"><a href="#cb87-3" aria-hidden="true" tabindex="-1"></a>gl <span class="op">=</span> f[<span class="fl">1</span>,<span class="fl">1</span>] <span class="op">=</span> <span class="fu">GridLayout</span>()</span>
-<span id="cb87-4"><a href="#cb87-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb87-5"><a href="#cb87-5" aria-hidden="true" tabindex="-1"></a>axtemp <span class="op">=</span> <span class="fu">Axis</span>(</span>
-<span id="cb87-6"><a href="#cb87-6" aria-hidden="true" tabindex="-1"></a>    gl[<span class="fl">1</span>,<span class="fl">1</span>], </span>
-<span id="cb87-7"><a href="#cb87-7" aria-hidden="true" tabindex="-1"></a>    xgridvisible<span class="op">=</span><span class="cn">false</span>, </span>
-<span id="cb87-8"><a href="#cb87-8" aria-hidden="true" tabindex="-1"></a>    ygridvisible<span class="op">=</span><span class="cn">false</span>, </span>
-<span id="cb87-9"><a href="#cb87-9" aria-hidden="true" tabindex="-1"></a>    xticksvisible<span class="op">=</span><span class="cn">false</span>, </span>
-<span id="cb87-10"><a href="#cb87-10" aria-hidden="true" tabindex="-1"></a>    xticklabelsvisible<span class="op">=</span><span class="cn">false</span>, </span>
-<span id="cb87-11"><a href="#cb87-11" aria-hidden="true" tabindex="-1"></a>    yticks<span class="op">=</span><span class="fl">0</span><span class="op">:</span><span class="fl">1</span>, </span>
-<span id="cb87-12"><a href="#cb87-12" aria-hidden="true" tabindex="-1"></a>    ylabel <span class="op">=</span> <span class="st">"Partial</span><span class="sc">\n</span><span class="st">Response"</span>, </span>
-<span id="cb87-13"><a href="#cb87-13" aria-hidden="true" tabindex="-1"></a>    ylabelrotation<span class="op">=</span><span class="fl">0</span></span>
-<span id="cb87-14"><a href="#cb87-14" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb87-15"><a href="#cb87-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb87-16"><a href="#cb87-16" aria-hidden="true" tabindex="-1"></a>_, pr_p_thres <span class="op">=</span> <span class="fu">partialresponse</span>(dt_sdm, <span class="fu">variables</span>(nb_sdm)[<span class="fl">1</span>], threshold<span class="op">=</span><span class="cn">true</span>)</span>
-<span id="cb87-17"><a href="#cb87-17" aria-hidden="true" tabindex="-1"></a>τ <span class="op">=</span> <span class="fu">findfirst</span>(x<span class="op">-&gt;</span>x<span class="op">==</span><span class="fl">0</span>, pr_p_thres)</span>
-<span id="cb87-18"><a href="#cb87-18" aria-hidden="true" tabindex="-1"></a>pr_t_x, pr_t_y <span class="op">=</span> <span class="fu">partialresponse</span>(dt_sdm, <span class="fu">variables</span>(nb_sdm)[<span class="fl">1</span>], threshold<span class="op">=</span><span class="cn">false</span>)</span>
-<span id="cb87-19"><a href="#cb87-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb87-20"><a href="#cb87-20" aria-hidden="true" tabindex="-1"></a><span class="fu">xlims!</span>(axtemp, <span class="fu">extrema</span>(pr_t_x)<span class="op">...</span>)</span>
-<span id="cb87-21"><a href="#cb87-21" aria-hidden="true" tabindex="-1"></a><span class="fu">ylims!</span>(axtemp, <span class="fl">0</span>, <span class="fl">1</span>)</span>
-<span id="cb87-22"><a href="#cb87-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb87-23"><a href="#cb87-23" aria-hidden="true" tabindex="-1"></a><span class="fu">lines!</span>(axtemp, pr_t_x[<span class="fl">1</span><span class="op">:</span>τ], pr_t_y[<span class="fl">1</span><span class="op">:</span>τ], color<span class="op">=</span>bkcol.sdm.present, linewidth<span class="op">=</span><span class="fl">2</span>)</span>
-<span id="cb87-24"><a href="#cb87-24" aria-hidden="true" tabindex="-1"></a><span class="fu">band!</span>(axtemp, pr_t_x[<span class="fl">1</span><span class="op">:</span>τ], [<span class="fl">0</span>. for _ <span class="kw">in</span> pr_t_y[<span class="fl">1</span><span class="op">:</span>τ]], pr_t_y[<span class="fl">1</span><span class="op">:</span>τ], color<span class="op">=</span>bkcol.sdm.presentbg)</span>
-<span id="cb87-25"><a href="#cb87-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb87-26"><a href="#cb87-26" aria-hidden="true" tabindex="-1"></a><span class="fu">lines!</span>(axtemp, pr_t_x[τ<span class="op">:</span><span class="kw">end</span>], pr_t_y[τ<span class="op">:</span><span class="kw">end</span>], color<span class="op">=</span>bkcol.sdm.absent, linewidth<span class="op">=</span><span class="fl">2</span>)</span>
-<span id="cb87-27"><a href="#cb87-27" aria-hidden="true" tabindex="-1"></a><span class="fu">band!</span>(axtemp, pr_t_x[τ<span class="op">:</span><span class="kw">end</span>], [<span class="fl">0</span>. for _ <span class="kw">in</span> pr_t_y[τ<span class="op">:</span><span class="kw">end</span>]], pr_t_y[τ<span class="op">:</span><span class="kw">end</span>], color <span class="op">=</span> bkcol.sdm.absentbg)</span>
-<span id="cb87-28"><a href="#cb87-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb87-29"><a href="#cb87-29" aria-hidden="true" tabindex="-1"></a>axprec <span class="op">=</span> <span class="fu">Axis</span>(</span>
-<span id="cb87-30"><a href="#cb87-30" aria-hidden="true" tabindex="-1"></a>    gl[<span class="fl">2</span>,<span class="fl">2</span>], </span>
-<span id="cb87-31"><a href="#cb87-31" aria-hidden="true" tabindex="-1"></a>    xgridvisible<span class="op">=</span><span class="cn">false</span>, </span>
-<span id="cb87-32"><a href="#cb87-32" aria-hidden="true" tabindex="-1"></a>    ygridvisible<span class="op">=</span><span class="cn">false</span>, </span>
-<span id="cb87-33"><a href="#cb87-33" aria-hidden="true" tabindex="-1"></a>    yticksvisible<span class="op">=</span><span class="cn">false</span>, </span>
-<span id="cb87-34"><a href="#cb87-34" aria-hidden="true" tabindex="-1"></a>    yticklabelsvisible<span class="op">=</span><span class="cn">false</span>,</span>
-<span id="cb87-35"><a href="#cb87-35" aria-hidden="true" tabindex="-1"></a>    xticks<span class="op">=</span><span class="fl">0</span><span class="op">:</span><span class="fl">1</span>, </span>
-<span id="cb87-36"><a href="#cb87-36" aria-hidden="true" tabindex="-1"></a>    xlabel<span class="op">=</span><span class="st">"Partial</span><span class="sc">\n</span><span class="st">Response"</span>,</span>
-<span id="cb87-37"><a href="#cb87-37" aria-hidden="true" tabindex="-1"></a>    topspinecolor<span class="op">=</span>colorant<span class="st">"#999"</span>,</span>
-<span id="cb87-38"><a href="#cb87-38" aria-hidden="true" tabindex="-1"></a>    leftspinecolor<span class="op">=</span>colorant<span class="st">"#999"</span>,</span>
-<span id="cb87-39"><a href="#cb87-39" aria-hidden="true" tabindex="-1"></a>    rightspinecolor<span class="op">=</span>colorant<span class="st">"#999"</span>,</span>
-<span id="cb87-40"><a href="#cb87-40" aria-hidden="true" tabindex="-1"></a>    bottomspinecolor<span class="op">=</span>colorant<span class="st">"#999"</span>,</span>
-<span id="cb87-41"><a href="#cb87-41" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb87-42"><a href="#cb87-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb87-43"><a href="#cb87-43" aria-hidden="true" tabindex="-1"></a>pr_p_y, pr_p_x <span class="op">=</span> <span class="fu">partialresponse</span>(dt_sdm, <span class="fu">variables</span>(dt_sdm)[<span class="fl">12</span>], threshold<span class="op">=</span><span class="cn">false</span>)</span>
-<span id="cb87-44"><a href="#cb87-44" aria-hidden="true" tabindex="-1"></a><span class="fu">lines!</span>(axprec, pr_p_x, pr_p_y, linewidth<span class="op">=</span><span class="fl">2</span>)</span>
-<span id="cb87-45"><a href="#cb87-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb87-46"><a href="#cb87-46" aria-hidden="true" tabindex="-1"></a><span class="fu">xlims!</span>(axprec, <span class="fl">0</span>, <span class="fl">1</span>)</span>
-<span id="cb87-47"><a href="#cb87-47" aria-hidden="true" tabindex="-1"></a><span class="fu">ylims!</span>(axprec, <span class="fu">extrema</span>(pr_p_y)<span class="op">...</span>)</span>
-<span id="cb87-48"><a href="#cb87-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb87-49"><a href="#cb87-49" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb87-50"><a href="#cb87-50" aria-hidden="true" tabindex="-1"></a>prx, pry, prz <span class="op">=</span> <span class="fu">partialresponse</span>(dt_sdm, <span class="fu">variables</span>(dt_sdm)[[<span class="fl">1</span>,<span class="fl">12</span>]]<span class="op">...</span>, (<span class="fl">50</span>, <span class="fl">100</span>); threshold <span class="op">=</span> <span class="cn">true</span>);</span>
-<span id="cb87-51"><a href="#cb87-51" aria-hidden="true" tabindex="-1"></a>prx <span class="op">=</span> <span class="fl">0.1</span>prx <span class="op">.-</span> <span class="fl">273.15</span></span>
-<span id="cb87-52"><a href="#cb87-52" aria-hidden="true" tabindex="-1"></a>pry <span class="op">=</span> <span class="fl">0.1</span>pry</span>
-<span id="cb87-53"><a href="#cb87-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb87-54"><a href="#cb87-54" aria-hidden="true" tabindex="-1"></a>axboth <span class="op">=</span> <span class="fu">Axis</span>(gl[<span class="fl">2</span>,<span class="fl">1</span>], xlabel<span class="op">=</span><span class="st">"Mean air temperature (°C)"</span>, ylabel <span class="op">=</span> <span class="st">"Annual precipitation (kg m⁻²)"</span>)</span>
-<span id="cb87-55"><a href="#cb87-55" aria-hidden="true" tabindex="-1"></a><span class="fu">limits!</span>(axboth, <span class="fu">extrema</span>(prx)<span class="op">...</span>, <span class="fu">extrema</span>(pry)<span class="op">...</span>)</span>
-<span id="cb87-56"><a href="#cb87-56" aria-hidden="true" tabindex="-1"></a><span class="fu">heatmap!</span>(axboth, prx, pry, prz, colormap<span class="op">=</span>[<span class="op">:</span>grey95, (bkcol.sdm.present, <span class="fl">0.2</span>)])</span>
-<span id="cb87-57"><a href="#cb87-57" aria-hidden="true" tabindex="-1"></a><span class="fu">scatter!</span>(axboth, temp_abs, precip_abs, color<span class="op">=</span>bkcol.sdm.absent, markersize<span class="op">=</span><span class="fl">6</span>, label<span class="op">=</span><span class="st">"Pseudo-absence"</span>)</span>
-<span id="cb87-58"><a href="#cb87-58" aria-hidden="true" tabindex="-1"></a><span class="fu">scatter!</span>(axboth, temp_pres, precip_pres, color<span class="op">=</span>bkcol.sdm.present, markersize<span class="op">=</span><span class="fl">6</span>, label<span class="op">=</span><span class="st">"Presence"</span>)</span>
-<span id="cb87-59"><a href="#cb87-59" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb87-60"><a href="#cb87-60" aria-hidden="true" tabindex="-1"></a><span class="fu">axislegend</span>(position <span class="op">=</span> <span class="op">:</span>lb)</span>
-<span id="cb87-61"><a href="#cb87-61" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb87-62"><a href="#cb87-62" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(axtemp, <span class="op">:</span>b)</span>
-<span id="cb87-63"><a href="#cb87-63" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(axprec, <span class="op">:</span>l)</span>
-<span id="cb87-64"><a href="#cb87-64" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb87-65"><a href="#cb87-65" aria-hidden="true" tabindex="-1"></a><span class="fu">colgap!</span>(gl, <span class="fl">7</span>)</span>
-<span id="cb87-66"><a href="#cb87-66" aria-hidden="true" tabindex="-1"></a><span class="fu">rowgap!</span>(gl, <span class="fl">7</span>)</span>
-<span id="cb87-67"><a href="#cb87-67" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb87-68"><a href="#cb87-68" aria-hidden="true" tabindex="-1"></a><span class="fu">colsize!</span>(gl, <span class="fl">1</span>, <span class="fu">Relative</span>(<span class="fl">5</span><span class="op">/</span><span class="fl">6</span>))</span>
-<span id="cb87-69"><a href="#cb87-69" aria-hidden="true" tabindex="-1"></a><span class="fu">rowsize!</span>(gl, <span class="fl">2</span>, <span class="fu">Relative</span>(<span class="fl">5</span><span class="op">/</span><span class="fl">6</span>))</span>
-<span id="cb87-70"><a href="#cb87-70" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb87-71"><a href="#cb87-71" aria-hidden="true" tabindex="-1"></a>f</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb88"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="fu">train!</span>(dt_sdm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<div>
-<figure class="figure">
-<p><img src="index_files/figure-html/cell-56-output-1.svg" class="img-fluid figure-img"></p>
-</figure>
+<pre><code>SDeMo.ZScore → SDeMo.DecisionTree → P(x) ≥ 0.147</code></pre>
 </div>
 </div>
-</div>
-</section>
-<section id="shap-values" class="level2">
-<h2 class="anchored" data-anchor-id="shap-values">SHAP Values</h2>
-<p>Layer-wise</p>
+<p>and again use <code>predict!</code> to make our predicted range.</p>
 <div id="112" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb88"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a>shapley1 <span class="op">=</span> <span class="fu">explain</span>(dt_sdm, env_covariates, <span class="fl">1</span>; threshold<span class="op">=</span><span class="cn">false</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb90"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a>prd <span class="op">=</span> <span class="fu">predict</span>(dt_sdm, env_covariates; threshold <span class="op">=</span> <span class="cn">false</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>🗺️  A 240 × 546 layer with 70065 Float64 cells
    Projection: +proj=longlat +datum=WGS84 +no_defs</code></pre>
 </div>
 </div>
+<p>and we can visualize as before</p>
 <div id="114" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb90"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="fu">Figure</span>()</span>
-<span id="cb90-2"><a href="#cb90-2" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> <span class="fu">Axis</span>(f[<span class="fl">1</span>,<span class="fl">1</span>])</span>
-<span id="cb90-3"><a href="#cb90-3" aria-hidden="true" tabindex="-1"></a>hm <span class="op">=</span> <span class="fu">heatmap!</span>(ax, shapley1)</span>
-<span id="cb90-4"><a href="#cb90-4" aria-hidden="true" tabindex="-1"></a><span class="fu">Colorbar</span>(f[<span class="fl">1</span>,<span class="fl">2</span>], hm, label<span class="op">=</span><span class="st">"Contribution of temperature to prediction score"</span>)</span>
-<span id="cb90-5"><a href="#cb90-5" aria-hidden="true" tabindex="-1"></a>f</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb92"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="fu">Figure</span>(; size <span class="op">=</span> (<span class="fl">600</span>, <span class="fl">300</span>))</span>
+<span id="cb92-2"><a href="#cb92-2" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> <span class="fu">Axis</span>(f[<span class="fl">1</span>, <span class="fl">1</span>]; aspect <span class="op">=</span> <span class="fu">DataAspect</span>(), title <span class="op">=</span> <span class="st">"Prediction (decision tree)"</span>)</span>
+<span id="cb92-3"><a href="#cb92-3" aria-hidden="true" tabindex="-1"></a>hm <span class="op">=</span> <span class="fu">heatmap!</span>(ax, prd; colormap <span class="op">=</span> <span class="op">:</span>linear_worb_100_25_c53_n256, colorrange <span class="op">=</span> (<span class="fl">0</span>, <span class="fl">1</span>))</span>
+<span id="cb92-4"><a href="#cb92-4" aria-hidden="true" tabindex="-1"></a><span class="fu">Colorbar</span>(f[<span class="fl">1</span>, <span class="fl">2</span>], hm)</span>
+<span id="cb92-5"><a href="#cb92-5" aria-hidden="true" tabindex="-1"></a><span class="fu">lines!</span>(ax, switzerland; color <span class="op">=</span> <span class="op">:</span>black)</span>
+<span id="cb92-6"><a href="#cb92-6" aria-hidden="true" tabindex="-1"></a><span class="fu">hidedecorations!</span>(ax)</span>
+<span id="cb92-7"><a href="#cb92-7" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(ax)</span>
+<span id="cb92-8"><a href="#cb92-8" aria-hidden="true" tabindex="-1"></a>f</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <div>
 <figure class="figure">
@@ -2109,30 +2054,72 @@ Code for plotting density in environmental space
 </div>
 </div>
 </section>
-<section id="spatial-most-important-variable-shap" class="level2">
-<h2 class="anchored" data-anchor-id="spatial-most-important-variable-shap">Spatial Most Important Variable (SHAP)</h2>
-<p>All at once (this takes a little bit)</p>
+</section>
+<section id="making-our-decision-tree-sdm-interpretable" class="level1">
+<h1>Making our Decision-Tree SDM Interpretable</h1>
+<p>Now that we have fit our model, we can explore a few interpretability techniques.</p>
+<section id="variable-importance" class="level2">
+<h2 class="anchored" data-anchor-id="variable-importance">Variable Importance</h2>
+<p>Variable importance is quantified in the relative amount a model improves when a given variable <span class="math inline">\(i\)</span> is added, compared to the same model fit on every variable but <span class="math inline">\(i\)</span>.</p>
+<p>In <strong>SDeMo</strong>, variable importance can be computed using the <code>variableimportance</code> method, applied to a given crossvalidation scheme.</p>
 <div id="116" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb91"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a><span class="pp">@time</span> S <span class="op">=</span> <span class="fu">explain</span>(dt_sdm, env_covariates; threshold<span class="op">=</span><span class="cn">false</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code> 92.667189 seconds (3.07 G allocations: 176.146 GiB, 12.00% gc time, 0.07% compilation time)</code></pre>
-</div>
+<div class="sourceCode cell-code" id="cb93"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb93-1"><a href="#cb93-1" aria-hidden="true" tabindex="-1"></a>var_impt <span class="op">=</span> <span class="fu">variableimportance</span>(dt_sdm, <span class="fu">kfold</span>(dt_sdm, k<span class="op">=</span><span class="fl">20</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>19-element Vector{SDMLayer{Float64}}:
- 🗺️  A 240 × 546 layer (70065 Float64 cells)
- 🗺️  A 240 × 546 layer (70065 Float64 cells)
- 🗺️  A 240 × 546 layer (70065 Float64 cells)
- 🗺️  A 240 × 546 layer (70065 Float64 cells)
- 🗺️  A 240 × 546 layer (70065 Float64 cells)
- 🗺️  A 240 × 546 layer (70065 Float64 cells)
- 🗺️  A 240 × 546 layer (70065 Float64 cells)
- 🗺️  A 240 × 546 layer (70065 Float64 cells)
- 🗺️  A 240 × 546 layer (70065 Float64 cells)
- 🗺️  A 240 × 546 layer (70065 Float64 cells)
- 🗺️  A 240 × 546 layer (70065 Float64 cells)
- 🗺️  A 240 × 546 layer (70065 Float64 cells)
- 🗺️  A 240 × 546 layer (70065 Float64 cells)
- 🗺️  A 240 × 546 layer (70065 Float64 cells)
+<pre><code>5-element Vector{Float64}:
+ 0.037896415314614594
+ 0.16173839289884473
+ 0.24884329607538977
+ 0.1529497836009484
+ 0.04428583226631949</code></pre>
+</div>
+</div>
+<p>We can then visualize it with <code>barplot!</code></p>
+<div id="118" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb95"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb95-1"><a href="#cb95-1" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="fu">Figure</span>()</span>
+<span id="cb95-2"><a href="#cb95-2" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> <span class="fu">Axis</span>(f[<span class="fl">1</span>,<span class="fl">1</span>], xticks<span class="op">=</span>(<span class="fl">1</span><span class="op">:</span><span class="fu">length</span>(<span class="fu">variables</span>(dt_sdm)), [<span class="st">"BIO</span><span class="sc">$</span>i<span class="st">"</span> for i <span class="kw">in</span> <span class="fu">variables</span>(dt_sdm)]))</span>
+<span id="cb95-3"><a href="#cb95-3" aria-hidden="true" tabindex="-1"></a><span class="fu">barplot!</span>(ax, var_impt)</span>
+<span id="cb95-4"><a href="#cb95-4" aria-hidden="true" tabindex="-1"></a>f</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-60-output-1.svg" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="shap-values" class="level2">
+<h2 class="anchored" data-anchor-id="shap-values">SHAP Values</h2>
+<p>SHAP values are a method for game-theory adapted adapted to make machine-learning models explainable from <strong>CITE TODO</strong>. By <em>explainable</em>, we mean that we can contribution of each individual feature on the overall prediction. SHAP is a generalization of a few different methods for interpretability, but the most notable is <em>Locally Interpretable Model Explanations</em> (LIME; <strong>CITE TODO</strong>). The idea behind LIME (and the other similar methods that SHAP provides a generalizes) is to take a nonlinear, uninterpretable machine learning model, and fit a separate, simpler, model to explain its predictions that is inherently interpretable (like linear regression, where each coefficient directly quantifies the contribution to each variable).</p>
+<p>SHAP values across space can be estimated with the <code>explain</code> method in <strong>SDeMo</strong>, with the predictors passed as a second argument, and the particular variable to consider as the third argument.</p>
+<p>In contrast to partial responses, Shapley values are calculated at the scale of a single prediction (not the average value across other predictors), and represent the departure from the average model prediction due to the specific value of the variable of interest for this prediction.</p>
+<div id="120" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb96"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a>shapley1 <span class="op">=</span> <span class="fu">explain</span>(dt_sdm, env_covariates, <span class="fu">variables</span>(dt_sdm)[<span class="fl">1</span>]; threshold<span class="op">=</span><span class="cn">false</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>🗺️  A 240 × 546 layer with 70065 Float64 cells
+   Projection: +proj=longlat +datum=WGS84 +no_defs</code></pre>
+</div>
+</div>
+<p>We can then plot the contribution of that variable across space.</p>
+<div id="122" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb98"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="fu">Figure</span>()</span>
+<span id="cb98-2"><a href="#cb98-2" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> <span class="fu">Axis</span>(f[<span class="fl">1</span>,<span class="fl">1</span>])</span>
+<span id="cb98-3"><a href="#cb98-3" aria-hidden="true" tabindex="-1"></a>hm <span class="op">=</span> <span class="fu">heatmap!</span>(ax, shapley1)</span>
+<span id="cb98-4"><a href="#cb98-4" aria-hidden="true" tabindex="-1"></a><span class="fu">Colorbar</span>(f[<span class="fl">1</span>,<span class="fl">2</span>], hm, label<span class="op">=</span><span class="st">"Contribution of BIO</span><span class="sc">$</span>(<span class="fu">variables</span>(dt_sdm)[<span class="fl">1</span>])<span class="st"> to prediction score"</span>)</span>
+<span id="cb98-5"><a href="#cb98-5" aria-hidden="true" tabindex="-1"></a>f</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-62-output-1.svg" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We can also estimate the contributed all at once by not passing any particular variable.</p>
+<div id="124" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb99"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a>shaps <span class="op">=</span> <span class="fu">explain</span>(dt_sdm, env_covariates; threshold<span class="op">=</span><span class="cn">false</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>5-element Vector{SDMLayer{Float64}}:
  🗺️  A 240 × 546 layer (70065 Float64 cells)
  🗺️  A 240 × 546 layer (70065 Float64 cells)
  🗺️  A 240 × 546 layer (70065 Float64 cells)
@@ -2140,180 +2127,128 @@ Code for plotting density in environmental space
  🗺️  A 240 × 546 layer (70065 Float64 cells)</code></pre>
 </div>
 </div>
-<div id="118" class="cell" data-execution_count="0">
-<div class="sourceCode cell-code" id="cb94"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="fu">Figure</span>(; size <span class="op">=</span> (<span class="fl">600</span>, <span class="fl">300</span>))</span>
-<span id="cb94-2"><a href="#cb94-2" aria-hidden="true" tabindex="-1"></a>mostimp <span class="op">=</span> <span class="fu">mosaic</span>(argmax, <span class="fu">map</span>(x <span class="op">-&gt;</span> <span class="fu">abs</span>.(x), S))</span>
-<span id="cb94-3"><a href="#cb94-3" aria-hidden="true" tabindex="-1"></a>colmap <span class="op">=</span> [colorant<span class="st">"#E69F00"</span>, colorant<span class="st">"#56B4E9"</span>, colorant<span class="st">"#009E73"</span>, colorant<span class="st">"#D55E00"</span>, colorant<span class="st">"#CC79A7"</span>, colorant<span class="st">"#a65dab"</span>, colorant<span class="st">"#da6161"</span>]</span>
-<span id="cb94-4"><a href="#cb94-4" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> <span class="fu">Axis</span>(f[<span class="fl">1</span>, <span class="fl">1</span>]; aspect <span class="op">=</span> <span class="fu">DataAspect</span>())</span>
-<span id="cb94-5"><a href="#cb94-5" aria-hidden="true" tabindex="-1"></a><span class="fu">heatmap!</span>(ax, mostimp; colormap <span class="op">=</span> colmap)</span>
-<span id="cb94-6"><a href="#cb94-6" aria-hidden="true" tabindex="-1"></a><span class="fu">lines!</span>(ax, switzerland; color <span class="op">=</span> <span class="op">:</span>black)</span>
-<span id="cb94-7"><a href="#cb94-7" aria-hidden="true" tabindex="-1"></a><span class="fu">hidedecorations!</span>(ax)</span>
-<span id="cb94-8"><a href="#cb94-8" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(ax)</span>
-<span id="cb94-9"><a href="#cb94-9" aria-hidden="true" tabindex="-1"></a><span class="fu">Legend</span>(</span>
-<span id="cb94-10"><a href="#cb94-10" aria-hidden="true" tabindex="-1"></a>    f[<span class="fl">2</span>, <span class="fl">1</span>],</span>
-<span id="cb94-11"><a href="#cb94-11" aria-hidden="true" tabindex="-1"></a>    [<span class="fu">PolyElement</span>(; color <span class="op">=</span> colmap[i]) for i <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fu">length</span>(<span class="fu">variables</span>(rf_sdm))],</span>
-<span id="cb94-12"><a href="#cb94-12" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"BIO</span><span class="sc">$</span>(b)<span class="st">"</span> for b <span class="kw">in</span> <span class="fu">variables</span>(rf_sdm)];</span>
-<span id="cb94-13"><a href="#cb94-13" aria-hidden="true" tabindex="-1"></a>    orientation <span class="op">=</span> <span class="op">:</span>horizontal,</span>
-<span id="cb94-14"><a href="#cb94-14" aria-hidden="true" tabindex="-1"></a>    nbanks <span class="op">=</span> <span class="fl">1</span>,</span>
-<span id="cb94-15"><a href="#cb94-15" aria-hidden="true" tabindex="-1"></a>    framevisible <span class="op">=</span> <span class="cn">false</span>,</span>
-<span id="cb94-16"><a href="#cb94-16" aria-hidden="true" tabindex="-1"></a>    vertical <span class="op">=</span> <span class="cn">false</span>,</span>
-<span id="cb94-17"><a href="#cb94-17" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb94-18"><a href="#cb94-18" aria-hidden="true" tabindex="-1"></a>f</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-<section id="conformal-prediction" class="level2">
-<h2 class="anchored" data-anchor-id="conformal-prediction">Conformal Prediction</h2>
-<p>Conformal prediction is another method for interpreting machine learning models. Specifically, it is a form of <em>uncertainty quantification</em>. <strong>TK explanation of UQ</strong></p>
-<div id="120" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb95"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb95-1"><a href="#cb95-1" aria-hidden="true" tabindex="-1"></a><span class="fu">include</span>(<span class="st">"conformal_prediction.jl"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>By using the <code>mosaic</code> method, we can then compute the most important variable contributing to the overall prediction (as measured by the largest magnitude SHAP value).</p>
+<div id="126" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb101"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb101-1"><a href="#cb101-1" aria-hidden="true" tabindex="-1"></a>most_impt_feature <span class="op">=</span> <span class="fu">mosaic</span>(argmax, <span class="fu">map</span>(x <span class="op">-&gt;</span> <span class="fu">abs</span>.(x), shaps))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>cellsize (generic function with 1 method)</code></pre>
-</div>
-</div>
-<div id="122" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb97"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb97-1"><a href="#cb97-1" aria-hidden="true" tabindex="-1"></a>rlevels <span class="op">=</span> <span class="fu">LinRange</span>(<span class="fl">0.01</span>, <span class="fl">0.2</span>, <span class="fl">100</span>)</span>
-<span id="cb97-2"><a href="#cb97-2" aria-hidden="true" tabindex="-1"></a>qs <span class="op">=</span> [<span class="fu">_estimate_q</span>(dt_sdm, <span class="fu">holdout</span>(dt_sdm)<span class="op">...</span>; α<span class="op">=</span>u) for u <span class="kw">in</span> rlevels]</span>
-<span id="cb97-3"><a href="#cb97-3" aria-hidden="true" tabindex="-1"></a>𝐏 <span class="op">=</span> <span class="fu">predict</span>(dt_sdm; threshold<span class="op">=</span><span class="cn">false</span>)</span>
-<span id="cb97-4"><a href="#cb97-4" aria-hidden="true" tabindex="-1"></a>eff <span class="op">=</span> [<span class="fu">mean</span>(<span class="fu">length</span>.(<span class="fu">credibleclasses</span>.(𝐏, q))) for q <span class="kw">in</span> qs]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>100-element Vector{Float64}:
- 1.5681818181818181
- 1.5681818181818181
- 1.5174081237911026
- 1.3984526112185687
- 1.3984526112185687
- 1.5174081237911026
- 1.4095744680851063
- 1.4095744680851063
- 1.4095744680851063
- 1.3578336557059962
- ⋮
- 0.8747582205029013
- 0.8747582205029013
- 1.0
- 0.8747582205029013
- 1.0
- 0.6421663442940039
- 0.6421663442940039
- 0.8747582205029013
- 0.9854932301740812</code></pre>
-</div>
-</div>
-<div id="124" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb99"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a>cs <span class="op">=</span> <span class="fu">cellsize</span>(prd)</span>
-<span id="cb99-2"><a href="#cb99-2" aria-hidden="true" tabindex="-1"></a>cmodel <span class="op">=</span> <span class="fu">deepcopy</span>(dt_sdm)</span>
-<span id="cb99-3"><a href="#cb99-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb99-4"><a href="#cb99-4" aria-hidden="true" tabindex="-1"></a><span class="co"># majority rules arg for consensus should give bool, consensus=majority</span></span>
-<span id="cb99-5"><a href="#cb99-5" aria-hidden="true" tabindex="-1"></a>distrib <span class="op">=</span> <span class="fu">predict</span>(cmodel, env_covariates; threshold<span class="op">=</span><span class="cn">true</span>)</span>
-<span id="cb99-6"><a href="#cb99-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="fu">eachindex</span>(qs)</span>
-<span id="cb99-7"><a href="#cb99-7" aria-hidden="true" tabindex="-1"></a>    Cp, Ca <span class="op">=</span> <span class="fu">credibleclasses</span>(prd, qs[i])</span>
-<span id="cb99-8"><a href="#cb99-8" aria-hidden="true" tabindex="-1"></a>    undet <span class="op">=</span> .!(Cp <span class="op">.|</span> Ca)</span>
-<span id="cb99-9"><a href="#cb99-9" aria-hidden="true" tabindex="-1"></a>    sure_presence <span class="op">=</span> Cp <span class="op">.&amp;</span> (.!Ca)</span>
-<span id="cb99-10"><a href="#cb99-10" aria-hidden="true" tabindex="-1"></a>    unsure <span class="op">=</span> Ca <span class="op">.&amp;</span> Cp</span>
-<span id="cb99-11"><a href="#cb99-11" aria-hidden="true" tabindex="-1"></a>    unsure_presence <span class="op">=</span> unsure <span class="op">.&amp;</span> distrib</span>
-<span id="cb99-12"><a href="#cb99-12" aria-hidden="true" tabindex="-1"></a>    unsure_absence <span class="op">=</span> unsure <span class="op">.&amp;</span> (.!distrib)</span>
-<span id="cb99-13"><a href="#cb99-13" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
-<span id="cb99-14"><a href="#cb99-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb99-15"><a href="#cb99-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Cross-conformal with median range selected</span></span>
-<span id="cb99-16"><a href="#cb99-16" aria-hidden="true" tabindex="-1"></a>q <span class="op">=</span> <span class="fu">median</span>([<span class="fu">_estimate_q</span>(cmodel, fold<span class="op">...</span>; α<span class="op">=</span><span class="fl">0.05</span>) for fold <span class="kw">in</span> <span class="fu">kfold</span>(cmodel; k<span class="op">=</span><span class="fl">10</span>)])</span>
-<span id="cb99-17"><a href="#cb99-17" aria-hidden="true" tabindex="-1"></a>Cp, Ca <span class="op">=</span> <span class="fu">credibleclasses</span>(prd, q)</span>
-<span id="cb99-18"><a href="#cb99-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb99-19"><a href="#cb99-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Partition</span></span>
-<span id="cb99-20"><a href="#cb99-20" aria-hidden="true" tabindex="-1"></a>sure_presence <span class="op">=</span> Cp <span class="op">.&amp;</span> (.!Ca)</span>
-<span id="cb99-21"><a href="#cb99-21" aria-hidden="true" tabindex="-1"></a>sure_absence <span class="op">=</span> Ca <span class="op">.&amp;</span> (.!Cp)</span>
-<span id="cb99-22"><a href="#cb99-22" aria-hidden="true" tabindex="-1"></a>unsure <span class="op">=</span> Ca <span class="op">.&amp;</span> Cp</span>
-<span id="cb99-23"><a href="#cb99-23" aria-hidden="true" tabindex="-1"></a>unsure_in <span class="op">=</span> unsure <span class="op">.&amp;</span> distrib</span>
-<span id="cb99-24"><a href="#cb99-24" aria-hidden="true" tabindex="-1"></a>unsure_out <span class="op">=</span> unsure <span class="op">.&amp;</span> (.!distrib)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>🗺️  A 240 × 546 layer with 70065 Bool cells
+<pre><code>🗺️  A 240 × 546 layer with 70065 Int64 cells
    Projection: +proj=longlat +datum=WGS84 +no_defs</code></pre>
 </div>
 </div>
-<div id="126" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb101"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb101-1"><a href="#cb101-1" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="fu">Figure</span>(; size<span class="op">=</span>(<span class="fl">1200</span>, <span class="fl">600</span>))</span>
-<span id="cb101-2"><a href="#cb101-2" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> <span class="fu">Axis</span>(f[<span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, <span class="fl">1</span>]; aspect<span class="op">=</span><span class="fu">DataAspect</span>())</span>
-<span id="cb101-3"><a href="#cb101-3" aria-hidden="true" tabindex="-1"></a><span class="fu">poly!</span>(ax, switzerland, color<span class="op">=:</span>grey95)</span>
-<span id="cb101-4"><a href="#cb101-4" aria-hidden="true" tabindex="-1"></a><span class="fu">heatmap!</span>(ax, <span class="fu">nodata</span>(sure_presence, <span class="cn">false</span>), colormap<span class="op">=</span>[<span class="op">:</span>forestgreen])</span>
-<span id="cb101-5"><a href="#cb101-5" aria-hidden="true" tabindex="-1"></a><span class="fu">heatmap!</span>(ax, <span class="fu">nodata</span>(unsure, <span class="cn">false</span>), colormap<span class="op">=</span>[<span class="op">:</span>grey70])</span>
-<span id="cb101-6"><a href="#cb101-6" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(ax)</span>
-<span id="cb101-7"><a href="#cb101-7" aria-hidden="true" tabindex="-1"></a><span class="fu">hidedecorations!</span>(ax)</span>
-<span id="cb101-8"><a href="#cb101-8" aria-hidden="true" tabindex="-1"></a>f</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>and finally plot</p>
+<div id="128" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb103"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb103-1"><a href="#cb103-1" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="fu">Figure</span>(; size <span class="op">=</span> (<span class="fl">600</span>, <span class="fl">300</span>))</span>
+<span id="cb103-2"><a href="#cb103-2" aria-hidden="true" tabindex="-1"></a>colmap <span class="op">=</span> [colorant<span class="st">"#E69F00"</span>, colorant<span class="st">"#56B4E9"</span>, colorant<span class="st">"#009E73"</span>, colorant<span class="st">"#D55E00"</span>, colorant<span class="st">"#CC79A7"</span>, colorant<span class="st">"#ccc"</span>, colorant<span class="st">"#101010"</span>]</span>
+<span id="cb103-3"><a href="#cb103-3" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> <span class="fu">Axis</span>(f[<span class="fl">1</span>, <span class="fl">1</span>]; aspect <span class="op">=</span> <span class="fu">DataAspect</span>())</span>
+<span id="cb103-4"><a href="#cb103-4" aria-hidden="true" tabindex="-1"></a><span class="fu">heatmap!</span>(ax, most_impt_feature; colormap <span class="op">=</span> colmap)</span>
+<span id="cb103-5"><a href="#cb103-5" aria-hidden="true" tabindex="-1"></a><span class="fu">lines!</span>(ax, switzerland; color <span class="op">=</span> <span class="op">:</span>black)</span>
+<span id="cb103-6"><a href="#cb103-6" aria-hidden="true" tabindex="-1"></a><span class="fu">hidedecorations!</span>(ax)</span>
+<span id="cb103-7"><a href="#cb103-7" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(ax)</span>
+<span id="cb103-8"><a href="#cb103-8" aria-hidden="true" tabindex="-1"></a><span class="fu">Legend</span>(</span>
+<span id="cb103-9"><a href="#cb103-9" aria-hidden="true" tabindex="-1"></a>    f[<span class="fl">2</span>, <span class="fl">1</span>],</span>
+<span id="cb103-10"><a href="#cb103-10" aria-hidden="true" tabindex="-1"></a>    [<span class="fu">PolyElement</span>(; color <span class="op">=</span> colmap[i]) for i <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fu">length</span>(<span class="fu">variables</span>(dt_sdm))],</span>
+<span id="cb103-11"><a href="#cb103-11" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"BIO</span><span class="sc">$</span>(b)<span class="st">"</span> for b <span class="kw">in</span> <span class="fu">variables</span>(dt_sdm)];</span>
+<span id="cb103-12"><a href="#cb103-12" aria-hidden="true" tabindex="-1"></a>    orientation <span class="op">=</span> <span class="op">:</span>horizontal,</span>
+<span id="cb103-13"><a href="#cb103-13" aria-hidden="true" tabindex="-1"></a>    nbanks <span class="op">=</span> <span class="fl">1</span>,</span>
+<span id="cb103-14"><a href="#cb103-14" aria-hidden="true" tabindex="-1"></a>    framevisible <span class="op">=</span> <span class="cn">false</span>,</span>
+<span id="cb103-15"><a href="#cb103-15" aria-hidden="true" tabindex="-1"></a>    vertical <span class="op">=</span> <span class="cn">false</span>,</span>
+<span id="cb103-16"><a href="#cb103-16" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb103-17"><a href="#cb103-17" aria-hidden="true" tabindex="-1"></a>f</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/cell-64-output-1.svg" class="img-fluid figure-img"></p>
+<p><img src="index_files/figure-html/cell-65-output-1.svg" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
 </section>
-</section>
-<section id="a-more-complex-sdm-boosted-regression-trees-from-scratch-ish" class="level1 page-columns page-full">
-<h1>A more complex SDM – Boosted Regression Trees from scratch(-ish)</h1>
-<p>TODO: What is a BRT explanation: - Decision Tree + Bagging = Random Forest - Random Forest + Boosting = BRT</p>
-<section id="making-a-random-forest-with-bootstrap-aggegration" class="level2 page-columns page-full">
-<h2 class="anchored" data-anchor-id="making-a-random-forest-with-bootstrap-aggegration">Making a random forest with Bootstrap Aggegration</h2>
-<p>The first step toward turning a Decision Tree into a Boosted Regression Tree is <em>bootstrap aggregation</em> (oftened shorted to <em>bagging</em>).</p>
-<p>Bagging involves constructing an <em>ensemble model</em><a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a> from simpler models, where each simpler model is typically trained only on a subset of the features.</p>
-<div class="no-row-height column-margin column-container"><div id="fn6"><p><sup>6</sup>&nbsp;A ensemble model consists of an average across many models.</p></div></div><p>A random forest (<strong>TK CITE</strong>) consists of an ensemble of decision trees, each trained on a subset of the features. We construct this by first defining the component model, which is a <code>DecisionTree</code> that first transforms training data with a <code>ZScore</code></p>
-<div id="128" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb102"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb102-1"><a href="#cb102-1" aria-hidden="true" tabindex="-1"></a>solo_dt <span class="op">=</span> <span class="fu">SDM</span>(ZScore, DecisionTree, env_covariates, presencelayer, pseudoabsences)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>SDeMo.ZScore → SDeMo.DecisionTree → P(x) ≥ 0.5</code></pre>
-</div>
-</div>
-<p>We then create an ensemble using the <code>Bagging</code> type, and pass 30 as the total number of component models to use in the ensemble.</p>
+<section id="conformal-prediction" class="level2">
+<h2 class="anchored" data-anchor-id="conformal-prediction">Conformal Prediction</h2>
+<p>Conformal prediction is another method for interpreting machine learning models. Specifically, it is a form of <em>uncertainty quantification</em>.</p>
+<p>In contrast to SHAP values and other forms of model <em>explanation</em>, conformal prediction helps with model <em>interpretation</em>, by quantifying how confident we can be in our SDM’s predictions across space.</p>
+<p>This works by taking our biary classification model, and turning it into a <em>conformal model</em>. The difference is that unlike our binary classification model, which produces a score between <span class="math inline">\(0\)</span> and <span class="math inline">\(1\)</span> that indicates if given feature is likely to be associated with species presence, a conformal model maps each feature to a <em>credible set</em> of values. Mathematically, a conformal model <span class="math inline">\(\mathcal{C}\)</span> maps a feature in <span class="math inline">\(\mathbb{R}^k\)</span> to a set of credible values. <span class="math display">\[
+\mathcal{C} : \mathbb{R}^k \to \{0\}, \{1\}, \{0,1\}
+\]</span></p>
+<p>If a model maps to <span class="math inline">\(\{0,1\}\)</span>, this means either presence or absent are credible, and our model cannot be used to be sure if a species is present at that location.</p>
+<p>We’ll load a few helper functions written in a separate file, which will make our implementation of conformal prediction less verbose and easier to understand for those new to Julia.</p>
 <div id="130" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb104"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb104-1"><a href="#cb104-1" aria-hidden="true" tabindex="-1"></a>rf_sdm <span class="op">=</span> <span class="fu">Bagging</span>(solo_dt, <span class="fl">30</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb104"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb104-1"><a href="#cb104-1" aria-hidden="true" tabindex="-1"></a><span class="fu">include</span>(<span class="st">"conformal_prediction.jl"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>{SDeMo.ZScore → SDeMo.DecisionTree → P(x) ≥ 0.5} × 30</code></pre>
+<pre><code>cellsize (generic function with 1 method)</code></pre>
 </div>
 </div>
-<p>We then run <code>bagfeatures!</code> to take each component model and choose a subset of variables to train the component model on.</p>
 <div id="132" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb106"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bagfeatures!</span>(rf_sdm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb106"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true" tabindex="-1"></a>rlevels <span class="op">=</span> <span class="fu">LinRange</span>(<span class="fl">0.01</span>, <span class="fl">0.2</span>, <span class="fl">100</span>)</span>
+<span id="cb106-2"><a href="#cb106-2" aria-hidden="true" tabindex="-1"></a>qs <span class="op">=</span> [<span class="fu">_estimate_q</span>(dt_sdm, <span class="fu">holdout</span>(dt_sdm)<span class="op">...</span>; α<span class="op">=</span>u) for u <span class="kw">in</span> rlevels]</span>
+<span id="cb106-3"><a href="#cb106-3" aria-hidden="true" tabindex="-1"></a>𝐏 <span class="op">=</span> <span class="fu">predict</span>(dt_sdm; threshold<span class="op">=</span><span class="cn">false</span>)</span>
+<span id="cb106-4"><a href="#cb106-4" aria-hidden="true" tabindex="-1"></a>eff <span class="op">=</span> [<span class="fu">mean</span>(<span class="fu">length</span>.(<span class="fu">credibleclasses</span>.(𝐏, q))) for q <span class="kw">in</span> qs]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>{SDeMo.ZScore → SDeMo.DecisionTree → P(x) ≥ 0.5} × 30</code></pre>
+<pre><code>100-element Vector{Float64}:
+ 1.918762088974855
+ 1.2538684719535784
+ 1.918762088974855
+ 1.433752417794971
+ 1.4700193423597678
+ 1.422147001934236
+ 1.433752417794971
+ 1.422147001934236
+ 1.422147001934236
+ 1.4700193423597678
+ ⋮
+ 0.973404255319149
+ 1.0
+ 0.973404255319149
+ 0.973404255319149
+ 1.0
+ 1.0
+ 1.0
+ 1.0
+ 0.973404255319149</code></pre>
 </div>
 </div>
-<p>Now we use <code>train!</code> to fit the ensemble model</p>
 <div id="134" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb108"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb108-1"><a href="#cb108-1" aria-hidden="true" tabindex="-1"></a><span class="fu">train!</span>(rf_sdm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>{SDeMo.ZScore → SDeMo.DecisionTree → P(x) ≥ 0.414} × 30</code></pre>
-</div>
+<div class="sourceCode cell-code" id="cb108"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb108-1"><a href="#cb108-1" aria-hidden="true" tabindex="-1"></a>cmodel <span class="op">=</span> <span class="fu">deepcopy</span>(dt_sdm)</span>
+<span id="cb108-2"><a href="#cb108-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb108-3"><a href="#cb108-3" aria-hidden="true" tabindex="-1"></a>distrib <span class="op">=</span> <span class="fu">predict</span>(cmodel, env_covariates; threshold<span class="op">=</span><span class="cn">true</span>)</span>
+<span id="cb108-4"><a href="#cb108-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="fu">eachindex</span>(qs)</span>
+<span id="cb108-5"><a href="#cb108-5" aria-hidden="true" tabindex="-1"></a>    Cp, Ca <span class="op">=</span> <span class="fu">credibleclasses</span>(prd, qs[i])</span>
+<span id="cb108-6"><a href="#cb108-6" aria-hidden="true" tabindex="-1"></a>    undet <span class="op">=</span> .!(Cp <span class="op">.|</span> Ca)</span>
+<span id="cb108-7"><a href="#cb108-7" aria-hidden="true" tabindex="-1"></a>    sure_presence <span class="op">=</span> Cp <span class="op">.&amp;</span> (.!Ca)</span>
+<span id="cb108-8"><a href="#cb108-8" aria-hidden="true" tabindex="-1"></a>    unsure <span class="op">=</span> Ca <span class="op">.&amp;</span> Cp</span>
+<span id="cb108-9"><a href="#cb108-9" aria-hidden="true" tabindex="-1"></a>    unsure_presence <span class="op">=</span> unsure <span class="op">.&amp;</span> distrib</span>
+<span id="cb108-10"><a href="#cb108-10" aria-hidden="true" tabindex="-1"></a>    unsure_absence <span class="op">=</span> unsure <span class="op">.&amp;</span> (.!distrib)</span>
+<span id="cb108-11"><a href="#cb108-11" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="136" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb110"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb110-1"><a href="#cb110-1" aria-hidden="true" tabindex="-1"></a>prd <span class="op">=</span> <span class="fu">predict</span>(rf_sdm, env_covariates; threshold <span class="op">=</span> <span class="cn">false</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb109"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb109-1"><a href="#cb109-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Cross-conformal with median range selected</span></span>
+<span id="cb109-2"><a href="#cb109-2" aria-hidden="true" tabindex="-1"></a>q <span class="op">=</span> <span class="fu">median</span>([<span class="fu">_estimate_q</span>(cmodel, fold<span class="op">...</span>; α<span class="op">=</span><span class="fl">0.05</span>) for fold <span class="kw">in</span> <span class="fu">kfold</span>(cmodel; k<span class="op">=</span><span class="fl">10</span>)])</span>
+<span id="cb109-3"><a href="#cb109-3" aria-hidden="true" tabindex="-1"></a>Cp, Ca <span class="op">=</span> <span class="fu">credibleclasses</span>(prd, q)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>🗺️  A 240 × 546 layer with 70065 Float64 cells
-   Projection: +proj=longlat +datum=WGS84 +no_defs</code></pre>
+<pre><code>(🗺️  A 240 × 546 layer (70065 Bool cells), 🗺️  A 240 × 546 layer (70065 Bool cells))</code></pre>
 </div>
 </div>
-<p>We can then compute the <em>uncertainty</em> of the model, by considering the inter-quantile-range (<code>iqr</code>, a type of variance), across each component model.</p>
 <div id="138" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb112"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb112-1"><a href="#cb112-1" aria-hidden="true" tabindex="-1"></a>unc <span class="op">=</span> <span class="fu">predict</span>(rf_sdm, env_covariates; consensus <span class="op">=</span> iqr, threshold <span class="op">=</span> <span class="cn">false</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb111"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb111-1"><a href="#cb111-1" aria-hidden="true" tabindex="-1"></a>sure_presence <span class="op">=</span> Cp <span class="op">.&amp;</span> (.!Ca)</span>
+<span id="cb111-2"><a href="#cb111-2" aria-hidden="true" tabindex="-1"></a>sure_absence <span class="op">=</span> Ca <span class="op">.&amp;</span> (.!Cp)</span>
+<span id="cb111-3"><a href="#cb111-3" aria-hidden="true" tabindex="-1"></a>unsure <span class="op">=</span> Ca <span class="op">.&amp;</span> Cp</span>
+<span id="cb111-4"><a href="#cb111-4" aria-hidden="true" tabindex="-1"></a>unsure_in <span class="op">=</span> unsure <span class="op">.&amp;</span> distrib</span>
+<span id="cb111-5"><a href="#cb111-5" aria-hidden="true" tabindex="-1"></a>unsure_out <span class="op">=</span> unsure <span class="op">.&amp;</span> (.!distrib)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>🗺️  A 240 × 546 layer with 70065 Float64 cells
+<pre><code>🗺️  A 240 × 546 layer with 70065 Bool cells
    Projection: +proj=longlat +datum=WGS84 +no_defs</code></pre>
 </div>
 </div>
+<p>Finally, we’ll plot our regions where the conformal model gives only <em>present</em> as credible in green, only <em>absent</em> as credible in light grey, and both as credible (meaning the model is uncertain) is light blue.</p>
 <div id="140" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb114"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb114-1"><a href="#cb114-1" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="fu">Figure</span>(; size <span class="op">=</span> (<span class="fl">600</span>, <span class="fl">600</span>))</span>
-<span id="cb114-2"><a href="#cb114-2" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> <span class="fu">Axis</span>(f[<span class="fl">1</span>, <span class="fl">1</span>]; aspect <span class="op">=</span> <span class="fu">DataAspect</span>(), title <span class="op">=</span> <span class="st">"Prediction"</span>)</span>
-<span id="cb114-3"><a href="#cb114-3" aria-hidden="true" tabindex="-1"></a>hm <span class="op">=</span> <span class="fu">heatmap!</span>(ax, prd; colormap <span class="op">=</span> <span class="op">:</span>linear_worb_100_25_c53_n256, colorrange <span class="op">=</span> (<span class="fl">0</span>, <span class="fl">1</span>))</span>
-<span id="cb114-4"><a href="#cb114-4" aria-hidden="true" tabindex="-1"></a><span class="fu">Colorbar</span>(f[<span class="fl">1</span>, <span class="fl">2</span>], hm)</span>
-<span id="cb114-5"><a href="#cb114-5" aria-hidden="true" tabindex="-1"></a><span class="fu">lines!</span>(ax, switzerland; color <span class="op">=</span> <span class="op">:</span>black)</span>
-<span id="cb114-6"><a href="#cb114-6" aria-hidden="true" tabindex="-1"></a><span class="fu">hidedecorations!</span>(ax)</span>
-<span id="cb114-7"><a href="#cb114-7" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(ax)</span>
-<span id="cb114-8"><a href="#cb114-8" aria-hidden="true" tabindex="-1"></a>ax2 <span class="op">=</span> <span class="fu">Axis</span>(f[<span class="fl">2</span>, <span class="fl">1</span>]; aspect <span class="op">=</span> <span class="fu">DataAspect</span>(), title <span class="op">=</span> <span class="st">"Uncertainty"</span>)</span>
-<span id="cb114-9"><a href="#cb114-9" aria-hidden="true" tabindex="-1"></a>hm <span class="op">=</span></span>
-<span id="cb114-10"><a href="#cb114-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">heatmap!</span>(ax2, <span class="fu">quantize</span>(unc); colormap <span class="op">=</span> <span class="op">:</span>linear_gow_60_85_c27_n256, colorrange <span class="op">=</span> (<span class="fl">0</span>, <span class="fl">1</span>))</span>
-<span id="cb114-11"><a href="#cb114-11" aria-hidden="true" tabindex="-1"></a><span class="fu">Colorbar</span>(f[<span class="fl">2</span>, <span class="fl">2</span>], hm)</span>
-<span id="cb114-12"><a href="#cb114-12" aria-hidden="true" tabindex="-1"></a><span class="fu">lines!</span>(ax2, switzerland; color <span class="op">=</span> <span class="op">:</span>black)</span>
-<span id="cb114-13"><a href="#cb114-13" aria-hidden="true" tabindex="-1"></a><span class="fu">hidedecorations!</span>(ax2)</span>
-<span id="cb114-14"><a href="#cb114-14" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(ax2)</span>
-<span id="cb114-15"><a href="#cb114-15" aria-hidden="true" tabindex="-1"></a>f</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb113"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb113-1"><a href="#cb113-1" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="fu">Figure</span>(; size<span class="op">=</span>(<span class="fl">1200</span>, <span class="fl">600</span>))</span>
+<span id="cb113-2"><a href="#cb113-2" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> <span class="fu">Axis</span>(f[<span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, <span class="fl">1</span>]; aspect<span class="op">=</span><span class="fu">DataAspect</span>())</span>
+<span id="cb113-3"><a href="#cb113-3" aria-hidden="true" tabindex="-1"></a><span class="fu">poly!</span>(ax, switzerland, color<span class="op">=:</span>grey95)</span>
+<span id="cb113-4"><a href="#cb113-4" aria-hidden="true" tabindex="-1"></a><span class="fu">heatmap!</span>(ax, <span class="fu">nodata</span>(sure_presence, <span class="cn">false</span>), colormap<span class="op">=</span>[<span class="op">:</span>forestgreen])</span>
+<span id="cb113-5"><a href="#cb113-5" aria-hidden="true" tabindex="-1"></a><span class="fu">heatmap!</span>(ax, <span class="fu">nodata</span>(unsure, <span class="cn">false</span>), colormap<span class="op">=</span>[(<span class="op">:</span>dodgerblue, <span class="fl">0.3</span>)])</span>
+<span id="cb113-6"><a href="#cb113-6" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(ax)</span>
+<span id="cb113-7"><a href="#cb113-7" aria-hidden="true" tabindex="-1"></a><span class="fu">hidedecorations!</span>(ax)</span>
+<span id="cb113-8"><a href="#cb113-8" aria-hidden="true" tabindex="-1"></a>f</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <div>
 <figure class="figure">
@@ -2323,41 +2258,118 @@ Code for plotting density in environmental space
 </div>
 </div>
 </section>
-<section id="boosting-to-create-a-brt" class="level2">
-<h2 class="anchored" data-anchor-id="boosting-to-create-a-brt">Boosting to create a BRT</h2>
-<p>In a BRT, each component model is <em>boosted</em>.</p>
-<p>Boosting does bagging, but smarter by weighing each sample.</p>
+</section>
+<section id="more-complex-sdms-boosted-regression-trees-from-scratch-ish" class="level1 page-columns page-full">
+<h1>More Complex SDMs – Boosted Regression Trees from scratch(-ish)</h1>
+<p>Now that we are more confortable with the methods for model fitting, validation, and explanation in <strong>SDeMo</strong>, we’ll focus on building a <em>better</em> SDM. We’ll do this with two classic machine learning methods for improving classification models: <em>boostrap aggregation (bagging)</em> and <em>boosting</em>.</p>
+<section id="making-a-random-forest-with-bootstrap-aggegration" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="making-a-random-forest-with-bootstrap-aggegration">Making a random forest with Bootstrap Aggegration</h2>
+<p>The first step toward turning a Decision Tree into a Boosted Regression Tree is <em>bootstrap aggregation</em> (oftened shorted to <em>bagging</em>).</p>
+<p>Bagging involves constructing an <em>ensemble model</em><a href="#fn7" class="footnote-ref" id="fnref7" role="doc-noteref"><sup>7</sup></a> from simpler models, where each simpler model is typically trained only on a subset of the features.</p>
+<div class="no-row-height column-margin column-container"><div id="fn7"><p><sup>7</sup>&nbsp;A ensemble model consists of an average across many models.</p></div></div><p>A random forest (<strong>TK CITE</strong>) consists of an ensemble of decision trees, each trained on a subset of the features. We construct this by first defining the component model, which is a <code>DecisionTree</code> that first transforms training data with a <code>ZScore</code></p>
 <div id="142" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb115"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb115-1"><a href="#cb115-1" aria-hidden="true" tabindex="-1"></a>bst <span class="op">=</span> <span class="fu">AdaBoost</span>(dt_sdm; iterations <span class="op">=</span> <span class="fl">50</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb114"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb114-1"><a href="#cb114-1" aria-hidden="true" tabindex="-1"></a>solo_dt <span class="op">=</span> <span class="fu">SDM</span>(ZScore, DecisionTree, env_covariates, presencelayer, pseudoabsences)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>AdaBoost {SDeMo.ZScore → SDeMo.DecisionTree → P(x) ≥ 0.142} × 50 iterations</code></pre>
+<pre><code>SDeMo.ZScore → SDeMo.DecisionTree → P(x) ≥ 0.5</code></pre>
 </div>
 </div>
+<p>We then create an ensemble using the <code>Bagging</code> type, and pass 30 as the total number of component models to use in the ensemble.</p>
 <div id="144" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb117"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb117-1"><a href="#cb117-1" aria-hidden="true" tabindex="-1"></a><span class="fu">train!</span>(bst)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb116"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb116-1"><a href="#cb116-1" aria-hidden="true" tabindex="-1"></a>rf_sdm <span class="op">=</span> <span class="fu">Bagging</span>(solo_dt, <span class="fl">30</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>AdaBoost {SDeMo.ZScore → SDeMo.DecisionTree → P(x) ≥ 0.414} × 50 iterations</code></pre>
+<pre><code>{SDeMo.ZScore → SDeMo.DecisionTree → P(x) ≥ 0.5} × 30</code></pre>
 </div>
 </div>
+<p>We then run <code>bagfeatures!</code> to take each component model and choose a subset of variables to train the component model on.</p>
 <div id="146" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb119"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb119-1"><a href="#cb119-1" aria-hidden="true" tabindex="-1"></a>brd <span class="op">=</span> <span class="fu">predict</span>(bst, env_covariates; threshold <span class="op">=</span> <span class="cn">false</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb118"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb118-1"><a href="#cb118-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bagfeatures!</span>(rf_sdm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>{SDeMo.ZScore → SDeMo.DecisionTree → P(x) ≥ 0.5} × 30</code></pre>
+</div>
+</div>
+<p>Now we use <code>train!</code> to fit the ensemble model</p>
+<div id="148" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb120"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb120-1"><a href="#cb120-1" aria-hidden="true" tabindex="-1"></a><span class="fu">train!</span>(rf_sdm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>{SDeMo.ZScore → SDeMo.DecisionTree → P(x) ≥ 0.414} × 30</code></pre>
+</div>
+</div>
+<div id="150" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb122"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb122-1"><a href="#cb122-1" aria-hidden="true" tabindex="-1"></a>prd <span class="op">=</span> <span class="fu">predict</span>(rf_sdm, env_covariates; threshold <span class="op">=</span> <span class="cn">false</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>🗺️  A 240 × 546 layer with 70065 Float64 cells
    Projection: +proj=longlat +datum=WGS84 +no_defs</code></pre>
 </div>
 </div>
-<div id="148" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb121"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb121-1"><a href="#cb121-1" aria-hidden="true" tabindex="-1"></a>fg, ax, pl <span class="op">=</span> <span class="fu">heatmap</span>(brd; colormap <span class="op">=</span> <span class="op">:</span>tempo, colorrange <span class="op">=</span> (<span class="fl">0</span>, <span class="fl">1</span>))</span>
-<span id="cb121-2"><a href="#cb121-2" aria-hidden="true" tabindex="-1"></a>ax.aspect <span class="op">=</span> <span class="fu">DataAspect</span>()</span>
-<span id="cb121-3"><a href="#cb121-3" aria-hidden="true" tabindex="-1"></a><span class="fu">hidedecorations!</span>(ax)</span>
-<span id="cb121-4"><a href="#cb121-4" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(ax)</span>
-<span id="cb121-5"><a href="#cb121-5" aria-hidden="true" tabindex="-1"></a><span class="fu">lines!</span>(ax, switzerland; color <span class="op">=</span> <span class="op">:</span>grey20)</span>
-<span id="cb121-6"><a href="#cb121-6" aria-hidden="true" tabindex="-1"></a><span class="fu">Colorbar</span>(fg[<span class="fl">1</span>, <span class="fl">2</span>], pl; height <span class="op">=</span> <span class="fu">Relative</span>(<span class="fl">0.6</span>))</span>
-<span id="cb121-7"><a href="#cb121-7" aria-hidden="true" tabindex="-1"></a><span class="fu">current_figure</span>() <span class="co">#hide</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>We can then compute the <em>uncertainty</em> of the model, by considering the inter-quantile-range (<code>iqr</code>, a type of variance), across each component model.</p>
+<div id="152" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb124"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb124-1"><a href="#cb124-1" aria-hidden="true" tabindex="-1"></a>unc <span class="op">=</span> <span class="fu">predict</span>(rf_sdm, env_covariates; consensus <span class="op">=</span> iqr, threshold <span class="op">=</span> <span class="cn">false</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>🗺️  A 240 × 546 layer with 70065 Float64 cells
+   Projection: +proj=longlat +datum=WGS84 +no_defs</code></pre>
+</div>
+</div>
+<div id="154" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb126"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb126-1"><a href="#cb126-1" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="fu">Figure</span>(; size <span class="op">=</span> (<span class="fl">600</span>, <span class="fl">600</span>))</span>
+<span id="cb126-2"><a href="#cb126-2" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> <span class="fu">Axis</span>(f[<span class="fl">1</span>, <span class="fl">1</span>]; aspect <span class="op">=</span> <span class="fu">DataAspect</span>(), title <span class="op">=</span> <span class="st">"Prediction"</span>)</span>
+<span id="cb126-3"><a href="#cb126-3" aria-hidden="true" tabindex="-1"></a>hm <span class="op">=</span> <span class="fu">heatmap!</span>(ax, prd; colormap <span class="op">=</span> <span class="op">:</span>linear_worb_100_25_c53_n256, colorrange <span class="op">=</span> (<span class="fl">0</span>, <span class="fl">1</span>))</span>
+<span id="cb126-4"><a href="#cb126-4" aria-hidden="true" tabindex="-1"></a><span class="fu">Colorbar</span>(f[<span class="fl">1</span>, <span class="fl">2</span>], hm)</span>
+<span id="cb126-5"><a href="#cb126-5" aria-hidden="true" tabindex="-1"></a><span class="fu">lines!</span>(ax, switzerland; color <span class="op">=</span> <span class="op">:</span>black)</span>
+<span id="cb126-6"><a href="#cb126-6" aria-hidden="true" tabindex="-1"></a><span class="fu">hidedecorations!</span>(ax)</span>
+<span id="cb126-7"><a href="#cb126-7" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(ax)</span>
+<span id="cb126-8"><a href="#cb126-8" aria-hidden="true" tabindex="-1"></a>ax2 <span class="op">=</span> <span class="fu">Axis</span>(f[<span class="fl">2</span>, <span class="fl">1</span>]; aspect <span class="op">=</span> <span class="fu">DataAspect</span>(), title <span class="op">=</span> <span class="st">"Uncertainty"</span>)</span>
+<span id="cb126-9"><a href="#cb126-9" aria-hidden="true" tabindex="-1"></a>hm <span class="op">=</span></span>
+<span id="cb126-10"><a href="#cb126-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">heatmap!</span>(ax2, <span class="fu">quantize</span>(unc); colormap <span class="op">=</span> <span class="op">:</span>linear_gow_60_85_c27_n256, colorrange <span class="op">=</span> (<span class="fl">0</span>, <span class="fl">1</span>))</span>
+<span id="cb126-11"><a href="#cb126-11" aria-hidden="true" tabindex="-1"></a><span class="fu">Colorbar</span>(f[<span class="fl">2</span>, <span class="fl">2</span>], hm)</span>
+<span id="cb126-12"><a href="#cb126-12" aria-hidden="true" tabindex="-1"></a><span class="fu">lines!</span>(ax2, switzerland; color <span class="op">=</span> <span class="op">:</span>black)</span>
+<span id="cb126-13"><a href="#cb126-13" aria-hidden="true" tabindex="-1"></a><span class="fu">hidedecorations!</span>(ax2)</span>
+<span id="cb126-14"><a href="#cb126-14" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(ax2)</span>
+<span id="cb126-15"><a href="#cb126-15" aria-hidden="true" tabindex="-1"></a>f</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/cell-75-output-1.svg" class="img-fluid figure-img"></p>
+<p><img src="index_files/figure-html/cell-78-output-1.svg" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="boosting-to-create-a-brt" class="level2">
+<h2 class="anchored" data-anchor-id="boosting-to-create-a-brt">Boosting to create a BRT</h2>
+<p>In a BRT, each component model is <em>boosted</em>.</p>
+<p>Boosting does bagging, but smarter by weighing each sample.</p>
+<p>We can create a boosted model with the <code>AdaBoost</code> type, with <code>iterations</code> as the number of component models to use.</p>
+<div id="156" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb127"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb127-1"><a href="#cb127-1" aria-hidden="true" tabindex="-1"></a>bst <span class="op">=</span> <span class="fu">AdaBoost</span>(dt_sdm; iterations <span class="op">=</span> <span class="fl">50</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>AdaBoost {SDeMo.ZScore → SDeMo.DecisionTree → P(x) ≥ 0.327} × 50 iterations</code></pre>
+</div>
+</div>
+<div id="158" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb129"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb129-1"><a href="#cb129-1" aria-hidden="true" tabindex="-1"></a><span class="fu">train!</span>(bst)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>AdaBoost {SDeMo.ZScore → SDeMo.DecisionTree → P(x) ≥ 0.147} × 50 iterations</code></pre>
+</div>
+</div>
+<div id="160" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb131"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb131-1"><a href="#cb131-1" aria-hidden="true" tabindex="-1"></a>brd <span class="op">=</span> <span class="fu">predict</span>(bst, env_covariates; threshold <span class="op">=</span> <span class="cn">false</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>🗺️  A 240 × 546 layer with 70065 Float64 cells
+   Projection: +proj=longlat +datum=WGS84 +no_defs</code></pre>
+</div>
+</div>
+<div id="162" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb133"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb133-1"><a href="#cb133-1" aria-hidden="true" tabindex="-1"></a>fg, ax, pl <span class="op">=</span> <span class="fu">heatmap</span>(brd; colormap <span class="op">=</span> <span class="op">:</span>tempo, colorrange <span class="op">=</span> (<span class="fl">0</span>, <span class="fl">1</span>))</span>
+<span id="cb133-2"><a href="#cb133-2" aria-hidden="true" tabindex="-1"></a>ax.aspect <span class="op">=</span> <span class="fu">DataAspect</span>()</span>
+<span id="cb133-3"><a href="#cb133-3" aria-hidden="true" tabindex="-1"></a><span class="fu">hidedecorations!</span>(ax)</span>
+<span id="cb133-4"><a href="#cb133-4" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(ax)</span>
+<span id="cb133-5"><a href="#cb133-5" aria-hidden="true" tabindex="-1"></a><span class="fu">lines!</span>(ax, switzerland; color <span class="op">=</span> <span class="op">:</span>grey20)</span>
+<span id="cb133-6"><a href="#cb133-6" aria-hidden="true" tabindex="-1"></a><span class="fu">Colorbar</span>(fg[<span class="fl">1</span>, <span class="fl">2</span>], pl; height <span class="op">=</span> <span class="fu">Relative</span>(<span class="fl">0.6</span>))</span>
+<span id="cb133-7"><a href="#cb133-7" aria-hidden="true" tabindex="-1"></a><span class="fu">current_figure</span>() <span class="co">#hide</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-82-output-1.svg" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
