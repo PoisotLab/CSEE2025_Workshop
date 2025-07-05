@@ -42,18 +42,11 @@
     "text": "Installing Quarto\nInstall Quarto from here."
   },
   {
-    "objectID": "setup.html#cloning-the-repo",
-    "href": "setup.html#cloning-the-repo",
-    "title": "Setup and Prerequesites",
-    "section": "Cloning the repo",
-    "text": "Cloning the repo\nFinally, in a terminal, run git clone https://github.com/PoisotLab/CSEE2025_Workshop to clone the repository for the workshop."
-  },
-  {
     "objectID": "index.html",
     "href": "index.html",
     "title": "Interpretable machine learning for species distribution modeling",
     "section": "",
-    "text": "using Pkg\nPkg.activate(@__DIR__)\nusing Random\nRandom.seed!(1234567)\n\n  Activating project at `~/Code/Workspaces/InterpretableSDMs_CSEE2025`\n\n\nTaskLocalRNG()\n\n\n\nusing SpeciesDistributionToolkit\nusing CairoMakie\nusing Dates\nusing PrettyTables\nusing Statistics\nusing DataFrames\nconst SDT = SpeciesDistributionToolkit\ninclude(\"lib.jl\")\n\nprauc (generic function with 1 method)"
+    "text": "using Pkg\nPkg.activate(@__DIR__)\nusing Random\nRandom.seed!(1234567)\n\n  Activating project at `~/Code/Workspaces/InterpretableSDMs_CSEE2025`\n\n\nTaskLocalRNG()\n\n\n\nusing SpeciesDistributionToolkit\nusing CairoMakie\nusing Dates\nusing PrettyTables\nusing Statistics\nusing DataFrames\nconst SDT = SpeciesDistributionToolkit\n\nSpeciesDistributionToolkit"
   },
   {
     "objectID": "index.html#downloading-polygon-data",
