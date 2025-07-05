@@ -54,7 +54,27 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -206,7 +226,7 @@ window.Quarto = {
   <li><a href="#shap-values" id="toc-shap-values" class="nav-link" data-scroll-target="#shap-values">SHAP Values</a></li>
   <li><a href="#conformal-prediction" id="toc-conformal-prediction" class="nav-link" data-scroll-target="#conformal-prediction">Conformal Prediction</a></li>
   </ul></li>
-  <li><a href="#more-complex-sdms-boosted-regression-trees-from-scratch-ish" id="toc-more-complex-sdms-boosted-regression-trees-from-scratch-ish" class="nav-link" data-scroll-target="#more-complex-sdms-boosted-regression-trees-from-scratch-ish">More Complex SDMs – Boosted Regression Trees from scratch(-ish)</a>
+  <li><a href="#boosted-regression-trees-from-scratch-ish" id="toc-boosted-regression-trees-from-scratch-ish" class="nav-link" data-scroll-target="#boosted-regression-trees-from-scratch-ish">Boosted Regression Trees from scratch(-ish)</a>
   <ul class="collapse">
   <li><a href="#making-a-random-forest-with-bootstrap-aggegration" id="toc-making-a-random-forest-with-bootstrap-aggegration" class="nav-link" data-scroll-target="#making-a-random-forest-with-bootstrap-aggegration">Making a random forest with Bootstrap Aggegration</a></li>
   <li><a href="#boosting-to-create-a-brt" id="toc-boosting-to-create-a-brt" class="nav-link" data-scroll-target="#boosting-to-create-a-brt">Boosting to create a BRT</a></li>
@@ -325,8 +345,8 @@ window.Quarto = {
 <pre><code>RasterData{CHELSA2, BioClim}(CHELSA2, BioClim)</code></pre>
 </div>
 </div>
-<p>We can use the <code>layerdescriptions</code> method to list the names of all of the layers provided by <code>chelsa_provider</code>, along with their descriptions.</p>
-<div id="12" class="cell" data-execution_count="1">
+<p>We can use the <code>layerdescriptions</code> method<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> to list the names of all of the layers provided by <code>chelsa_provider</code>, along with their descriptions.</p>
+<div class="no-row-height column-margin column-container"><div id="fn3"><p><sup>3</sup>&nbsp;A method is effectively the same as a <em>function</em> in other programming languages. There is a slight difference in the context of <a href="https://en.wikipedia.org/wiki/Method_(computer_programming)">object-oriented programming</a>, which is why Julia uses that terminology, but for our purposes the two are equivalent.</p></div></div><div id="12" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">layerdescriptions</span>(chelsa_provider)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>Dict{String, String} with 19 entries:
@@ -360,15 +380,15 @@ window.Quarto = {
    Projection: +proj=longlat +datum=WGS84 +no_defs</code></pre>
 </div>
 </div>
-<p>We want to download each layer for the bounding box of Switzerland. We can obtain this by using the <code>boundingbox</code> method<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a></p>
-<div class="no-row-height column-margin column-container"><div id="fn3"><p><sup>3</sup>&nbsp;Note that we use <code>SDT.boundingbox</code> because <code>boundingbox</code> shares a name with another method in <code>CairoMakie</code>, so we have to specificy which <code>boundingbox</code> method we mean.</p></div></div><div id="16" class="cell" data-execution_count="1">
+<p>We want to download each layer for the bounding box of Switzerland. We can obtain this by using the <code>boundingbox</code> method<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a></p>
+<div class="no-row-height column-margin column-container"><div id="fn4"><p><sup>4</sup>&nbsp;Note that we use <code>SDT.boundingbox</code> because <code>boundingbox</code> shares a name with another method in <code>CairoMakie</code>, so we have to specificy which <code>boundingbox</code> method we mean.</p></div></div><div id="16" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>SDT.<span class="fu">boundingbox</span>(switzerland)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>(left = 5.955911159515381, right = 10.492294311523438, bottom = 45.81795883178711, top = 47.80845260620117)</code></pre>
 </div>
 </div>
-<p>Note that this returns a named-tuple with each coordinate named in the same way we need them for downloading a layer. This allows us to directly input the result of <code>SDT.boundingbox</code> into <code>SDMLayer</code> using splatting<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>, e.g.</p>
-<div class="no-row-height column-margin column-container"><div id="fn4"><p><sup>4</sup>&nbsp;<a href="https://docs.julialang.org/en/v1/base/base/#..."><em>Splatting</em></a> refers to adding <code>...</code> after a collection of items (like a vector or tuple), which results in them each being processed as sequential arguments. For example, if <code>x=[1,2,3]</code> and you call <code>f(x...)</code>, this is equivalent to <code>f(1,2,3)</code>.</p></div></div><div id="18" class="cell" data-execution_count="1">
+<p>Note that this returns a named-tuple with each coordinate named in the same way we need them for downloading a layer. This allows us to directly input the result of <code>SDT.boundingbox</code> into <code>SDMLayer</code> using splatting<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>, e.g.</p>
+<div class="no-row-height column-margin column-container"><div id="fn5"><p><sup>5</sup>&nbsp;<a href="https://docs.julialang.org/en/v1/base/base/#..."><em>Splatting</em></a> refers to adding <code>...</code> after a collection of items (like a vector or tuple), which results in them each being processed as sequential arguments. For example, if <code>x=[1,2,3]</code> and you call <code>f(x...)</code>, this is equivalent to <code>f(1,2,3)</code>.</p></div></div><div id="18" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">SDMLayer</span>(chelsa_provider; layer<span class="op">=</span><span class="st">"BIO1"</span>, SDT.<span class="fu">boundingbox</span>(switzerland)<span class="op">...</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>🗺️  A 240 × 546 layer with 131040 UInt16 cells
@@ -507,8 +527,8 @@ Other ways to iterate over the layers we want to download
 </div>
 </div>
 </div>
-<p>Note that although our raster has the same extent as our polygon, it extends outside our polygon’s border. We can fix this with the <code>mask!</code> method.</p>
-<section id="masking-the-environmental-layers" class="level3">
+<p>Note that although our raster has the same extent as our polygon, it extends outside our polygon’s border. We can fix this with the <code>mask!</code> method<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a>.</p>
+<div class="no-row-height column-margin column-container"><div id="fn6"><p><sup>6</sup>&nbsp;Methods in julia that are followed with an exclamation mark (like <code>mask!</code>) are <em>mutating</em> methods, meaning they make permanent changes to their inputs. This means we don’t need to save the result — the mask will already be applied to <code>env_covariates</code>. (Note this is not a requirement, but a convention among Julia developers to indicate which methods make changes to their inputs, and which don’t,)</p></div></div><section id="masking-the-environmental-layers" class="level3">
 <h3 class="anchored" data-anchor-id="masking-the-environmental-layers">Masking the environmental layers</h3>
 <div id="30" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mask!</span>(env_covariates, switzerland)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1675,7 +1695,7 @@ Code for plotting presences by state
 <pre><code>(Float32[2779.0, 2767.0, 2741.0, 2741.0, 2775.0, 2760.0, 2798.0, 2731.0, 2795.0, 2828.0  …  2736.0, 2802.0, 2785.0, 2762.0, 2802.0, 2734.0, 2796.0, 2739.0, 2714.0, 2763.0], Float32[12204.0, 25308.0, 16461.0, 16461.0, 20484.0, 20710.0, 18301.0, 17158.0, 16509.0, 10499.0  …  15375.0, 10211.0, 11675.0, 22840.0, 10211.0, 20742.0, 17484.0, 11090.0, 16431.0, 18676.0])</code></pre>
 </div>
 </div>
-<p>Note that CHELSA doesn’t provide data in commonly used units — the transformations to convert them into typical units can be found in their [documentation]. The relevant transformations for temperature and precipitation are applied below.</p>
+<p>Note that CHELSA doesn’t provide data in commonly used units — the transformations to convert them into typical units can be found in their <a href="https://chelsa-climate.org/wp-admin/download-page/CHELSA_tech_specification_V2.pdf">documentation</a>. The relevant transformations for temperature and precipitation are applied below.</p>
 <pre><code>temp = 0.1temp .- 271
 precip = 0.1precip</code></pre>
 <p>Finally, we can add a silhoutte of our taxon to the plot by downloading it using the Phylopic subpackage.</p>
@@ -1709,11 +1729,11 @@ precip = 0.1precip</code></pre>
 <section id="building-a-simple-species-distribution-model" class="level1 page-columns page-full">
 <h1>Building a Simple Species Distribution Model</h1>
 <p>Now that we have obtained both occurrence and environmental data, and explored it, we are ready to fit a species distribution model.</p>
-<p>The <strong>SDeMo</strong> subpackage provides methods for data preparation, training, validation, and interpretation, as well as several built-in models. Before we fit a more complicated machine-learning model, we’ll start by beocming familiar with the <strong>SDeMo</strong> API using a simpler model, the <em>Naive-Bayes classifier</em>.</p>
+<p>The <strong>SDeMo</strong> subpackage provides methods for data preparation, training, validation, and interpretation, as well as several built-in models. Before we fit a more complicated machine-learning model, we’ll start by beocming familiar with the <strong>SDeMo</strong> API using a simpler model, the <em>logistic classifier</em>.</p>
 <section id="sampling-pseudo-absences" class="level2">
 <h2 class="anchored" data-anchor-id="sampling-pseudo-absences">Sampling Pseudo-Absences</h2>
-<p>All of the models we use for binary classification, including <em>Naive-Bayes</em>, require presence-absence data. However, for the vast majority of species, we don’t have records of true species absences because these typically expensive monitoring programs, in contrast to the widespread availability of presence data on GBIF, which is largely crowdsourced from community science platforms like <em>iNaturalist</em>.</p>
-<p>To deal with this, a widespread method is generating <em>pseudo</em>-absences, which rely on hueristics to select sites where it is <em>very unlikely</em> that the target species is present. There is a deep literature on methods to select the locations and number of pseudoabsences (<strong>tk cites</strong>). Here we will use a method called <em>background thickening</em>, which means the probability a given location is marked as a pseudoabsence grows with the <em>minimum</em> distance to nearest presence.</p>
+<p>All of the models we use for binary classification, including logistic regression, require presence-absence data. However, for the vast majority of species, we don’t have records of true species absences because these typically expensive monitoring programs, in contrast to the widespread availability of presence data on GBIF, which is largely crowdsourced from community science platforms like <em>iNaturalist</em>.</p>
+<p>To deal with this, a widespread method is generating <em>pseudo</em>-absences, which rely on hueristics to select sites where it is <em>very unlikely</em> that the target species is present. There is a deep literature on methods to select the locations and number of pseudoabsences <span class="citation" data-cites="Pseudoabsences">Barbet‐Massin et al. (<a href="#ref-Pseudoabsences" role="doc-biblioref">2012</a>)</span>. Here we will use a method called <em>background thickening</em> <span class="citation" data-cites="BackgroundThickening">(<a href="#ref-BackgroundThickening" role="doc-biblioref">Vollering et al. 2019</a>)</span>, which means the probability a given location is marked as a pseudoabsence grows with the <em>minimum</em> distance to nearest presence.</p>
 <p>We can implement background thickening this using the <code>pseudoabsencemask</code> method, first with the <code>DistanceToEvent</code> technique, which generates a layer where each value is the distance (in kilometers) to the nearest presence record.</p>
 <div id="70" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb56"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>background <span class="op">=</span> <span class="fu">pseudoabsencemask</span>(DistanceToEvent, presencelayer)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1873,16 +1893,16 @@ Code for plotting density in environmental space
 <section id="training-a-simple-sdm" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="training-a-simple-sdm">Training a Simple SDM</h2>
 <p>Now that we have presences and pseudoabsences, we are finally ready to train our model.<strong>SDeMo</strong> uses a single <code>SDM</code> type that chains together the data transformation, the model, and data to fit on.</p>
-<p>We’ll start by building a classifier using <em>logistic regression</em> that first applies z-scores <em>only to the training data</em><a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>.</p>
-<div class="no-row-height column-margin column-container"><div id="fn5"><p><sup>5</sup>&nbsp;It’s crucial that parameters of the z-score transformation (the mean and standard deviation of the data) for each predictor is <em>only estimated from the training data</em> to avoid introducing <em>data leakage</em>, where information about the data used to evaluate the model accidentally becomes available (“leaks”) into the training data. The pipeline applied to <code>SDM</code> objects avoids leakage by default, for all data transformations.</p></div></div><div id="86" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>nb_sdm <span class="op">=</span> <span class="fu">SDM</span>(ZScore, Logistic, env_covariates, presencelayer, pseudoabsences)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>We’ll start by building a classifier using <em>logistic regression</em> that first applies z-scores <em>only to the training data</em><a href="#fn7" class="footnote-ref" id="fnref7" role="doc-noteref"><sup>7</sup></a>.</p>
+<div class="no-row-height column-margin column-container"><div id="fn7"><p><sup>7</sup>&nbsp;It’s crucial that parameters of the z-score transformation (the mean and standard deviation of the data) for each predictor is <em>only estimated from the training data</em> to avoid introducing <em>data leakage</em>, where information about the data used to evaluate the model accidentally becomes available (“leaks”) into the training data. The pipeline applied to <code>SDM</code> objects avoids leakage by default, for all data transformations.</p></div></div><div id="86" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>logistic_sdm <span class="op">=</span> <span class="fu">SDM</span>(ZScore, Logistic, env_covariates, presencelayer, pseudoabsences)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>SDeMo.ZScore → SDeMo.Logistic → P(x) ≥ 0.5</code></pre>
 </div>
 </div>
 <p>With the SDM built, we then call the <code>train!</code> method to actually fit the model to the data.</p>
 <div id="88" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="fu">train!</span>(nb_sdm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="fu">train!</span>(logistic_sdm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>SDeMo.ZScore → SDeMo.Logistic → P(x) ≥ 0.472</code></pre>
 </div>
@@ -1890,7 +1910,7 @@ Code for plotting density in environmental space
 <p>Like any binary classifier, Naive-Bayes produces a score between <span class="math inline">\(0\)</span> and <span class="math inline">\(1\)</span> for each prediction, and then selects an optimal threshold <span class="math inline">\(\tau\)</span>. Then, every location with a score less than <span class="math inline">\(\tau\)</span> is predicted to be false, and above <span class="math inline">\(\tau\)</span> is predicted to be true.</p>
 <p>We produce the model’s predictions using the <code>predict</code> method, and to visualize the raw scores (prior to thresholding), we pass the <code>threshold = false</code> argument.</p>
 <div id="90" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>prd <span class="op">=</span> <span class="fu">predict</span>(nb_sdm, env_covariates; threshold <span class="op">=</span> <span class="cn">false</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>prd <span class="op">=</span> <span class="fu">predict</span>(logistic_sdm, env_covariates; threshold <span class="op">=</span> <span class="cn">false</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>🗺️  A 240 × 546 layer with 70065 Float64 cells
    Projection: +proj=longlat +datum=WGS84 +no_defs</code></pre>
@@ -1916,7 +1936,7 @@ Code for plotting density in environmental space
 </div>
 <p>By default, the <code>predict</code> method will apply the optimal threshold to produce a binary range map, but we can do this by passing <code>threshold=true</code>. Thresholding is done by selecting the value of <span class="math inline">\(\tau\)</span> that maximizes the <em>Matthew’s Correlation Coefficient</em>.</p>
 <div id="94" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a>prd <span class="op">=</span> <span class="fu">predict</span>(nb_sdm, env_covariates; threshold <span class="op">=</span> <span class="cn">true</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a>prd <span class="op">=</span> <span class="fu">predict</span>(logistic_sdm, env_covariates; threshold <span class="op">=</span> <span class="cn">true</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>🗺️  A 240 × 546 layer with 70065 Bool cells
    Projection: +proj=longlat +datum=WGS84 +no_defs</code></pre>
@@ -1945,7 +1965,7 @@ Code for plotting density in environmental space
 <p>We can now assess how well our model is making predictions using <em>crossvalidation</em>. SDeMo provides tools for various forms of crossvalidation, including <code>kfold</code>, <code>leaveoneout</code>, <code>montecarlo</code> (<span class="math inline">\(n\)</span> random validation splits), and <code>holdout</code> (one random validation split).</p>
 <p>Here, we’ll use k-fold validation with 5 folds.</p>
 <div id="98" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>folds <span class="op">=</span> <span class="fu">kfold</span>(nb_sdm, k <span class="op">=</span> <span class="fl">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>folds <span class="op">=</span> <span class="fu">kfold</span>(logistic_sdm, k <span class="op">=</span> <span class="fl">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>5-element Vector{Tuple{Vector{Int64}, Vector{Int64}}}:
  ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10  …  2054, 2055, 2056, 2057, 2059, 2060, 2061, 2064, 2066, 2067], [243, 153, 213, 466, 625, 170, 38, 473, 249, 66  …  1868, 980, 1167, 996, 1616, 1466, 1171, 1791, 2001, 1537])
@@ -1957,7 +1977,7 @@ Code for plotting density in environmental space
 </div>
 <p>We then call the <code>crossvalidation</code> method, which fits the model on each fold.</p>
 <div id="100" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>cv <span class="op">=</span> <span class="fu">crossvalidate</span>(nb_sdm, folds)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>cv <span class="op">=</span> <span class="fu">crossvalidate</span>(logistic_sdm, folds)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>(validation = ConfusionMatrix[[TP: 129, TN 249, FP 25, FN 12], [TP: 125, TN 239, FP 35, FN 15], [TP: 127, TN 239, FP 34, FN 12], [TP: 125, TN 236, FP 38, FN 15], [TP: 120, TN 244, FP 29, FN 20]], training = ConfusionMatrix[[TP: 501, TN 970, FP 124, FN 58], [TP: 505, TN 983, FP 111, FN 55], [TP: 509, TN 979, FP 116, FN 52], [TP: 509, TN 976, FP 118, FN 51], [TP: 507, TN 980, FP 115, FN 53]])</code></pre>
 </div>
@@ -1967,7 +1987,7 @@ Code for plotting density in environmental space
 <div id="102" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb80"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a>measures <span class="op">=</span> [mcc, trueskill]</span>
 <span id="cb80-2"><a href="#cb80-2" aria-hidden="true" tabindex="-1"></a>cvresult <span class="op">=</span> [<span class="fu">measure</span>(set) for measure <span class="kw">in</span> measures, set <span class="kw">in</span> cv]</span>
-<span id="cb80-3"><a href="#cb80-3" aria-hidden="true" tabindex="-1"></a>nullresult <span class="op">=</span> [<span class="fu">measure</span>(<span class="fu">null</span>(nb_sdm)) for measure <span class="kw">in</span> measures, null <span class="kw">in</span> [coinflip]]</span>
+<span id="cb80-3"><a href="#cb80-3" aria-hidden="true" tabindex="-1"></a>nullresult <span class="op">=</span> [<span class="fu">measure</span>(<span class="fu">null</span>(logistic_sdm)) for measure <span class="kw">in</span> measures, null <span class="kw">in</span> [coinflip]]</span>
 <span id="cb80-4"><a href="#cb80-4" aria-hidden="true" tabindex="-1"></a><span class="fu">pretty_table</span>(</span>
 <span id="cb80-5"><a href="#cb80-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">hcat</span>(<span class="fu">string</span>.(measures), <span class="fu">hcat</span>(cvresult, nullresult));</span>
 <span id="cb80-6"><a href="#cb80-6" aria-hidden="true" tabindex="-1"></a>    alignment <span class="op">=</span> [<span class="op">:</span>l, <span class="op">:</span>c, <span class="op">:</span>c, <span class="op">:</span>c],</span>
@@ -1988,7 +2008,8 @@ Code for plotting density in environmental space
 </section>
 <section id="a-decision-tree-sdm" class="level1 page-columns page-full">
 <h1>A Decision-Tree SDM</h1>
-<p>Now that we have experience using the <strong>SDeMo</strong> API to fit and validate models, we’ll build our first machine-learning-based model, and use the various explanation tools in <strong>SDeMo</strong> to explain it’s predictions. i We’ll start with a <em>decision tree</em>, and again apply a z-score transformation to the predictors prior to training.</p>
+<p>Now that we have experience using the <strong>SDeMo</strong> API to fit and validate models, we’ll build our first machine-learning-based model, and use the various explanation tools in <strong>SDeMo</strong> to explain it’s predictions.</p>
+<p>We’ll start with a <em>decision tree</em>, and again apply a z-score transformation to the predictors prior to training.</p>
 <div id="104" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb82"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a>dt_sdm <span class="op">=</span> <span class="fu">SDM</span>(ZScore, DecisionTree, env_covariates, presencelayer, pseudoabsences)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
@@ -1999,8 +2020,8 @@ Code for plotting density in environmental space
 <h2 class="anchored" data-anchor-id="smarter-variable-selection">Smarter Variable Selection</h2>
 <p>Another feature of <strong>SDeMo</strong> is various methods for <em>variable selection</em>. In the previous example, we fit our model to all 19 BioClimatic variables. However, there are many good reasons that we might not want to included every variable as a predictor.</p>
 <p>One is collinearity among predictors, which can cause issues with being able to adaquetly estimate model parameters.</p>
-<p><strong>SDeMo</strong> includes various methods for selecting variables, including using the <em>Variance-Inflation Factor</em> (VIF), as well as methods for Forward and Backward variable selection. Here we will use VIF to remove collienar variables.<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a></p>
-<div class="no-row-height column-margin column-container"><div id="fn6"><p><sup>6</sup>&nbsp;Methods for variable selection are generally controversial among statisticians. In general, we don’t recommend using variable selection methods with a single model — often, it is a much better alternative to use an <em>ensemble</em> of models, each trained on a subset of predictors. This technique is known as bootstrap aggregation (or bagging), and we will demonstrate it in the next section.</p></div></div><p>We can apply various variable selection methods using the <code>variables!</code> method. For example, we can remove variable one at a time until the maximum VIF is below a provided value (2 in the following example).</p>
+<p><strong>SDeMo</strong> includes various methods for selecting variables, including using the <em>Variance-Inflation Factor</em> (VIF), as well as methods for Forward and Backward variable selection. Here we will use VIF to remove collienar variables.<a href="#fn8" class="footnote-ref" id="fnref8" role="doc-noteref"><sup>8</sup></a></p>
+<div class="no-row-height column-margin column-container"><div id="fn8"><p><sup>8</sup>&nbsp;Methods for variable selection are generally controversial among statisticians. In general, we don’t recommend using variable selection methods with a single model — often, it is a much better alternative to use an <em>ensemble</em> of models, each trained on a subset of predictors. This technique is known as bootstrap aggregation (or bagging), and we will demonstrate it in the next section.</p></div></div><p>We can apply various variable selection methods using the <code>variables!</code> method. For example, we can remove variable one at a time until the maximum VIF is below a provided value (2 in the following example).</p>
 <div id="106" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb84"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a>dt_sdm <span class="op">=</span> <span class="fu">variables!</span>(dt_sdm, StrictVarianceInflationFactor{<span class="fl">2</span>.})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
@@ -2062,14 +2083,14 @@ Code for plotting density in environmental space
 <p>Variable importance is quantified in the relative amount a model improves when a given variable <span class="math inline">\(i\)</span> is added, compared to the same model fit on every variable but <span class="math inline">\(i\)</span>.</p>
 <p>In <strong>SDeMo</strong>, variable importance can be computed using the <code>variableimportance</code> method, applied to a given crossvalidation scheme.</p>
 <div id="116" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb93"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb93-1"><a href="#cb93-1" aria-hidden="true" tabindex="-1"></a>var_impt <span class="op">=</span> <span class="fu">variableimportance</span>(dt_sdm, <span class="fu">kfold</span>(dt_sdm, k<span class="op">=</span><span class="fl">20</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb93"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb93-1"><a href="#cb93-1" aria-hidden="true" tabindex="-1"></a>var_impt <span class="op">=</span> <span class="fu">variableimportance</span>(dt_sdm, <span class="fu">kfold</span>(dt_sdm, k<span class="op">=</span><span class="fl">5</span>), samples<span class="op">=</span><span class="fl">100</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>5-element Vector{Float64}:
- 0.037896415314614594
- 0.16173839289884473
- 0.24884329607538977
- 0.1529497836009484
- 0.04428583226631949</code></pre>
+ 0.026319761362285827
+ 0.28724730415575356
+ 0.31529591484077246
+ 0.11946491235126823
+ 0.031968775518038596</code></pre>
 </div>
 </div>
 <p>We can then visualize it with <code>barplot!</code></p>
@@ -2089,7 +2110,7 @@ Code for plotting density in environmental space
 </section>
 <section id="shap-values" class="level2">
 <h2 class="anchored" data-anchor-id="shap-values">SHAP Values</h2>
-<p>SHAP values are a method for game-theory adapted adapted to make machine-learning models explainable from <strong>CITE TODO</strong>. By <em>explainable</em>, we mean that we can contribution of each individual feature on the overall prediction. SHAP is a generalization of a few different methods for interpretability, but the most notable is <em>Locally Interpretable Model Explanations</em> (LIME; <strong>CITE TODO</strong>). The idea behind LIME (and the other similar methods that SHAP provides a generalizes) is to take a nonlinear, uninterpretable machine learning model, and fit a separate, simpler, model to explain its predictions that is inherently interpretable (like linear regression, where each coefficient directly quantifies the contribution to each variable).</p>
+<p>SHAP values are a method for game-theory adapted adapted to make machine-learning models explainable from <span class="citation" data-cites="SHAP">Lundberg and Lee (<a href="#ref-SHAP" role="doc-biblioref">2017</a>)</span> By <em>explainable</em>, we mean that we can contribution of each individual feature on the overall prediction. SHAP is a generalization of a few different methods for interpretability, but the most notable is <em>Locally Interpretable Model Explanations</em> (LIME; <span class="citation" data-cites="LIME">Ribeiro, Singh, and Guestrin (<a href="#ref-LIME" role="doc-biblioref">2016</a>)</span>). The idea behind LIME (and the other similar methods that SHAP provides a generalizes) is to take a nonlinear, uninterpretable machine learning model, and fit a separate, simpler, model to explain its predictions that is inherently interpretable (like linear regression, where each coefficient directly quantifies the contribution to each variable).</p>
 <p>SHAP values across space can be estimated with the <code>explain</code> method in <strong>SDeMo</strong>, with the predictors passed as a second argument, and the particular variable to consider as the third argument.</p>
 <p>In contrast to partial responses, Shapley values are calculated at the scale of a single prediction (not the average value across other predictors), and represent the departure from the average model prediction due to the specific value of the variable of interest for this prediction.</p>
 <div id="120" class="cell" data-execution_count="1">
@@ -2184,26 +2205,26 @@ Code for plotting density in environmental space
 <span id="cb106-4"><a href="#cb106-4" aria-hidden="true" tabindex="-1"></a>eff <span class="op">=</span> [<span class="fu">mean</span>(<span class="fu">length</span>.(<span class="fu">credibleclasses</span>.(𝐏, q))) for q <span class="kw">in</span> qs]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>100-element Vector{Float64}:
- 1.918762088974855
- 1.2538684719535784
- 1.918762088974855
- 1.433752417794971
- 1.4700193423597678
- 1.422147001934236
- 1.433752417794971
- 1.422147001934236
- 1.422147001934236
- 1.4700193423597678
+ 1.4511605415860735
+ 1.4511605415860735
+ 1.2838491295938104
+ 1.2190522243713733
+ 1.6378143133462282
+ 1.4429400386847195
+ 1.4429400386847195
+ 1.188588007736944
+ 1.4429400386847195
+ 1.2190522243713733
  ⋮
- 0.973404255319149
  1.0
- 0.973404255319149
- 0.973404255319149
- 1.0
- 1.0
- 1.0
- 1.0
- 0.973404255319149</code></pre>
+ 0.811411992263056
+ 0.811411992263056
+ 0.811411992263056
+ 0.811411992263056
+ 0.811411992263056
+ 0.811411992263056
+ 0.811411992263056
+ 0.9439071566731141</code></pre>
 </div>
 </div>
 <div id="134" class="cell" data-execution_count="1">
@@ -2258,14 +2279,14 @@ Code for plotting density in environmental space
 </div>
 </section>
 </section>
-<section id="more-complex-sdms-boosted-regression-trees-from-scratch-ish" class="level1 page-columns page-full">
-<h1>More Complex SDMs – Boosted Regression Trees from scratch(-ish)</h1>
+<section id="boosted-regression-trees-from-scratch-ish" class="level1 page-columns page-full">
+<h1>Boosted Regression Trees from scratch(-ish)</h1>
 <p>Now that we are more confortable with the methods for model fitting, validation, and explanation in <strong>SDeMo</strong>, we’ll focus on building a <em>better</em> SDM. We’ll do this with two classic machine learning methods for improving classification models: <em>boostrap aggregation (bagging)</em> and <em>boosting</em>.</p>
 <section id="making-a-random-forest-with-bootstrap-aggegration" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="making-a-random-forest-with-bootstrap-aggegration">Making a random forest with Bootstrap Aggegration</h2>
 <p>The first step toward turning a Decision Tree into a Boosted Regression Tree is <em>bootstrap aggregation</em> (oftened shorted to <em>bagging</em>).</p>
-<p>Bagging involves constructing an <em>ensemble model</em><a href="#fn7" class="footnote-ref" id="fnref7" role="doc-noteref"><sup>7</sup></a> from simpler models, where each simpler model is typically trained only on a subset of the features.</p>
-<div class="no-row-height column-margin column-container"><div id="fn7"><p><sup>7</sup>&nbsp;A ensemble model consists of an average across many models.</p></div></div><p>A random forest (<strong>TK CITE</strong>) consists of an ensemble of decision trees, each trained on a subset of the features. We construct this by first defining the component model, which is a <code>DecisionTree</code> that first transforms training data with a <code>ZScore</code></p>
+<p>Bagging involves constructing an <em>ensemble model</em><a href="#fn9" class="footnote-ref" id="fnref9" role="doc-noteref"><sup>9</sup></a> from simpler models, where each simpler model is typically trained only on a subset of the features.</p>
+<div class="no-row-height column-margin column-container"><div id="fn9"><p><sup>9</sup>&nbsp;A ensemble model consists of an average across many models.</p></div></div><p>A random forest (<span class="citation" data-cites="RandomForests">Breiman (<a href="#ref-RandomForests" role="doc-biblioref">2001</a>)</span>) consists of an ensemble of decision trees, each trained on a subset of the features. We construct this by first defining the component model, which is a <code>DecisionTree</code> that first transforms training data with a <code>ZScore</code></p>
 <div id="142" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb114"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb114-1"><a href="#cb114-1" aria-hidden="true" tabindex="-1"></a>solo_dt <span class="op">=</span> <span class="fu">SDM</span>(ZScore, DecisionTree, env_covariates, presencelayer, pseudoabsences)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
@@ -2332,39 +2353,81 @@ Code for plotting density in environmental space
 </div>
 </div>
 </div>
-</section>
-<section id="boosting-to-create-a-brt" class="level2">
-<h2 class="anchored" data-anchor-id="boosting-to-create-a-brt">Boosting to create a BRT</h2>
-<p>In a BRT, each component model is <em>boosted</em>.</p>
-<p>Boosting does bagging, but smarter by weighing each sample.</p>
-<p>We can create a boosted model with the <code>AdaBoost</code> type, with <code>iterations</code> as the number of component models to use.</p>
 <div id="156" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb127"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb127-1"><a href="#cb127-1" aria-hidden="true" tabindex="-1"></a>bst <span class="op">=</span> <span class="fu">AdaBoost</span>(dt_sdm; iterations <span class="op">=</span> <span class="fl">50</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb127"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb127-1"><a href="#cb127-1" aria-hidden="true" tabindex="-1"></a>vi <span class="op">=</span> <span class="fu">variableimportance</span>(rf_sdm, <span class="fu">montecarlo</span>(rf_sdm, n<span class="op">=</span><span class="fl">10</span>); threshold<span class="op">=</span><span class="cn">false</span>, samples<span class="op">=</span><span class="fl">100</span>)</span>
+<span id="cb127-2"><a href="#cb127-2" aria-hidden="true" tabindex="-1"></a>vi <span class="op">./=</span> <span class="fu">sum</span>(vi)</span>
+<span id="cb127-3"><a href="#cb127-3" aria-hidden="true" tabindex="-1"></a>vnames <span class="op">=</span> [<span class="st">"BIO</span><span class="sc">$</span>(x)<span class="st">"</span> for x <span class="kw">in</span> <span class="fu">variables</span>(rf_sdm)]</span>
+<span id="cb127-4"><a href="#cb127-4" aria-hidden="true" tabindex="-1"></a><span class="fu">collect</span>(<span class="fu">zip</span>(vnames, vi))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>AdaBoost {SDeMo.ZScore → SDeMo.DecisionTree → P(x) ≥ 0.327} × 50 iterations</code></pre>
+<pre><code>19-element Vector{Tuple{String, Float64}}:
+ ("BIO1", 0.08296779009946309)
+ ("BIO2", 0.03339563055344458)
+ ("BIO3", 0.026768985871561485)
+ ("BIO4", 0.06834474011646892)
+ ("BIO5", 0.04756174936257972)
+ ("BIO6", 0.07043542851703823)
+ ("BIO7", 0.04979549913339819)
+ ("BIO8", 0.03050720964741488)
+ ("BIO9", 0.050463578818524646)
+ ("BIO10", 0.04555310911124575)
+ ("BIO11", 0.06878522812348294)
+ ("BIO12", 0.030076714950059563)
+ ("BIO13", 0.054848485077820336)
+ ("BIO14", 0.06077699362994567)
+ ("BIO15", 0.1291327698192399)
+ ("BIO16", 0.05955744531233859)
+ ("BIO17", 0.025414018479257235)
+ ("BIO18", 0.03608512745264777)
+ ("BIO19", 0.02952949592406841)</code></pre>
 </div>
 </div>
 <div id="158" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb129"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb129-1"><a href="#cb129-1" aria-hidden="true" tabindex="-1"></a><span class="fu">train!</span>(bst)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb129"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb129-1"><a href="#cb129-1" aria-hidden="true" tabindex="-1"></a>mix <span class="op">=</span> <span class="fu">findmax</span>(vi)</span>
+<span id="cb129-2"><a href="#cb129-2" aria-hidden="true" tabindex="-1"></a>mostimp <span class="op">=</span> <span class="fu">layerdescriptions</span>(chelsa_provider)[<span class="fu">layers</span>(chelsa_provider)[<span class="fu">variables</span>(rf_sdm)[<span class="fu">last</span>(mix)]]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>AdaBoost {SDeMo.ZScore → SDeMo.DecisionTree → P(x) ≥ 0.147} × 50 iterations</code></pre>
+<pre><code>"Precipitation Seasonality (Coefficient of Variation)"</code></pre>
 </div>
 </div>
 <div id="160" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb131"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb131-1"><a href="#cb131-1" aria-hidden="true" tabindex="-1"></a>brd <span class="op">=</span> <span class="fu">predict</span>(bst, env_covariates; threshold <span class="op">=</span> <span class="cn">false</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb131"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb131-1"><a href="#cb131-1" aria-hidden="true" tabindex="-1"></a>shapval <span class="op">=</span> <span class="fu">explain</span>(rf_sdm, <span class="fu">variables</span>(rf_sdm)[mix[<span class="fl">2</span>]]; threshold<span class="op">=</span><span class="cn">false</span>, samples<span class="op">=</span><span class="fl">100</span>)</span>
+<span id="cb131-2"><a href="#cb131-2" aria-hidden="true" tabindex="-1"></a>shapresp <span class="op">=</span> shapval <span class="op">.+</span> <span class="fu">mean</span>(<span class="fu">predict</span>(rf_sdm; threshold<span class="op">=</span><span class="cn">false</span>))</span>
+<span id="cb131-3"><a href="#cb131-3" aria-hidden="true" tabindex="-1"></a>si <span class="op">=</span> <span class="fu">clamp</span>.(shapresp, <span class="fl">0</span>, <span class="fl">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>🗺️  A 240 × 546 layer with 70065 Float64 cells
-   Projection: +proj=longlat +datum=WGS84 +no_defs</code></pre>
+<pre><code>2068-element Vector{Float64}:
+ 0.35765005082062584
+ 0.3604042031558705
+ 0.3647567213916349
+ 0.357850953520955
+ 0.35001840505044557
+ 0.3583301939511677
+ 0.35366526757351036
+ 0.3525196534153876
+ 0.35572978377429254
+ 0.3461627895767209
+ ⋮
+ 0.28573256304439165
+ 0.2747391627677167
+ 0.2751896167802133
+ 0.25972461547957343
+ 0.28636560984075554
+ 0.27974951732904796
+ 0.28216394082432195
+ 0.28482218520566105
+ 0.29974535391719564</code></pre>
 </div>
 </div>
 <div id="162" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb133"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb133-1"><a href="#cb133-1" aria-hidden="true" tabindex="-1"></a>fg, ax, pl <span class="op">=</span> <span class="fu">heatmap</span>(brd; colormap <span class="op">=</span> <span class="op">:</span>tempo, colorrange <span class="op">=</span> (<span class="fl">0</span>, <span class="fl">1</span>))</span>
-<span id="cb133-2"><a href="#cb133-2" aria-hidden="true" tabindex="-1"></a>ax.aspect <span class="op">=</span> <span class="fu">DataAspect</span>()</span>
-<span id="cb133-3"><a href="#cb133-3" aria-hidden="true" tabindex="-1"></a><span class="fu">hidedecorations!</span>(ax)</span>
-<span id="cb133-4"><a href="#cb133-4" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(ax)</span>
-<span id="cb133-5"><a href="#cb133-5" aria-hidden="true" tabindex="-1"></a><span class="fu">lines!</span>(ax, switzerland; color <span class="op">=</span> <span class="op">:</span>grey20)</span>
-<span id="cb133-6"><a href="#cb133-6" aria-hidden="true" tabindex="-1"></a><span class="fu">Colorbar</span>(fg[<span class="fl">1</span>, <span class="fl">2</span>], pl; height <span class="op">=</span> <span class="fu">Relative</span>(<span class="fl">0.6</span>))</span>
-<span id="cb133-7"><a href="#cb133-7" aria-hidden="true" tabindex="-1"></a><span class="fu">current_figure</span>() <span class="co">#hide</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb133"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb133-1"><a href="#cb133-1" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> <span class="fu">Figure</span>(; size<span class="op">=</span>(<span class="fl">600</span>, <span class="fl">360</span>))</span>
+<span id="cb133-2"><a href="#cb133-2" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> <span class="fu">Axis</span>(fig[<span class="fl">1</span>, <span class="fl">1</span>], xlabel<span class="op">=</span>mostimp, ylabel<span class="op">=</span><span class="st">"Response (presence score)"</span>)</span>
+<span id="cb133-3"><a href="#cb133-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">200</span></span>
+<span id="cb133-4"><a href="#cb133-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">lines!</span>(ax, <span class="fu">partialresponse</span>(rf_sdm, <span class="fu">variables</span>(rf_sdm)[mix[<span class="fl">2</span>]]; threshold<span class="op">=</span><span class="cn">false</span>, inflated<span class="op">=</span><span class="cn">true</span>)<span class="op">...</span>, color<span class="op">=:</span>lightgrey, alpha<span class="op">=</span><span class="fl">0.5</span>, label<span class="op">=</span><span class="st">"Infl. partial response"</span>)</span>
+<span id="cb133-5"><a href="#cb133-5" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb133-6"><a href="#cb133-6" aria-hidden="true" tabindex="-1"></a><span class="fu">scatter!</span>(ax, <span class="fu">features</span>(rf_sdm, <span class="fu">variables</span>(rf_sdm)[mix[<span class="fl">2</span>]]), si, label<span class="op">=</span><span class="st">"Shapley values"</span>, color<span class="op">=</span><span class="fu">labels</span>(rf_sdm), colormap<span class="op">=:</span>Greens, strokecolor<span class="op">=:</span>black, strokewidth<span class="op">=</span><span class="fl">1</span>)</span>
+<span id="cb133-7"><a href="#cb133-7" aria-hidden="true" tabindex="-1"></a><span class="fu">lines!</span>(ax, <span class="fu">partialresponse</span>(rf_sdm, <span class="fu">variables</span>(rf_sdm)[mix[<span class="fl">2</span>]]; threshold<span class="op">=</span><span class="cn">false</span>)<span class="op">...</span>, color<span class="op">=:</span>red, label<span class="op">=</span><span class="st">"Partial response"</span>, linestyle<span class="op">=:</span>dash, linewidth<span class="op">=</span><span class="fl">2</span>)</span>
+<span id="cb133-8"><a href="#cb133-8" aria-hidden="true" tabindex="-1"></a><span class="fu">tightlimits!</span>(ax)</span>
+<span id="cb133-9"><a href="#cb133-9" aria-hidden="true" tabindex="-1"></a><span class="fu">ylims!</span>(ax, <span class="fl">0</span>, <span class="fl">1</span>)</span>
+<span id="cb133-10"><a href="#cb133-10" aria-hidden="true" tabindex="-1"></a><span class="fu">axislegend</span>(ax, position<span class="op">=:</span>rt, framevisible<span class="op">=</span><span class="cn">false</span>, merge<span class="op">=</span><span class="cn">true</span>, unique<span class="op">=</span><span class="cn">true</span>)</span>
+<span id="cb133-11"><a href="#cb133-11" aria-hidden="true" tabindex="-1"></a>fig</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <div>
 <figure class="figure">
@@ -2373,13 +2436,105 @@ Code for plotting density in environmental space
 </div>
 </div>
 </div>
+</section>
+<section id="boosting-to-create-a-brt" class="level2">
+<h2 class="anchored" data-anchor-id="boosting-to-create-a-brt">Boosting to create a BRT</h2>
+<p>In a BRT, each component model is <em>boosted</em>.</p>
+<p>Boosting does bagging, but smarter by weighing each sample <span class="citation" data-cites="Boosting">Schapire (<a href="#ref-Boosting" role="doc-biblioref">1999</a>)</span>.</p>
+<p>We can create a boosted model with the <code>AdaBoost</code> type, with <code>iterations</code> as the number of component models to use.</p>
+<div id="164" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb134"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb134-1"><a href="#cb134-1" aria-hidden="true" tabindex="-1"></a>bst <span class="op">=</span> <span class="fu">AdaBoost</span>(dt_sdm; iterations <span class="op">=</span> <span class="fl">50</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>AdaBoost {SDeMo.ZScore → SDeMo.DecisionTree → P(x) ≥ 0.072} × 50 iterations</code></pre>
+</div>
+</div>
+<div id="166" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb136"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb136-1"><a href="#cb136-1" aria-hidden="true" tabindex="-1"></a><span class="fu">train!</span>(bst)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>AdaBoost {SDeMo.ZScore → SDeMo.DecisionTree → P(x) ≥ 0.147} × 50 iterations</code></pre>
+</div>
+</div>
+<div id="168" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb138"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb138-1"><a href="#cb138-1" aria-hidden="true" tabindex="-1"></a>brd <span class="op">=</span> <span class="fu">predict</span>(bst, env_covariates; threshold <span class="op">=</span> <span class="cn">false</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>🗺️  A 240 × 546 layer with 70065 Float64 cells
+   Projection: +proj=longlat +datum=WGS84 +no_defs</code></pre>
+</div>
+</div>
+<div id="170" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb140"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb140-1"><a href="#cb140-1" aria-hidden="true" tabindex="-1"></a>fg, ax, pl <span class="op">=</span> <span class="fu">heatmap</span>(brd; colormap <span class="op">=</span> <span class="op">:</span>tempo, colorrange <span class="op">=</span> (<span class="fl">0</span>, <span class="fl">1</span>))</span>
+<span id="cb140-2"><a href="#cb140-2" aria-hidden="true" tabindex="-1"></a>ax.aspect <span class="op">=</span> <span class="fu">DataAspect</span>()</span>
+<span id="cb140-3"><a href="#cb140-3" aria-hidden="true" tabindex="-1"></a><span class="fu">hidedecorations!</span>(ax)</span>
+<span id="cb140-4"><a href="#cb140-4" aria-hidden="true" tabindex="-1"></a><span class="fu">hidespines!</span>(ax)</span>
+<span id="cb140-5"><a href="#cb140-5" aria-hidden="true" tabindex="-1"></a><span class="fu">lines!</span>(ax, switzerland; color <span class="op">=</span> <span class="op">:</span>grey20)</span>
+<span id="cb140-6"><a href="#cb140-6" aria-hidden="true" tabindex="-1"></a><span class="fu">Colorbar</span>(fg[<span class="fl">1</span>, <span class="fl">2</span>], pl; height <span class="op">=</span> <span class="fu">Relative</span>(<span class="fl">0.6</span>))</span>
+<span id="cb140-7"><a href="#cb140-7" aria-hidden="true" tabindex="-1"></a><span class="fu">current_figure</span>() <span class="co">#hide</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-86-output-1.svg" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<div id="172" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb141"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb141-1"><a href="#cb141-1" aria-hidden="true" tabindex="-1"></a>var <span class="op">=</span> <span class="fu">variables</span>(bst)[<span class="fl">1</span>]</span>
+<span id="cb141-2"><a href="#cb141-2" aria-hidden="true" tabindex="-1"></a>mostimp <span class="op">=</span> <span class="fu">layerdescriptions</span>(chelsa_provider)[<span class="fu">layers</span>(chelsa_provider)[<span class="fu">variables</span>(bst)[var]]]</span>
+<span id="cb141-3"><a href="#cb141-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb141-4"><a href="#cb141-4" aria-hidden="true" tabindex="-1"></a>shapval <span class="op">=</span> <span class="fu">explain</span>(bst, <span class="fu">variables</span>(bst)[var]; threshold<span class="op">=</span><span class="cn">false</span>, samples<span class="op">=</span><span class="fl">100</span>)</span>
+<span id="cb141-5"><a href="#cb141-5" aria-hidden="true" tabindex="-1"></a>shapresp <span class="op">=</span> shapval <span class="op">.+</span> <span class="fu">mean</span>(<span class="fu">predict</span>(bst; threshold<span class="op">=</span><span class="cn">false</span>))</span>
+<span id="cb141-6"><a href="#cb141-6" aria-hidden="true" tabindex="-1"></a>si <span class="op">=</span> <span class="fu">clamp</span>.(shapresp, <span class="fl">0</span>, <span class="fl">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>2068-element Vector{Float64}:
+ 0.4647453853124077
+ 0.4631613309559377
+ 0.45748080862232565
+ 0.45470522147321485
+ 0.4810231043732057
+ 0.4830400892156585
+ 0.47605181886393455
+ 0.4683055853941366
+ 0.48464406177898034
+ 0.45482807971203404
+ ⋮
+ 0.410829881367401
+ 0.41009202705653564
+ 0.39426790024633485
+ 0.4469520518856758
+ 0.4369079911177956
+ 0.39742238677416014
+ 0.4241785875664869
+ 0.41140040098139213
+ 0.4429359264234577</code></pre>
+</div>
+</div>
+
 
 
 </section>
 </section>
 
 
-</main> <!-- /main -->
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-Pseudoabsences" class="csl-entry" role="listitem">
+Barbet‐Massin, Morgane, Frédéric Jiguet, Cécile Hélène Albert, and Wilfried Thuiller. 2012. <span>“Selecting Pseudo‐absences for Species Distribution Models: How, Where and How Many?”</span> <em>Methods in Ecology and Evolution</em> 3 (2): 327–38. <a href="https://doi.org/10.1111/j.2041-210x.2011.00172.x">https://doi.org/10.1111/j.2041-210x.2011.00172.x</a>.
+</div>
+<div id="ref-RandomForests" class="csl-entry" role="listitem">
+Breiman, Leo. 2001. <em>Machine Learning</em> 45 (1): 5–32. <a href="https://doi.org/10.1023/a:1010933404324">https://doi.org/10.1023/a:1010933404324</a>.
+</div>
+<div id="ref-SHAP" class="csl-entry" role="listitem">
+Lundberg, Scott, and Su-In Lee. 2017. <span>“A Unified Approach to Interpreting Model Predictions.”</span> arXiv. <a href="https://doi.org/10.48550/ARXIV.1705.07874">https://doi.org/10.48550/ARXIV.1705.07874</a>.
+</div>
+<div id="ref-LIME" class="csl-entry" role="listitem">
+Ribeiro, Marco Tulio, Sameer Singh, and Carlos Guestrin. 2016. <span>“"Why Should i Trust You?": Explaining the Predictions of Any Classifier.”</span> arXiv. <a href="https://doi.org/10.48550/ARXIV.1602.04938">https://doi.org/10.48550/ARXIV.1602.04938</a>.
+</div>
+<div id="ref-Boosting" class="csl-entry" role="listitem">
+Schapire, Robert E. 1999. <span>“A Brief Introduction to Boosting.”</span> In <em>Proceedings of the 16th International Joint Conference on Artificial Intelligence - Volume 2</em>, 1401–6. IJCAI’99. San Francisco, CA, USA: Morgan Kaufmann Publishers Inc.
+</div>
+<div id="ref-BackgroundThickening" class="csl-entry" role="listitem">
+Vollering, Julien, Rune Halvorsen, Inger Auestad, and Knut Rydgren. 2019. <span>“Bunching up the Background Betters Bias in Species Distribution Models.”</span> <em>Ecography</em> 42 (10): 1717–27. <a href="https://doi.org/10.1111/ecog.04503">https://doi.org/10.1111/ecog.04503</a>.
+</div>
+</div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
