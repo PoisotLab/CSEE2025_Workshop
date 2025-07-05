@@ -4,7 +4,14 @@
     "href": "setup.html",
     "title": "Setup and Prerequesites",
     "section": "",
-    "text": "Here’s a list of instructions to setup your computer for the workshop.\nFirst, open a terminal."
+    "text": "Here’s a list of instructions to setup your computer for the workshop."
+  },
+  {
+    "objectID": "setup.html#installing-git",
+    "href": "setup.html#installing-git",
+    "title": "Setup and Prerequesites",
+    "section": "Installing git",
+    "text": "Installing git\nMake sure you have git installed."
   },
   {
     "objectID": "setup.html#installing-julia",
@@ -32,7 +39,14 @@
     "href": "setup.html#installing-quarto",
     "title": "Setup and Prerequesites",
     "section": "Installing Quarto",
-    "text": "Installing Quarto\nFinally, install Quarto from here."
+    "text": "Installing Quarto\nInstall Quarto from here."
+  },
+  {
+    "objectID": "setup.html#cloning-the-repo",
+    "href": "setup.html#cloning-the-repo",
+    "title": "Setup and Prerequesites",
+    "section": "Cloning the repo",
+    "text": "Cloning the repo\nFinally, in a terminal, run git clone https://github.com/PoisotLab/CSEE2025_Workshop to clone the repository for the workshop."
   },
   {
     "objectID": "index.html",
