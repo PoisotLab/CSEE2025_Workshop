@@ -1,0 +1,904 @@
+---
+title: "Interpretable machine learning for species distribution modeling"
+subtitle: "CSEE 2025 Workshop"
+engine: julia
+toc-title: "Table of Contents"
+reference-location: margin
+authors:
+    -   name: Michael D. Catchen
+        orcid: 0000-0002-6506-6487
+    -   name: Timothée Poisot
+        orcid: 0000-0002-0735-5184
+    -   name: Gabriel Dansereau
+        orcid: 0000-0002-2212-3584
+    -   name: Ariane Bussières-Fournel
+abstract: |
+    **To do.**
+---
+
+# Setup Packages
+
+```{julia}
+using Pkg
+Pkg.activate(@__DIR__)
+using Random
+Random.seed!(1234567)
+```
+
+```{julia}
+using SpeciesDistributionToolkit
+using CairoMakie
+using Dates
+using PrettyTables
+using Statistics
+using DataFrames
+const SDT = SpeciesDistributionToolkit
+```
+
+# Getting Started 
+
+In this tutorial, we are going to build a species distribution model (SDM) for the species [_Turdus torquatus_](https://en.wikipedia.org/wiki/Ring_ouzel), a European thrush that has breeding grounds in the French, Swiss, and Italian alps. We'll particularly only focus on modeling its range in Switzerland, to present `SpeciesDistributionToolkit`'s abilities for working with polygons for countries and their subdivisions. 
+
+[SpeciesDistributionToolkit.jl (SDT)](https://poisotlab.github.io/SpeciesDistributionToolkit.jl/v1.6.3/) is a package we (the authors) have developed over several years for working with species distribution data, fitting SDMs with various machine learning methods, and tools for interpreting these models. You can read the (recently acceptedin PCI Ecology) preprint [here]().
+
+Specifically, **SDT** is a [_monorepo_](https://monorepo.tools/), composed of many subpackages --- the ones we'll use here are:
+
+- **SimpleSDMLayers**: for manipulating raster data 
+- **SimpleSDMDatasets**: for querying and downloading raster data from a variety of databases
+- **SimpleSDMPolygons**: for querying and manipulating polygon data from a variety of databases
+- **GBIF**: for downloading data from the [Global Biodiversity Information Facility](https://www.gbif.org/)
+- **Phylopic.jl**: for downloading taxon silhouettes to add to data visualization 
+- **SDeMo.jl**: a high-level interface for training, validating, and interpreting species distribution models 
+
+
+## Downloading Polygon Data
+
+Let's start by downloading a polygon for the border of Switzerland. 
+
+```{julia}
+osm_provider = PolygonData(OpenStreetMap, Places)
+switzerland = getpolygon(osm_provider, place="Switzerland")
+```
+
+We can confirm we downloaded the right data by visualizing it. All visualizations in this tutorial will use the [`Makie`](https://docs.makie.org/stable/) library[^makie].
+
+[^makie]: Makie uses various "backends" to produce figures, depending on the desired output format. We ran `using CairoMakie` to use the `Cairo` backend, which is used for producing publication quality PNGs and vector graphics.   
+
+
+```{julia}
+lines(switzerland)
+```
+
+Looks good! Now we'll load the environmental data we'll use. 
+
+## Downloading Environmental Data
+
+We'll download environment data from CHELSA, which provides 19 bioclimatic layers at 1km$^2$ resolution. The interface for downloading raster data is similar to polygon data --- first we define a `RasterData` provider[^rasterdata] which takes in the database (`CHELSA2`) and particular dataset (`BioClim`) to download.
+
+^[rasterdata]: A full list of databases, and the datasets they provide, is available [here](https://poisotlab.github.io/SpeciesDistributionToolkit.jl/v1.6.3/howto/list-provided-layers#SimpleSDMDatasets.RasterDataset-howto-list-provided-layers), and in the "Datasets" tab in the top navigation bar.
+
+```{julia}
+chelsa_provider = RasterData(CHELSA2, BioClim)
+```
+
+We can use the `layerdescriptions` method to list the names of all of the layers provided by `chelsa_provider`, along with their descriptions.
+
+
+```{julia}
+layerdescriptions(chelsa_provider)
+```
+
+To download a layer, we use the `SDMLayer` constructor, and pass the specific name of the we want `layer` keyword argument. We also pass the bounding box of the region we want with the `left`, `right`, `bottom` and `top` keywords.
+
+For example, to download BIO1 (mean annual temperature) at longitudes from 40° to 43°, and latitudes from 30° to 35°, we run
+
+```{julia}
+SDMLayer(chelsa_provider, layer="BIO1", left=40, right=43, bottom=30, top=35)
+```
+
+We want to download each layer for the bounding box of Switzerland. We can obtain this by using the `boundingbox` method[^bounding]
+
+```{julia}
+SDT.boundingbox(switzerland)
+```
+
+[^bounding]: Note that we use `SDT.boundingbox` because `boundingbox` shares a name with another method in `CairoMakie`, so we have to specificy which `boundingbox` method we mean. 
+
+Note that this returns a named-tuple with each coordinate named in the same way we need them for downloading a layer. This allows us to directly input the result of `SDT.boundingbox` into `SDMLayer` using splatting[^splatting], e.g.
+
+[^splatting]: [_Splatting_](https://docs.julialang.org/en/v1/base/base/#...) refers to adding `...` after a collection of items (like a vector or tuple), which results in them each being processed as sequential arguments. For example, if `x=[1,2,3]` and you call `f(x...)`, this is equivalent to `f(1,2,3)`. 
+
+```{julia}
+SDMLayer(chelsa_provider; layer="BIO1", SDT.boundingbox(switzerland)...)
+```
+
+We can then load all 19 bioclimatic variables by using `layers`, which returns a list of the names of each layer provided by `chelsa_provider`, e.g.
+
+```{julia}
+layers(chelsa_provider)
+```
+
+We can then load them all in a single line using an in-line for loop.
+
+::: {.callout-note collapse="true"}
+### Note on downloading and storing layers
+Note that the first time you run the following lines, the entirety of each layer will be downloaded and cached. This means the first time you run this line, it will take several minutes, but every subsequent time will be nearly instant, because the layers are saved in SimpleSDMDataset's cache (by default, this is located in `~/.julia/SimpleSDMDatasets/`). 
+:::
+
+```{julia}
+env_covariates = SDMLayer{Float32}[
+    SDMLayer(
+        chelsa_provider; 
+        layer = layername,
+        SDT.boundingbox(switzerland)...
+    )
+    for layername in layers(chelsa_provider)
+]
+```
+
+::: {.callout-tip collapse="true"}
+### Other ways to iterate over the layers we want to download
+Note that there are many different ways to do iteration in Julia, not just the in-line for loop used above. 
+
+
+```{julia}
+#| code-fold: true
+#| code-summary: "Using a conventional for loop with indices"
+env_covariates = SDMLayer{Float32}[]
+for i in 1:19
+    push!(env_covariates, 
+        SDMLayer(
+            chelsa_provider; 
+            layer = "BIO$i", 
+            SDT.boundingbox(switzerland)...
+        )
+    )
+end
+```
+
+```{julia}
+#| code-fold: true
+#| code-summary: "Using `map` with layer names"
+env_covariates = map(
+    layername -> Float32.(SDMLayer(
+        chelsa_provider; 
+        layer = layername,
+        SDT.boundingbox(switzerland)...
+    )),
+    layers(chelsa_provider)
+);
+```
+
+:::
+
+Now we can visualize the first layer, and our polygon. We'll plot the first environmental layer with `heatmap`, and we'll pass `color=:white` and `linewidth=3` to make our polygon easier to see.
+
+```{julia}
+heatmap(env_covariates[begin])
+lines!(switzerland, color=:white, linewidth=3)
+current_figure()
+```
+
+Note that although our raster has the same extent as our polygon, it extends outside our polygon's border. We can fix this with the `mask!` method.
+
+### Masking the environmental layers
+
+```{julia}
+mask!(env_covariates, switzerland)
+```
+
+and we can verify this worked by plotting it again:
+
+```{julia}
+heatmap(env_covariates[begin])
+lines!(switzerland, color=:red, linewidth=3)
+current_figure()
+```
+
+Let's plot a few of them.
+
+::: {.callout-tip collapse=true}
+## Code for plotting multiple layers
+```{julia}
+layers_to_plot = [1, 4, 12, 15]
+
+f = Figure()
+for (i,ci) in enumerate(CartesianIndices((1:2,1:2)))
+    this_layer = layers(chelsa_provider)[layers_to_plot[i]]
+    ax = Axis(
+        f[ci[1], ci[2]], 
+        title=layerdescriptions(chelsa_provider)[this_layer], 
+        titlesize=12
+    )
+    heatmap!(ax, env_covariates[layers_to_plot[i]])
+    hidedecorations!(ax)
+    hidespines!(ax)
+end 
+```
+:::
+
+
+```{julia}
+#| echo: false
+#| output: true
+f
+```
+
+
+## Downloading occurrence data 
+
+Now we'll use the **GBIF.jl** subpackage to download occurrence data from the Global Biodiversity Information Facility ([GBIF](https://www.gbif.org/)) for our species, _Turdus torquatus_. We do this with the `taxon` method. 
+
+
+```{julia}
+ouzel = taxon("Turdus torquatus")
+```
+
+We'll then use the `occurrences` method to setup a data download from GBIF. We pass the taxon, `ouzel`, and an environmental covariate (with `first(env_covariates)`) representing the extent from which we want to download occurrences. The function also takes keyword arguments that are specified in the [GBIF API](https://techdocs.gbif.org/en/openapi/v1/occurrence).
+
+```{julia}
+presences = occurrences(
+    ouzel,
+    first(env_covariates),
+    "occurrenceStatus" => "PRESENT",
+    "limit" => 300,
+    "country" => "CH",
+    "datasetKey" => "4fa7b334-ce0d-4e88-aaae-2e0c138d049e",
+)
+```
+
+Note that this only downloads the first 300 occurrences, because the total number of records can vary drastically depending on the species and extent, and the GBIF streaming API has a hard limit at 200000 records, and querying large amounts of using the streaming API is woefully inefficient. For data volumes above 10000 observations, the suggested solution is to rely on the download interface on GBIF.
+
+We can use the `count` method to determine how many total records match our criteria
+
+```{julia}
+count(presences)
+```
+
+Because this is a reasonable number, we can download the rest of the occurrences using a while loop, and a the `occurrences!` method to iterate and download the remaining occurrences.  
+
+```{julia}
+while length(presences) < count(presences)
+    occurrences!(presences)
+end
+```
+
+GBIF has a built-in Table.jl API, which means we can easily convert the occurrence records to a `DataFrame`:
+
+
+```{julia}
+DataFrame(presences)
+```
+
+However, SDeMo is designed to work with the result from GBIF directly. For example, we can plot them with `scatter!` 
+
+```{julia}
+lines(switzerland)
+scatter!(presences)
+current_figure()
+```
+
+
+We can also convert the occurrences into a raster with `true` values at the location of occurrences using the `mask` function. This will be useful for us in the next section.
+
+```{julia}
+presencelayer = mask(first(env_covariates), presences)
+```
+
+## Computing statistics with occurrences 
+
+Here, we'll show how we can work with occurrence data and polygons. First, we'll download data on the Swiss cantons (states), using the GADM polygon database. 
+
+```{julia}
+gadm_provider = PolygonData(GADM, Countries)
+swiss_states = getpolygon(gadm_provider; country="CHE", level=1)
+```
+
+Next we'll plot each state along with presence records. 
+
+```{julia}
+lines(switzerland, color=:black)
+lines!(swiss_states, color=:grey60)
+scatter!(presencelayer)
+current_figure()
+```
+
+Next we'll use the `byzone` method to compute the total number of presences in each state. We pass `sum` as the method to apply to each region, and `presencelayer` as the layer to apply `sum` to. 
+
+```{julia}
+pres_per_state = Dict(
+    byzone(sum, presencelayer, [x for x in swiss_states], [x.properties["Name"] for x in swiss_states])
+)
+```
+
+Finally, we'll plot the total number of occurrences in each state as a bar chart. 
+
+::: {.callout-tip collapse=true}
+## Code for plotting presences by state
+```{julia}
+presence_cts = collect(values(pres_per_state))
+sort_idx = sortperm(presence_cts)
+state_names = collect(keys(pres_per_state))
+
+
+f = Figure()
+ax = Axis(
+    f[1,1], 
+    xlabel = "Number of Occurrences",
+    ylabel = "State",
+    yticks=(1:length(state_names), state_names[sort_idx])
+)
+barplot!(ax, presence_cts[sort_idx], direction=:x)
+```
+:::
+
+
+```{julia}
+#| echo: false
+#| output: true
+f
+```
+
+
+## Associating Environmental Covariates with Occurrences
+
+Next, we'll show how we associate the data in our environmental covariates with each occurrence point. First, let's select the environmental covariates that represent mean annual temperature (BIO1), and annual precipitation (BIO12). 
+
+```{julia}
+temperature, precipitation = env_covariates[[1,12]]
+```
+
+We can simply index the layers by the `presences` object to select the value of the covariate at each location.
+
+```{julia}
+temp, precip = temperature[presences], precipitation[presences]
+```
+
+Note that CHELSA doesn't provide data in commonly used units --- the transformations to convert them into typical units can be found in their [documentation]. The relevant transformations for temperature and precipitation are applied below.
+
+```
+temp = 0.1temp .- 271
+precip = 0.1precip
+```
+
+Finally, we can add a silhoutte of our taxon to the plot by downloading it using the Phylopic subpackage.
+
+```{julia}
+taxon_silhoeutte = Phylopic.imagesof(ouzel)
+```
+
+This can all be visualized using the code below, which shows a clear negative correlation between temperature and precipitation at the occurrence locations.
+
+```{julia}
+f = Figure()
+ax = Axis(
+    f[1,1], 
+    xlabel="Annual mean temperature (°C)", 
+    ylabel="Annual precipitation (kg×m⁻²)"
+)
+scatter!(ax, 0.1temperature[presences].-271, 0.1precipitation[presences], color=(:seagreen4, 0.7))
+silhouetteplot!(ax, -5., 1000.0, taxon_silhoeutte; markersize=70)
+f
+```
+
+# Building a Simple Species Distribution Model
+
+Now that we have obtained both occurrence and environmental data, and explored it, we are ready to fit a species distribution model. 
+
+The **SDeMo** subpackage provides methods for data preparation, training, validation, and interpretation, as well as several built-in models. Before we fit a more complicated machine-learning model, we'll start by beocming familiar with the **SDeMo** API using a simpler model, the _Naive-Bayes classifier_. 
+
+## Sampling Pseudo-Absences
+
+All of the models we use for binary classification, including _Naive-Bayes_, require presence-absence data. However, for the vast majority of species, we don't have records of true species absences because these typically expensive monitoring programs, in contrast to the widespread availability of presence data on GBIF, which is largely crowdsourced from community science platforms like _iNaturalist_. 
+
+To deal with this, a widespread method is generating _pseudo_-absences, which rely on hueristics to select sites where it is _very unlikely_ that the target species is present. There is a deep literature on methods to select the locations and number of pseudoabsences (**tk cites**). Here we will use a method called _background thickening_, which means the probability a given location is marked as a pseudoabsence grows with the _minimum_ distance to nearest presence.  
+
+We can implement background thickening this using the `pseudoabsencemask` method, first with the `DistanceToEvent` technique, which generates a layer where each value is the distance (in kilometers) to the nearest presence record. 
+
+```{julia}
+background = pseudoabsencemask(DistanceToEvent, presencelayer)
+```
+
+We can then visualize this using `heatmap`.
+
+```{julia}
+heatmap(background)
+```
+
+We _could_ draw pseudoabsences from this, but it is also typically a good idea to add a _buffer_ around each presence, which are not allowed to include pseudoabsences. The justification for this is it's unlikely to be truly absent in locations very close to an observed presence. Here, we'll use a buffer distance of 4 kilometers, and mask those regions out using the `nodata` method. 
+
+```{julia}
+buffer_distance = 4 # In kilometers
+buffered_background = nodata(background, d -> d < buffer_distance)
+```
+
+and we'll visualize it to show the added buffer 
+
+```{julia}
+heatmap(buffered_background)
+scatter!(presences, markersize=4, color=colorant"#e79154")
+current_figure()
+```
+
+Finally, we'll sample pseudoabsences using the `backgroundpoints` method. We'll choose to sample twice as many pseudoabsences as there are presences. In real workflows, it's important to determine the sensitivity of a model to the number of pseudoabsences, but given this tutorial is focused on interpretable machine learning, we'll stick with number of pseudoabsences for each example. 
+
+```{julia}
+num_pseudoabsences = 2sum(presencelayer)
+pseudoabsences = backgroundpoints(buffered_background, num_pseudoabsences)
+```
+
+Finally, we can visualize the pseudoabsences using `scatter!`, just as we would for presences. Below, presences are in orange, and pseudoabsences are in grey.
+
+```{julia}
+lines(switzerland, color=:black)
+scatter!(presencelayer, color=colorant"#e79154", markersize=7)
+scatter!(pseudoabsences, color=colorant"#bbb", markersize=5)
+current_figure()
+```
+
+We can see there is a clear geographic distinction in the regions where presences and absences are, but crucially we need them to be if different regions of environmental space. 
+
+We visualize the density of presences and absences in environmental space below. 
+
+::: {.callout-tip collapse=true}
+## Code for plotting density in environmental space
+
+```{julia}
+abcol = colorant"#bbb"
+prcol = colorant"#e79154"
+
+_range = (
+    absent = abcol,
+    present = prcol,
+    absentbg = (abcol, 0.2),
+    presentbg = (prcol, 0.2),
+)
+bkcol = (
+    nodata = colorant"#DDDDDD",
+    generic = colorant"#222222",
+    sdm = _range,
+)
+
+temp_idx, precip_idx = 1, 12
+
+tmp, precip = 0.1env_covariates[temp_idx] - 273.15, 0.1env_covariates[precip_idx]
+
+temp_pres = tmp.grid[presencelayer.grid]
+temp_abs = tmp.grid[pseudoabsences.grid]
+ 
+precip_pres = precip.grid[presencelayer.grid]
+precip_abs = precip.grid[pseudoabsences.grid]
+ 
+f = Figure()
+
+gl = f[1,1] = GridLayout()
+
+axtemp = Axis(gl[1,1])
+density!(axtemp, temp_pres, color=bkcol.sdm.presentbg, strokecolor=bkcol.sdm.present, strokewidth=1)
+density!(axtemp, temp_abs, color=bkcol.sdm.absentbg, strokecolor=bkcol.sdm.absent, strokewidth=1)
+
+axprec = Axis(gl[2,2])
+density!(axprec, precip_pres, color=bkcol.sdm.presentbg, strokecolor=bkcol.sdm.present, strokewidth=1, direction=:y)
+density!(axprec, precip_abs, color=bkcol.sdm.absentbg, strokecolor=bkcol.sdm.absent, strokewidth=1, direction=:y)
+
+axboth = Axis(gl[2,1], xlabel="Mean air temperature (°C)", ylabel = "Annual precipitation (kg m⁻²)")
+scatter!(axboth, temp_abs, precip_abs, color=bkcol.sdm.absent, markersize=4, label="Pseudo-absence")
+scatter!(axboth, temp_pres, precip_pres, color=bkcol.sdm.present, markersize=4, label="Presence")
+
+axislegend(position = :lb)
+
+hidespines!(axtemp, :l, :r, :t)
+hidespines!(axprec, :b, :r, :t)
+hidedecorations!(axtemp, grid = true)
+hidedecorations!(axprec, grid = true)
+ylims!(axtemp, low = 0)
+xlims!(axprec, low = 0)
+colgap!(gl, 0)
+rowgap!(gl, 0)
+
+colsize!(gl, 1, Relative(5/6))
+rowsize!(gl, 2, Relative(5/6))
+
+current_figure()
+```
+:::
+
+```{julia}
+#| echo: false
+#| output: true
+f
+```
+
+## Training a Simple SDM
+
+Now that we have presences and pseudoabsences, we are finally ready to train our model.**SDeMo** uses a single `SDM` type that chains together the data transformation, the model, and data to fit on.
+
+We'll start by building a classifier using _logistic regression_ that first applies z-scores _only to the training data_[^leakage].
+
+[^leakage]: It's crucial that parameters of the z-score transformation (the mean and standard deviation of the data) for each predictor is _only estimated from the training data_ to avoid introducing _data leakage_, where information about the data used to evaluate the model accidentally becomes available ("leaks") into the training data. The pipeline applied to `SDM` objects avoids leakage by default, for all data transformations. 
+
+
+```{julia}
+nb_sdm = SDM(ZScore, Logistic, env_covariates, presencelayer, pseudoabsences)
+```
+
+With the SDM built, we then call the `train!` method to actually fit the model to the data.
+
+```{julia}
+train!(nb_sdm)
+```
+
+Like any binary classifier, Naive-Bayes produces a score between $0$ and $1$ for each prediction, and then selects an optimal threshold $\tau$. Then, every location with a score less than $\tau$ is predicted to be false, and above $\tau$ is predicted to be true. 
+
+We produce the model's predictions using the `predict` method, and to visualize the raw scores (prior to thresholding), we pass the `threshold = false` argument. 
+
+```{julia}
+prd = predict(nb_sdm, env_covariates; threshold = false)
+```
+
+
+We can then visualize the raw score values.
+
+```{julia}
+f = Figure()
+ax = Axis(f[1,1])
+hm = heatmap!(ax, prd, colorrange=(0,1))
+scatter!(ax, presencelayer, color=:white, markersize=4)
+Colorbar(f[1,2], hm, label="Score", ticks=0:0.25:1)
+hidedecorations!(ax)
+hidespines!(ax)
+f
+```
+
+By default, the `predict` method will apply the optimal threshold to produce a binary range map, but we can do this by passing `threshold=true`. Thresholding is done by selecting the value of $\tau$ that maximizes the _Matthew's Correlation Coefficient_.  
+
+```{julia}
+prd = predict(nb_sdm, env_covariates; threshold = true)
+```
+
+and similarly we can visualize. 
+
+```{julia}
+f = Figure()
+ax = Axis(f[1,1])
+heatmap!(ax, prd, colormap=[:grey75, :seagreen4])
+scatter!(ax, presencelayer, color=:white, markersize=4)
+hidedecorations!(ax)
+hidespines!(ax)
+f
+```
+
+## Validating an SDM 
+
+We can now assess how well our model is making predictions using _crossvalidation_. SDeMo provides tools for various forms of crossvalidation, including `kfold`, `leaveoneout`, `montecarlo` ($n$ random validation splits), and `holdout` (one random validation split). 
+
+Here, we'll use k-fold validation with 5 folds. 
+
+```{julia}
+folds = kfold(nb_sdm, k = 5)
+```
+
+We then call the `crossvalidation` method, which fits the model on each fold.
+
+```{julia}
+cv = crossvalidate(nb_sdm, folds)
+```
+
+Now we can apply various metrics to quantify model performance, and compare it to their expected value from a null model. 
+
+
+Here, we'll use _Matthew's Correlation Coefficient_ (mcc), and the True-Skill Statistic, and compare our model to a coinflip null model (where each prediction is true or false with equal probability). 
+
+```{julia}
+measures = [mcc, trueskill]
+cvresult = [measure(set) for measure in measures, set in cv]
+nullresult = [measure(null(nb_sdm)) for measure in measures, null in [coinflip]]
+pretty_table(
+    hcat(string.(measures), hcat(cvresult, nullresult));
+    alignment = [:l, :c, :c, :c],
+    #backend = Val(:markdown),
+    header = ["Measure", "Validation", "Training", "Coin-flip"],
+    formatters = ft_printf("%5.3f", [2, 3, 4, 5]),
+)
+```
+
+
+# A Decision-Tree SDM
+
+Now that we have experience using the **SDeMo** API to fit and validate models, we'll build our first machine-learning-based model, and use the various explanation tools in **SDeMo** to explain it's predictions. 
+i
+We'll start with a _decision tree_, and again apply a z-score transformation to the predictors prior to training.
+
+```{julia}
+dt_sdm = SDM(ZScore, DecisionTree, env_covariates, presencelayer, pseudoabsences)
+```
+
+## Smarter Variable Selection
+
+Another feature of **SDeMo** is various methods for _variable selection_. In the previous example, we fit our model to all 19 BioClimatic variables. However, there are many good reasons that we might not want to included every variable as a predictor.  
+
+One is collinearity among predictors, which can cause issues with being able to adaquetly estimate model parameters. 
+
+**SDeMo** includes various methods for selecting variables, including using the _Variance-Inflation Factor_ (VIF), as well as methods for Forward and Backward variable selection. Here we will use VIF to remove collienar variables.[^varselection] 
+
+[^varselection]: Methods for variable selection are generally controversial among statisticians. In general, we don't recommend using variable selection methods with a single model --- often, it is a much better alternative to use an _ensemble_ of models, each trained on a subset of predictors. This technique is known as bootstrap aggregation (or bagging), and we will demonstrate it in the next section.  
+
+We can apply various variable selection methods using the `variables!` method. For example, we can remove variable one at a time until the maximum VIF is below a provided value (2 in the following example).
+
+```{julia}
+dt_sdm = variables!(dt_sdm, StrictVarianceInflationFactor{2.})
+```
+
+We can then use the `variables` method to list what the selected variables are.
+
+```{julia}
+variables(dt_sdm)
+```
+
+Now, we can use `train!` just as before to fit our decision tree on just the selected variables. 
+
+```{julia}
+train!(dt_sdm)
+```
+
+and again use `predict!` to make our predicted range.
+
+```{julia}
+prd = predict(dt_sdm, env_covariates; threshold = false)
+```
+
+and we can visualize as before
+
+```{julia}
+f = Figure(; size = (600, 300))
+ax = Axis(f[1, 1]; aspect = DataAspect(), title = "Prediction (decision tree)")
+hm = heatmap!(ax, prd; colormap = :linear_worb_100_25_c53_n256, colorrange = (0, 1))
+Colorbar(f[1, 2], hm)
+lines!(ax, switzerland; color = :black)
+hidedecorations!(ax)
+hidespines!(ax)
+f
+```
+
+# Making our Decision-Tree SDM Interpretable
+
+Now that we have fit our model, we can explore a few interpretability techniques.
+
+## Variable Importance
+
+Variable importance is quantified in the relative amount a model improves when a given variable $i$ is added, compared to the same model fit on every variable but $i$.
+
+In **SDeMo**, variable importance can be computed using the `variableimportance` method, applied to a given crossvalidation scheme. 
+
+```{julia}
+var_impt = variableimportance(dt_sdm, kfold(dt_sdm, k=20))
+```
+
+We can then visualize it with `barplot!`
+
+```{julia}
+f = Figure()
+ax = Axis(f[1,1], xticks=(1:length(variables(dt_sdm)), ["BIO$i" for i in variables(dt_sdm)]))
+barplot!(ax, var_impt)
+f
+```
+
+## SHAP Values
+
+SHAP values are a method for game-theory adapted adapted to make machine-learning models explainable from **CITE TODO**. By _explainable_, we mean that we can contribution of each individual feature on the overall prediction. SHAP is a generalization of a few different methods for interpretability, but the most notable is _Locally Interpretable Model Explanations_ (LIME; **CITE TODO**). The idea behind LIME (and the other similar methods that SHAP provides a generalizes) is to take a nonlinear, uninterpretable machine learning model, and fit a separate, simpler, model to explain its predictions that is inherently interpretable (like linear regression, where each coefficient directly quantifies the contribution to each variable). 
+
+SHAP values across space can be estimated with the `explain` method in **SDeMo**, with the predictors passed as a second argument, and the particular variable to consider as the third argument. 
+
+In contrast to partial responses, Shapley values are calculated at the scale of a single prediction (not the average value across other predictors), and represent the departure from the average model prediction due to the specific value of the variable of interest for this prediction.
+
+```{julia}
+shapley1 = explain(dt_sdm, env_covariates, variables(dt_sdm)[1]; threshold=false)
+```
+
+We can then plot the contribution of that variable across space. 
+
+```{julia}
+f = Figure()
+ax = Axis(f[1,1])
+hm = heatmap!(ax, shapley1)
+Colorbar(f[1,2], hm, label="Contribution of BIO$(variables(dt_sdm)[1]) to prediction score")
+f
+```
+
+We can also estimate the contributed all at once by not passing any particular variable.
+
+```{julia}
+shaps = explain(dt_sdm, env_covariates; threshold=false)
+```
+
+By using the `mosaic` method, we can then compute the most important variable contributing to the overall prediction (as measured by the largest magnitude SHAP value).
+
+```{julia}
+most_impt_feature = mosaic(argmax, map(x -> abs.(x), shaps))
+```
+
+and finally plot
+
+```{julia}
+f = Figure(; size = (600, 300))
+colmap = [colorant"#E69F00", colorant"#56B4E9", colorant"#009E73", colorant"#D55E00", colorant"#CC79A7", colorant"#ccc", colorant"#101010"]
+ax = Axis(f[1, 1]; aspect = DataAspect())
+heatmap!(ax, most_impt_feature; colormap = colmap)
+lines!(ax, switzerland; color = :black)
+hidedecorations!(ax)
+hidespines!(ax)
+Legend(
+    f[2, 1],
+    [PolyElement(; color = colmap[i]) for i in 1:length(variables(dt_sdm))],
+    ["BIO$(b)" for b in variables(dt_sdm)];
+    orientation = :horizontal,
+    nbanks = 1,
+    framevisible = false,
+    vertical = false,
+)
+f
+```
+
+## Conformal Prediction 
+
+Conformal prediction is another method for interpreting machine learning models. Specifically, it is a form of _uncertainty quantification_.
+
+In contrast to SHAP values and other forms of model _explanation_, conformal prediction helps with model _interpretation_, by quantifying how confident we can be in our SDM's predictions across space. 
+
+This works by taking our biary classification model, and turning it into a _conformal model_. The difference is that unlike our binary classification model, which produces a score between $0$ and $1$ that indicates if given feature is likely to be associated with species presence, a conformal model maps each feature to a _credible set_ of values. Mathematically, a conformal model $\mathcal{C}$ maps a feature in $\mathbb{R}^k$ to a set of credible values. 
+$$
+\mathcal{C} : \mathbb{R}^k \to \{0\}, \{1\}, \{0,1\}
+$$
+
+If a model maps to $\{0,1\}$, this means either presence or absent are credible, and our model cannot be used to be sure if a species is present at that location. 
+
+We'll load a few helper functions written in a separate file, which will make our implementation of conformal prediction less verbose and easier to understand for those new to Julia.
+
+```{julia}
+include("conformal_prediction.jl")
+```
+
+
+
+```{julia}
+rlevels = LinRange(0.01, 0.2, 100)
+qs = [_estimate_q(dt_sdm, holdout(dt_sdm)...; α=u) for u in rlevels]
+𝐏 = predict(dt_sdm; threshold=false)
+eff = [mean(length.(credibleclasses.(𝐏, q))) for q in qs]
+```
+
+```{julia}
+cmodel = deepcopy(dt_sdm)
+
+distrib = predict(cmodel, env_covariates; threshold=true)
+for i in eachindex(qs)
+    Cp, Ca = credibleclasses(prd, qs[i])
+    undet = .!(Cp .| Ca)
+    sure_presence = Cp .& (.!Ca)
+    unsure = Ca .& Cp
+    unsure_presence = unsure .& distrib
+    unsure_absence = unsure .& (.!distrib)
+end
+```
+
+```{julia}
+# Cross-conformal with median range selected
+q = median([_estimate_q(cmodel, fold...; α=0.05) for fold in kfold(cmodel; k=10)])
+Cp, Ca = credibleclasses(prd, q)
+```
+
+```{julia}
+sure_presence = Cp .& (.!Ca)
+sure_absence = Ca .& (.!Cp)
+unsure = Ca .& Cp
+unsure_in = unsure .& distrib
+unsure_out = unsure .& (.!distrib)
+```
+
+Finally, we'll plot our regions where the conformal model gives only _present_ as credible in green, only _absent_ as credible in light grey, and both as credible (meaning the model is uncertain) is light blue. 
+
+```{julia}
+f = Figure(; size=(1200, 600))
+ax = Axis(f[1:2, 1]; aspect=DataAspect())
+poly!(ax, switzerland, color=:grey95)
+heatmap!(ax, nodata(sure_presence, false), colormap=[:forestgreen])
+heatmap!(ax, nodata(unsure, false), colormap=[(:dodgerblue, 0.3)])
+hidespines!(ax)
+hidedecorations!(ax)
+f
+```
+
+# More Complex SDMs -- Boosted Regression Trees from scratch(-ish)
+
+Now that we are more confortable with the methods for model fitting, validation, and explanation in **SDeMo**, we'll focus on building a _better_ SDM. We'll do this with two classic machine learning methods for improving classification models: _boostrap aggregation (bagging)_ and _boosting_. 
+
+## Making a random forest with Bootstrap Aggegration 
+
+The first step toward turning a Decision Tree into a Boosted Regression Tree is _bootstrap aggregation_ (oftened shorted to _bagging_).
+
+Bagging involves constructing an _ensemble model_[^ensemble] from simpler models, where each simpler model is typically trained only on a subset of the features. 
+
+[^ensemble]: A ensemble model consists of an average across many models.
+
+A random forest (**TK CITE**) consists of an ensemble of decision trees, each trained on a subset of the features. We construct this by first defining the component model, which is a `DecisionTree` that first transforms training data with a `ZScore` 
+
+```{julia}
+solo_dt = SDM(ZScore, DecisionTree, env_covariates, presencelayer, pseudoabsences)
+```
+
+We then create an ensemble using the `Bagging` type, and pass 30 as the total number of component models to use in the ensemble. 
+
+```{julia}
+rf_sdm = Bagging(solo_dt, 30)
+```
+
+We then run `bagfeatures!` to take each component model and choose a subset of variables to train the component model on. 
+
+```{julia}
+bagfeatures!(rf_sdm)
+```
+
+Now we use `train!` to fit the ensemble model
+
+```{julia}
+train!(rf_sdm)
+```
+
+```{julia}
+prd = predict(rf_sdm, env_covariates; threshold = false)
+```
+
+We can then compute the _uncertainty_ of the model, by considering the inter-quantile-range (`iqr`, a type of variance), across each component model.
+
+```{julia}
+unc = predict(rf_sdm, env_covariates; consensus = iqr, threshold = false)
+```
+
+```{julia}
+f = Figure(; size = (600, 600))
+ax = Axis(f[1, 1]; aspect = DataAspect(), title = "Prediction")
+hm = heatmap!(ax, prd; colormap = :linear_worb_100_25_c53_n256, colorrange = (0, 1))
+Colorbar(f[1, 2], hm)
+lines!(ax, switzerland; color = :black)
+hidedecorations!(ax)
+hidespines!(ax)
+ax2 = Axis(f[2, 1]; aspect = DataAspect(), title = "Uncertainty")
+hm =
+    heatmap!(ax2, quantize(unc); colormap = :linear_gow_60_85_c27_n256, colorrange = (0, 1))
+Colorbar(f[2, 2], hm)
+lines!(ax2, switzerland; color = :black)
+hidedecorations!(ax2)
+hidespines!(ax2)
+f
+```
+
+## Boosting to create a BRT
+
+In a BRT, each component model is _boosted_. 
+
+Boosting does bagging, but smarter by weighing each sample.
+
+We can create a boosted model with the `AdaBoost` type, with `iterations` as the number of component models to use. 
+
+```{julia}
+bst = AdaBoost(dt_sdm; iterations = 50)
+```
+
+
+```{julia}
+train!(bst)
+```
+
+```{julia}
+brd = predict(bst, env_covariates; threshold = false)
+```
+
+```{julia}
+fg, ax, pl = heatmap(brd; colormap = :tempo, colorrange = (0, 1))
+ax.aspect = DataAspect()
+hidedecorations!(ax)
+hidespines!(ax)
+lines!(ax, switzerland; color = :grey20)
+Colorbar(fg[1, 2], pl; height = Relative(0.6))
+current_figure() #hide
+```

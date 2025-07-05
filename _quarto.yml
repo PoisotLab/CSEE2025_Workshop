@@ -1,0 +1,22 @@
+project:
+  type: website
+
+website:
+  title: "Interpretable ML for SDMs"
+  navbar:
+    right:
+      - href: setup.qmd
+        text: Setup
+      - href: index.qmd
+        text: Tutorial
+
+format:
+  html:
+    theme:
+      - brand
+    css: styles.css
+    toc: true
+  ipynb: default
+
+
+

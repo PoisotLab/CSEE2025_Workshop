@@ -1,0 +1,67 @@
+---
+title: "Setup and Prerequesites"
+engine: julia
+
+---
+
+Here's a list of instructions to setup your computer for the workshop.
+
+## Installing git 
+
+Make sure you have git installed. 
+
+## Installing Julia
+
+Copy and paste the following command to install Julia, and the Julia version manager `juliaup`.
+
+```
+curl -fsSL https://install.julialang.org | sh
+```
+
+## Installing Packages
+
+Next, from a terminal, start Julia by typing `julia` and pressing enter. Then, run the following lines.
+
+```{julia}
+#| eval: false
+using Pkg
+Pkg.add([
+    "SpeciesDistributionToolkit",
+    "CairoMakie",
+    "Dates",
+    "PrettyTables",
+    "DataFrames",
+    "IJulia"
+])
+```
+
+Then, copy and paste the following layer to download the environmental predictors ahead of time (to avoid everyone attempting to download them at once on hotel Wi-Fi). This may take several minutes, depending on your internet connection.
+
+```{julia}
+#| eval: false
+using SpeciesDistributionToolkit
+using IJulia
+
+installkernel("julia")
+
+[
+    SDMLayer(RasterData(CHELSA2, BioClim), layer="BIO$i", left=40, right=43, bottom=30, top=35)
+    for i in 1:19
+]
+```
+
+## Installing VSCode
+
+Install VSCode from [here](https://code.visualstudio.com/download).
+
+Once VSCode is install It's also recommended you install the Julia extension for VSCode [here](https://marketplace.visualstudio.com/items?itemName=julialang.language-julia)
+
+## Installing Quarto
+
+Install Quarto from [here](https://quarto.org/docs/get-started/).
+
+
+## Cloning the repo
+
+Finally, in a terminal, run `git clone https://github.com/PoisotLab/CSEE2025_Workshop` to clone the repository for the workshop. 
+
