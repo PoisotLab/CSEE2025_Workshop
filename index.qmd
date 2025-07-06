@@ -14,7 +14,7 @@ authors:
         orcid: 0000-0002-2212-3584
     -   name: Ariane Bussières-Fournel
 abstract: |
-    This notebook describes how to use SpeciesDistribution toolkit to obtain data for species distribution models, as well as train, validate, and interpret various machine-learning based SDMs.  
+    This notebook describes how to use SpeciesDistributionToolkit to obtain data for species distribution models, as well as train, validate, and interpret various machine-learning based SDMs.  
 ---
 
 # Setup Packages
@@ -944,6 +944,8 @@ Colorbar(fg[1, 2], pl; height = Relative(0.6))
 current_figure() #hide
 ```
 
-At this point, if you still have time left, play around with some of the interpretability models you have learned about. 
+# Extension
 
-Further, if you want to download data for a particular species or region of interest, try your best to work it out, and feel free to ask the instructors for help!
+At this point, if you still have time left, you can play around with some of the interpretability models you have learned about on the boosted model. 
+
+Alternatively, if you want to download data for a particular species or region of interest, try your best to train and interpret SDMs for that species, and feel free to ask the instructors for help!
