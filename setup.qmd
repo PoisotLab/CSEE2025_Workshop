@@ -60,8 +60,3 @@ Once VSCode is install It's also recommended you install the Julia extension for
 
 Install Quarto from [here](https://quarto.org/docs/get-started/).
 
-
-## Cloning the repo
-
-Finally, in a terminal, run `git clone https://github.com/PoisotLab/CSEE2025_Workshop` to clone the repository for the workshop. 
-

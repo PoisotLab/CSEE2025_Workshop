@@ -4,6 +4,7 @@ subtitle: "CSEE 2025 Workshop"
 engine: julia
 toc-title: "Table of Contents"
 reference-location: margin
+bibliography: refs.bib
 authors:
     -   name: Michael D. Catchen
         orcid: 0000-0002-6506-6487
@@ -13,7 +14,7 @@ authors:
         orcid: 0000-0002-2212-3584
     -   name: Ariane Bussières-Fournel
 abstract: |
-    **To do.**
+    This notebook describes how to use SpeciesDistribution toolkit to obtain data for species distribution models, as well as train, validate, and interpret various machine-learning based SDMs.  
 ---
 
 # Setup Packages
@@ -81,8 +82,9 @@ We'll download environment data from CHELSA, which provides 19 bioclimatic layer
 chelsa_provider = RasterData(CHELSA2, BioClim)
 ```
 
-We can use the `layerdescriptions` method to list the names of all of the layers provided by `chelsa_provider`, along with their descriptions.
+We can use the `layerdescriptions` method[^method] to list the names of all of the layers provided by `chelsa_provider`, along with their descriptions.
 
+[^method]: A method is effectively the same as a _function_ in other programming languages. There is a slight difference in the context of [object-oriented programming](https://en.wikipedia.org/wiki/Method_(computer_programming)), which is why Julia uses that terminology, but for our purposes the two are equivalent. 
 
 ```{julia}
 layerdescriptions(chelsa_provider)
@@ -179,7 +181,9 @@ lines!(switzerland, color=:white, linewidth=3)
 current_figure()
 ```
 
-Note that although our raster has the same extent as our polygon, it extends outside our polygon's border. We can fix this with the `mask!` method.
+Note that although our raster has the same extent as our polygon, it extends outside our polygon's border. We can fix this with the `mask!` method[^!methods].
+
+[^!methods]: Methods in julia that are followed with an exclamation mark (like `mask!`) are _mutating_ methods, meaning they make permanent changes to their inputs. This means we don't need to save the result --- the mask will already be applied to `env_covariates`.  (Note this is not a requirement, but a convention among Julia developers to indicate which methods make changes to their inputs, and which don't,)  
 
 ### Masking the environmental layers
 
@@ -354,7 +358,7 @@ We can simply index the layers by the `presences` object to select the value of 
 temp, precip = temperature[presences], precipitation[presences]
 ```
 
-Note that CHELSA doesn't provide data in commonly used units --- the transformations to convert them into typical units can be found in their [documentation]. The relevant transformations for temperature and precipitation are applied below.
+Note that CHELSA doesn't provide data in commonly used units --- the transformations to convert them into typical units can be found in their [documentation](https://chelsa-climate.org/wp-admin/download-page/CHELSA_tech_specification_V2.pdf). The relevant transformations for temperature and precipitation are applied below.
 
 ```
 temp = 0.1temp .- 271
@@ -385,13 +389,13 @@ f
 
 Now that we have obtained both occurrence and environmental data, and explored it, we are ready to fit a species distribution model. 
 
-The **SDeMo** subpackage provides methods for data preparation, training, validation, and interpretation, as well as several built-in models. Before we fit a more complicated machine-learning model, we'll start by beocming familiar with the **SDeMo** API using a simpler model, the _Naive-Bayes classifier_. 
+The **SDeMo** subpackage provides methods for data preparation, training, validation, and interpretation, as well as several built-in models. Before we fit a more complicated machine-learning model, we'll start by beocming familiar with the **SDeMo** API using a simpler model, the _logistic classifier_. 
 
 ## Sampling Pseudo-Absences
 
-All of the models we use for binary classification, including _Naive-Bayes_, require presence-absence data. However, for the vast majority of species, we don't have records of true species absences because these typically expensive monitoring programs, in contrast to the widespread availability of presence data on GBIF, which is largely crowdsourced from community science platforms like _iNaturalist_. 
+All of the models we use for binary classification, including logistic regression, require presence-absence data. However, for the vast majority of species, we don't have records of true species absences because these typically expensive monitoring programs, in contrast to the widespread availability of presence data on GBIF, which is largely crowdsourced from community science platforms like _iNaturalist_. 
 
-To deal with this, a widespread method is generating _pseudo_-absences, which rely on hueristics to select sites where it is _very unlikely_ that the target species is present. There is a deep literature on methods to select the locations and number of pseudoabsences (**tk cites**). Here we will use a method called _background thickening_, which means the probability a given location is marked as a pseudoabsence grows with the _minimum_ distance to nearest presence.  
+To deal with this, a widespread method is generating _pseudo_-absences, which rely on hueristics to select sites where it is _very unlikely_ that the target species is present. There is a deep literature on methods to select the locations and number of pseudoabsences @Pseudoabsences. Here we will use a method called _background thickening_ [@BackgroundThickening], which means the probability a given location is marked as a pseudoabsence grows with the _minimum_ distance to nearest presence.  
 
 We can implement background thickening this using the `pseudoabsencemask` method, first with the `DistanceToEvent` technique, which generates a layer where each value is the distance (in kilometers) to the nearest presence record. 
 
@@ -519,13 +523,13 @@ We'll start by building a classifier using _logistic regression_ that first appl
 
 
 ```{julia}
-nb_sdm = SDM(ZScore, Logistic, env_covariates, presencelayer, pseudoabsences)
+logistic_sdm = SDM(ZScore, Logistic, env_covariates, presencelayer, pseudoabsences)
 ```
 
 With the SDM built, we then call the `train!` method to actually fit the model to the data.
 
 ```{julia}
-train!(nb_sdm)
+train!(logistic_sdm)
 ```
 
 Like any binary classifier, Naive-Bayes produces a score between $0$ and $1$ for each prediction, and then selects an optimal threshold $\tau$. Then, every location with a score less than $\tau$ is predicted to be false, and above $\tau$ is predicted to be true. 
@@ -533,7 +537,7 @@ Like any binary classifier, Naive-Bayes produces a score between $0$ and $1$ for
 We produce the model's predictions using the `predict` method, and to visualize the raw scores (prior to thresholding), we pass the `threshold = false` argument. 
 
 ```{julia}
-prd = predict(nb_sdm, env_covariates; threshold = false)
+prd = predict(logistic_sdm, env_covariates; threshold = false)
 ```
 
 
@@ -553,7 +557,7 @@ f
 By default, the `predict` method will apply the optimal threshold to produce a binary range map, but we can do this by passing `threshold=true`. Thresholding is done by selecting the value of $\tau$ that maximizes the _Matthew's Correlation Coefficient_.  
 
 ```{julia}
-prd = predict(nb_sdm, env_covariates; threshold = true)
+prd = predict(logistic_sdm, env_covariates; threshold = true)
 ```
 
 and similarly we can visualize. 
@@ -575,13 +579,13 @@ We can now assess how well our model is making predictions using _crossvalidatio
 Here, we'll use k-fold validation with 5 folds. 
 
 ```{julia}
-folds = kfold(nb_sdm, k = 5)
+folds = kfold(logistic_sdm, k = 5)
 ```
 
 We then call the `crossvalidation` method, which fits the model on each fold.
 
 ```{julia}
-cv = crossvalidate(nb_sdm, folds)
+cv = crossvalidate(logistic_sdm, folds)
 ```
 
 Now we can apply various metrics to quantify model performance, and compare it to their expected value from a null model. 
@@ -592,7 +596,7 @@ Here, we'll use _Matthew's Correlation Coefficient_ (mcc), and the True-Skill St
 ```{julia}
 measures = [mcc, trueskill]
 cvresult = [measure(set) for measure in measures, set in cv]
-nullresult = [measure(null(nb_sdm)) for measure in measures, null in [coinflip]]
+nullresult = [measure(null(logistic_sdm)) for measure in measures, null in [coinflip]]
 pretty_table(
     hcat(string.(measures), hcat(cvresult, nullresult));
     alignment = [:l, :c, :c, :c],
@@ -606,7 +610,7 @@ pretty_table(
 # A Decision-Tree SDM
 
 Now that we have experience using the **SDeMo** API to fit and validate models, we'll build our first machine-learning-based model, and use the various explanation tools in **SDeMo** to explain it's predictions. 
-i
+
 We'll start with a _decision tree_, and again apply a z-score transformation to the predictors prior to training.
 
 ```{julia}
@@ -671,7 +675,7 @@ Variable importance is quantified in the relative amount a model improves when a
 In **SDeMo**, variable importance can be computed using the `variableimportance` method, applied to a given crossvalidation scheme. 
 
 ```{julia}
-var_impt = variableimportance(dt_sdm, kfold(dt_sdm, k=20))
+var_impt = variableimportance(dt_sdm, kfold(dt_sdm, k=5), samples=100)
 ```
 
 We can then visualize it with `barplot!`
@@ -685,7 +689,7 @@ f
 
 ## SHAP Values
 
-SHAP values are a method for game-theory adapted adapted to make machine-learning models explainable from **CITE TODO**. By _explainable_, we mean that we can contribution of each individual feature on the overall prediction. SHAP is a generalization of a few different methods for interpretability, but the most notable is _Locally Interpretable Model Explanations_ (LIME; **CITE TODO**). The idea behind LIME (and the other similar methods that SHAP provides a generalizes) is to take a nonlinear, uninterpretable machine learning model, and fit a separate, simpler, model to explain its predictions that is inherently interpretable (like linear regression, where each coefficient directly quantifies the contribution to each variable). 
+SHAP values are a method for game-theory adapted adapted to make machine-learning models explainable from @SHAP By _explainable_, we mean that we can contribution of each individual feature on the overall prediction. SHAP is a generalization of a few different methods for interpretability, but the most notable is _Locally Interpretable Model Explanations_ (LIME; @LIME). The idea behind LIME (and the other similar methods that SHAP provides a generalizes) is to take a nonlinear, uninterpretable machine learning model, and fit a separate, simpler, model to explain its predictions that is inherently interpretable (like linear regression, where each coefficient directly quantifies the contribution to each variable). 
 
 SHAP values across space can be estimated with the `explain` method in **SDeMo**, with the predictors passed as a second argument, and the particular variable to consider as the third argument. 
 
@@ -758,34 +762,25 @@ We'll load a few helper functions written in a separate file, which will make ou
 include("conformal_prediction.jl")
 ```
 
-
+First we estimate the quantile cutoff.
 
 ```{julia}
 rlevels = LinRange(0.01, 0.2, 100)
 qs = [_estimate_q(dt_sdm, holdout(dt_sdm)...; α=u) for u in rlevels]
-𝐏 = predict(dt_sdm; threshold=false)
-eff = [mean(length.(credibleclasses.(𝐏, q))) for q in qs]
 ```
 
+
+Then, we can use the model to predict the credible classes for each prediction
+
 ```{julia}
+distrib = predict(dt_sdm, env_covariates; threshold = true)
+prd = predict(dt_sdm, env_covariates; threshold = false)
 cmodel = deepcopy(dt_sdm)
-
-distrib = predict(cmodel, env_covariates; threshold=true)
-for i in eachindex(qs)
-    Cp, Ca = credibleclasses(prd, qs[i])
-    undet = .!(Cp .| Ca)
-    sure_presence = Cp .& (.!Ca)
-    unsure = Ca .& Cp
-    unsure_presence = unsure .& distrib
-    unsure_absence = unsure .& (.!distrib)
-end
-```
-
-```{julia}
-# Cross-conformal with median range selected
 q = median([_estimate_q(cmodel, fold...; α=0.05) for fold in kfold(cmodel; k=10)])
 Cp, Ca = credibleclasses(prd, q)
 ```
+
+and turn these into layers that represent whether a pixel is certain or uncertain
 
 ```{julia}
 sure_presence = Cp .& (.!Ca)
@@ -808,7 +803,7 @@ hidedecorations!(ax)
 f
 ```
 
-# More Complex SDMs -- Boosted Regression Trees from scratch(-ish)
+# Boosted Regression Trees from scratch(-ish)
 
 Now that we are more confortable with the methods for model fitting, validation, and explanation in **SDeMo**, we'll focus on building a _better_ SDM. We'll do this with two classic machine learning methods for improving classification models: _boostrap aggregation (bagging)_ and _boosting_. 
 
@@ -820,7 +815,7 @@ Bagging involves constructing an _ensemble model_[^ensemble] from simpler models
 
 [^ensemble]: A ensemble model consists of an average across many models.
 
-A random forest (**TK CITE**) consists of an ensemble of decision trees, each trained on a subset of the features. We construct this by first defining the component model, which is a `DecisionTree` that first transforms training data with a `ZScore` 
+A random forest (@RandomForests) consists of an ensemble of decision trees, each trained on a subset of the features. We construct this by first defining the component model, which is a `DecisionTree` that first transforms training data with a `ZScore` 
 
 ```{julia}
 solo_dt = SDM(ZScore, DecisionTree, env_covariates, presencelayer, pseudoabsences)
@@ -854,6 +849,8 @@ We can then compute the _uncertainty_ of the model, by considering the inter-qua
 unc = predict(rf_sdm, env_covariates; consensus = iqr, threshold = false)
 ```
 
+Then, we can plot both the prediction and the uncertainty 
+
 ```{julia}
 f = Figure(; size = (600, 600))
 ax = Axis(f[1, 1]; aspect = DataAspect(), title = "Prediction")
@@ -872,26 +869,70 @@ hidespines!(ax2)
 f
 ```
 
+We can also apply some interpretability techniques to this bagged model. For example, we can estimate the most important predictor
+
+```{julia}
+vi = variableimportance(rf_sdm, montecarlo(rf_sdm, n=10); threshold=false, samples=100)
+vi ./= sum(vi)
+vnames = ["BIO$(x)" for x in variables(rf_sdm)]
+collect(zip(vnames, vi))
+mix = findmax(vi)
+mostimp = layerdescriptions(chelsa_provider)[layers(chelsa_provider)[variables(rf_sdm)[last(mix)]]]
+```
+
+And now that we've identified the most variable, we can obtain SHAP values for it.
+
+```{julia}
+shapval = explain(rf_sdm, variables(rf_sdm)[mix[2]]; threshold=false, samples=100)
+shapresp = shapval .+ mean(predict(rf_sdm; threshold=false))
+si = clamp.(shapresp, 0, 1)
+```
+
+We can then combine these with partial responses, and see that they are mostly in agreement. 
+
+```{julia}
+fig = Figure(; size=(600, 360))
+ax = Axis(fig[1, 1], xlabel=mostimp, ylabel="Response (presence score)")
+for _ in 1:200
+    lines!(ax, partialresponse(rf_sdm, variables(rf_sdm)[mix[2]]; threshold=false, inflated=true)..., color=:lightgrey, alpha=0.5, label="Infl. partial response")
+end
+scatter!(ax, features(rf_sdm, variables(rf_sdm)[mix[2]]), si, label="Shapley values", color=labels(rf_sdm), colormap=:Greens, strokecolor=:black, strokewidth=1)
+lines!(ax, partialresponse(rf_sdm, variables(rf_sdm)[mix[2]]; threshold=false)..., color=:red, label="Partial response", linestyle=:dash, linewidth=2)
+tightlimits!(ax)
+ylims!(ax, 0, 1)
+axislegend(ax, position=:rt, framevisible=false, merge=true, unique=true)
+fig
+```
+
 ## Boosting to create a BRT
 
-In a BRT, each component model is _boosted_. 
+In a BRT, each component model is _boosted_. Boosting does bagging, but smarter by weighing each sample [@Boosting].
 
-Boosting does bagging, but smarter by weighing each sample.
+$$
+y_i = f(x_i) = \sum_j \omega_j h_j(x_i) 
+$$
 
-We can create a boosted model with the `AdaBoost` type, with `iterations` as the number of component models to use. 
+where $h_j$ is particular component model, and $\omega_j$ is the weight assigned to that model. Each boosting algorithm (e.g. XGBoost, AdaBoost) develops a unique way of assigning these weights optimally.  
+
+In **SDeMo**, we can create a boosted model with the `AdaBoost` type, with `iterations` as the number of component models to use. 
 
 ```{julia}
 bst = AdaBoost(dt_sdm; iterations = 50)
 ```
 
+And similarly we can train our boosted model as berfore
 
 ```{julia}
 train!(bst)
 ```
 
+And again make predictions using the `predict` method
+
 ```{julia}
 brd = predict(bst, env_covariates; threshold = false)
 ```
+
+Finally, we can visualize the predictions of our boosted model.
 
 ```{julia}
 fg, ax, pl = heatmap(brd; colormap = :tempo, colorrange = (0, 1))
@@ -902,3 +943,7 @@ lines!(ax, switzerland; color = :grey20)
 Colorbar(fg[1, 2], pl; height = Relative(0.6))
 current_figure() #hide
 ```
+
+At this point, if you still have time left, play around with some of the interpretability models you have learned about. 
+
+Further, if you want to download data for a particular species or region of interest, try your best to work it out, and feel free to ask the instructors for help!
